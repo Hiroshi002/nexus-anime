@@ -1,0 +1,24 @@
+{
+  "name": "nexus-anime",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "turbo clean",
+    "docker:up": "docker compose -f tooling/docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f tooling/docker/docker-compose.yml down",
+    "docker:reset": "docker compose -f tooling/docker/docker-compose.yml down -v && docker compose -f tooling/docker/docker-compose.yml up -d",
+    "docker:logs": "docker compose -f tooling/docker/docker-compose.yml logs -f"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "turbo": "^2.4.4"
+  }
+}
