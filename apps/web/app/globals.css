@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@import "@nexus/config-tailwind/theme.css";
+@import "@nexus/ui/tokens";
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-void-base font-body text-text-primary antialiased;
+  }
+}
