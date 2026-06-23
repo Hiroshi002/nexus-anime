@@ -1,0 +1,12 @@
+name: E2E
+
+# Scaffold only — enabled in Sprint 9 (M7 gate)
+on:
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "E2E tests activate in Sprint 9"
