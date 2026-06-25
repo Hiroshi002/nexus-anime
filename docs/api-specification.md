@@ -1,10 +1,14 @@
 # Nexus Anime — API Specification
 
-> **Version:** v1.0.0
+> **Version:** v1.1.0
 > **Status:** Authoritative Contract
-> **Date:** 2026-06-23
+> **Date:** 2026-06-25
 > **Author:** Tech Lead
-> **Milestone:** M2 (Sprints 2–8)
+> **Milestone:** M3.8 (API Design — Auth, User, Profile, Session, Admin User modules)
+
+> **Changelog:**
+> - v1.1.0 (M3.8): Added §14 Resolved Decisions, §15 Auth API (expanded), §16 User API, §17 Profile API, §18 Session API, §19 Admin User API (expanded), §20 Error Code Registry (expanded), §21 Audit Event Triggers, §22 Rate Limit Matrix, §23 Security Headers & Cookie Policy. Extended Appendix A.
+> - v1.0.0 (M2): Original specification.
 
 ---
 
@@ -23,6 +27,16 @@
 11. [Admin](#11-admin)
 12. [Webhooks](#12-webhooks)
 13. [Appendices](#13-appendices)
+14. [Resolved Decisions (M3.8)](#14-resolved-decisions-m38)
+15. [Auth API (Expanded)](#15-auth-api-expanded)
+16. [User API](#16-user-api)
+17. [Profile API](#17-profile-api)
+18. [Session API](#18-session-api)
+19. [Admin User API (Expanded)](#19-admin-user-api-expanded)
+20. [Error Code Registry (Expanded)](#20-error-code-registry-expanded)
+21. [Audit Event Triggers](#21-audit-event-triggers)
+22. [Rate Limit Matrix](#22-rate-limit-matrix)
+23. [Security Headers & Cookie Policy](#23-security-headers--cookie-policy)
 
 ---
 
@@ -96,6 +110,8 @@ Every response — success or error — wraps its payload in a standard envelope
 | `RATE_LIMITED` | 429 | Too many requests |
 | `INTERNAL_ERROR` | 500 | Unexpected server failure |
 
+> **Expanded registry:** See [§20 Error Code Registry (Expanded)](#20-error-code-registry-expanded) for the complete list including M3.8 additions (`ACCOUNT_LOCKED`, `ACCOUNT_SUSPENDED`, `CANNOT_UNLINK`, `SET_PASSWORD_FIRST`, `OAUTH_ACCOUNT_NOT_LINKED`, `CONCURRENT_SESSION_LIMIT`, `TOKEN_EXPIRED`).
+
 ### 1.4 Pagination
 
 The API supports both **cursor-based** and **offset-based** pagination. Cursor is the default and preferred method.
@@ -160,14 +176,14 @@ GET /api/v1/titles?page=2&limit=20
 
 ### 1.5 Rate Limiting
 
-All `/api/v1/*` endpoints are rate-limited to **100 requests per 15-minute window per IP**.
+All `/api/v1/*` endpoints are rate-limited. The per-endpoint rate limit matrix is defined in [§22 Rate Limit Matrix](#22-rate-limit-matrix). The default for unlisted endpoints is **100 requests per 15-minute window per IP**.
 
 Rate limit headers are included in every response:
 
 | Header | Description |
 |--------|-------------|
 | `X-RateLimit-Limit` | Maximum requests per window |
-| `X-RateLimit-Remaining` | Requestss remaining in current window |
+| `X-RateLimit-Remaining` | Requests remaining in current window |
 | `X-RateLimit-Reset` | Unix timestamp when the window resets |
 
 When the limit is exceeded:
@@ -191,6 +207,7 @@ Authentication is session-based via **HTTP-only cookies** containing a JWT issue
 | Cookie | Attributes | Description |
 |--------|-----------|-------------|
 | `__Host-nexus-session` | `HttpOnly; Secure; SameSite=Lax; Path=/` | Session JWT |
+| `__Host-nexus-remember` | `HttpOnly; Secure; SameSite=Lax; Path=/` | Remember Me token (365-day TTL) |
 
 The session cookie is automatically sent by the browser. API clients must include `credentials: "same-origin"` (or `credentials: "include"` for cross-origin requests with CORS).
 
@@ -198,7 +215,7 @@ The session cookie is automatically sent by the browser. API clients must includ
 
 | Route Pattern | Guard | Failure Response |
 |---------------|-------|-----------------|
-| `/api/v1/*` | Rate limit (100 req/15min per IP) | 429 |
+| `/api/v1/*` | Rate limit (per §22) | 429 |
 | `/api/v1/webhooks/*` | Stripe signature verification | 400 |
 | `/api/v1/nexus/*` | `requireAuth()` — valid session required | 401 |
 | `/api/v1/nexus/watch/*` | `requireSubscriber()` — active subscription required | 403 |
@@ -255,7 +272,8 @@ Authenticate with email and password.
 {
   "email": "user@example.com",
   "password": "securePassword123",
-  "redirect": false
+  "redirect": false,
+  "remember": false
 }
 ```
 
@@ -264,6 +282,7 @@ Authenticate with email and password.
 | `email` | `string` | Yes | Valid email format (Zod: `z.string().email()`) |
 | `password` | `string` | Yes | Min 8 characters (Zod: `z.string().min(8)`) |
 | `redirect` | `boolean` | No | Default: `false` — return JSON instead of redirect |
+| `remember` | `boolean` | No | Default: `false` — enables 365-day Remember Me cookie |
 
 **Zod Schema:**
 
@@ -272,6 +291,7 @@ const LoginSchema = z.object({
   email: z.string().email("Invalid email format"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   redirect: z.boolean().default(false),
+  remember: z.boolean().default(false),
 });
 ```
 
@@ -305,7 +325,30 @@ const LoginSchema = z.object({
   },
   "meta": { "requestId": "req_auth_002", "version": "v1" }
 }
+
+// 423 — Account locked (brute force)
+{
+  "error": {
+    "code": "ACCOUNT_LOCKED",
+    "message": "Account temporarily locked due to too many failed login attempts. Try again in 15 minutes.",
+    "details": []
+  },
+  "meta": { "requestId": "req_auth_lock", "version": "v1" }
+}
+
+// 423 — Account suspended
+{
+  "error": {
+    "code": "ACCOUNT_SUSPENDED",
+    "message": "This account has been suspended. Contact support.",
+    "details": []
+  },
+  "meta": { "requestId": "req_auth_susp", "version": "v1" }
+}
 ```
+
+> **Rate limit:** 5 req / 5 min per IP + email. See [§22](#22-rate-limit-matrix).
+> **Audit:** `login_success` on success; `login_failure` on bad credentials; `brute_force_lockout` on lockout.
 
 ### 2.2 Register
 
@@ -328,7 +371,7 @@ Create a new account.
 | Field | Type | Required | Validation |
 |-------|------|----------|------------|
 | `email` | `string` | Yes | Valid email, not already registered |
-| `password` | `string` | Yes | Min 8 chars, at least 1 uppercase, 1 number |
+| `password` | `string` | Yes | Min 8 chars, at least 1 uppercase, 1 number, zxcvbn score ≥ 2 |
 | `name` | `string` | Yes | 1–50 characters |
 
 **Zod Schema:**
@@ -344,6 +387,8 @@ const RegisterSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name too long"),
 });
 ```
+
+> **Password strength:** Server validates with `@zxcvbn-ts/core`. Score ≤ 1 rejected; score 2 accepted with warning in `details`; score ≥ 3 accepted. Optionally checked against HIBP k-anomaly (800ms timeout, fallback to static blocklist).
 
 **Success Response (201):**
 
@@ -377,6 +422,9 @@ const RegisterSchema = z.object({
 }
 ```
 
+> **Rate limit:** 3 req / 5 min per IP.
+> **Audit:** `registration_success` on success.
+
 ### 2.3 Logout
 
 Destroy the current session.
@@ -385,7 +433,19 @@ Destroy the current session.
 
 **Server Action:** `actions/auth.ts` → `logout()`
 
-**Request:** No body required. Session cookie is automatically included.
+**Request (JSON body):**
+
+```json
+{
+  "revokeAll": false
+}
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `revokeAll` | `boolean` | No | Default: `false`. `true` revokes all sessions for the user (keeps current until response completes) |
+
+> **Note:** When `revokeAll: true`, the server iterates `user_device_sessions` for the user, inserts all JTIs into `revoked_sessions`, and invalidates Redis revocation cache. The current session cookie is cleared immediately; other sessions fail on their next revocation check.
 
 **Success Response (200):**
 
@@ -397,6 +457,8 @@ Destroy the current session.
   "meta": { "requestId": "req_auth_005", "version": "v1" }
 }
 ```
+
+> **Audit:** `logout` on success.
 
 ### 2.4 Get Session
 
@@ -468,7 +530,19 @@ Handles the OAuth callback. Creates or links the user account. Sets the session 
 | `OAuthCallbackError` | OAuth flow failed |
 | `AccessDenied` | User denied consent |
 
-### 2.6 Password Reset
+> **Audit:** `oauth_signin` on success; `account_link` on link; `account_unlink` on unlink.
+
+### 2.6 Discord OAuth
+
+Same flow as Google. Provider-specific:
+
+**Endpoints:** `GET /api/auth/signin/discord`, `GET /api/auth/callback/discord`
+
+**Scopes:** `identify email`
+
+> **Note:** Discord only reports `email_verified: true` if the user has verified in Discord settings. If `false`, the user must complete Nexus's own `verification_tokens` flow before gated features.
+
+### 2.7 Password Reset
 
 **Step 1 — Request Reset Token:**
 
@@ -540,7 +614,9 @@ const ResetPasswordSchema = z.object({
 }
 ```
 
-### 2.7 Email Verification
+> **Side effect:** All existing sessions for the user are revoked (JTIs blacklisted) except the current session if the reset was initiated from one. Audit: `password_reset`.
+
+### 2.8 Email Verification
 
 **Endpoint:** `POST /api/auth/verify-email` (Server Action)
 
@@ -583,6 +659,48 @@ const VerifyEmailSchema = z.object({
   "meta": { "requestId": "req_auth_011", "version": "v1" }
 }
 ```
+
+**Resend Verification Email:**
+
+**Endpoint:** `POST /api/auth/verify-email/resend` (Server Action)
+
+**Guard:** `requireAuth()`
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "message": "Verification email sent."
+  },
+  "meta": { "requestId": "req_auth_012", "version": "v1" }
+}
+```
+
+> **Rate limit:** 3 req / 10 min per user.
+
+### 2.9 Session Refresh (Manual)
+
+> **Note:** Auth.js v5 automatically refreshes the JWT via the `jwt` callback when `exp - now < 7 days`. This endpoint is an **explicit** refresh trigger for clients that want to force a re-sign.
+
+**Endpoint:** `POST /api/auth/refresh` (Server Action)
+
+**Guard:** `requireAuth()`
+
+**Request:** No body required.
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "sessionExpires": "2026-09-20T00:00:00.000Z"
+  },
+  "meta": { "requestId": "req_auth_013", "version": "v1" }
+}
+```
+
+> **Side effect:** Issues a new `Set-Cookie` header with the refreshed JWT. The old JTI is **not** blacklisted (rolling refresh, not rotation).
 
 ---
 
@@ -628,7 +746,12 @@ Retrieve the authenticated user's profile.
       "autoplay": true,
       "skipIntro": false,
       "theme": "dark",
-      "language": "en"
+      "language": "en",
+      "privacySettings": {
+        "profileVisibility": "public",
+        "watchHistoryVisibility": "friends",
+        "showOnlineStatus": true
+      }
     },
     "subscription": {
       "id": "uuid-sub-1",
@@ -671,6 +794,11 @@ interface UserProfileResponse {
     skipIntro: boolean;
     theme: string;
     language: string;
+    privacySettings: {
+      profileVisibility: "public" | "friends" | "private";
+      watchHistoryVisibility: "public" | "friends" | "private";
+      showOnlineStatus: boolean;
+    };
   };
   subscription: {
     id: string;
@@ -708,11 +836,11 @@ Update the authenticated user's profile information.
 | Field | Type | Required | Validation |
 |-------|------|----------|------------|
 | `name` | `string` | No | 1–50 characters |
-| `bio` | `string` | No | Max 500 characters |
-| `website` | `string` | No | Valid URL format |
-| `location` | `string` | No | Max 255 characters |
-| `dateOfBirth` | `string` | No | ISO 8601 date |
-| `socialLinks` | `object` | No | Key-value pairs, max 10 keys |
+| `bio` | `string` | No | Max 500 characters, plain text only (no markdown/HTML — prevents XSS) |
+| `website` | `string` | No | Valid URL, max 500 chars |
+| `location` | `string` | No | Max 100 chars |
+| `dateOfBirth` | `string` | No | ISO 8601 date, must be in past |
+| `socialLinks` | `object` | No | Key-value pairs, max 10 keys, each value ≤ 200 chars |
 
 **Zod Schema:**
 
@@ -720,10 +848,10 @@ Update the authenticated user's profile information.
 const UpdateProfileSchema = z.object({
   name: z.string().min(1).max(50).optional(),
   bio: z.string().max(500).optional(),
-  website: z.string().url().optional(),
-  location: z.string().max(255).optional(),
+  website: z.string().url().max(500).optional(),
+  location: z.string().max(100).optional(),
   dateOfBirth: z.string().date().optional(),
-  socialLinks: z.record(z.string()).max(10).optional(),
+  socialLinks: z.record(z.string().max(200)).max(10).optional(),
 });
 ```
 
@@ -744,6 +872,8 @@ const UpdateProfileSchema = z.object({
 }
 ```
 
+> **Audit:** `profile_updated`.
+
 ### 3.3 Update Preferences
 
 Update the authenticated user's application preferences.
@@ -758,7 +888,12 @@ Update the authenticated user's application preferences.
   "subtitleLanguage": "ja",
   "autoplay": true,
   "skipIntro": true,
-  "theme": "light"
+  "theme": "light",
+  "privacySettings": {
+    "profileVisibility": "friends",
+    "watchHistoryVisibility": "private",
+    "showOnlineStatus": false
+  }
 }
 ```
 
@@ -770,6 +905,9 @@ Update the authenticated user's application preferences.
 | `skipIntro` | `boolean` | No | — |
 | `theme` | `string` | No | `"dark"`, `"light"`, `"system"` |
 | `language` | `string` | No | ISO 639-1 language code |
+| `privacySettings.profileVisibility` | `string` | No | `"public"`, `"friends"`, `"private"` |
+| `privacySettings.watchHistoryVisibility` | `string` | No | `"public"`, `"friends"`, `"private"` |
+| `privacySettings.showOnlineStatus` | `boolean` | No | — |
 
 **Zod Schema:**
 
@@ -781,6 +919,11 @@ const UpdatePreferencesSchema = z.object({
   skipIntro: z.boolean().optional(),
   theme: z.enum(["dark", "light", "system"]).optional(),
   language: z.string().length(2).optional(),
+  privacySettings: z.object({
+    profileVisibility: z.enum(["public", "friends", "private"]).optional(),
+    watchHistoryVisibility: z.enum(["public", "friends", "private"]).optional(),
+    showOnlineStatus: z.boolean().optional(),
+  }).optional(),
 });
 ```
 
@@ -795,7 +938,12 @@ const UpdatePreferencesSchema = z.object({
     "autoplay": true,
     "skipIntro": true,
     "theme": "light",
-    "language": "en"
+    "language": "en",
+    "privacySettings": {
+      "profileVisibility": "friends",
+      "watchHistoryVisibility": "private",
+      "showOnlineStatus": false
+    }
   },
   "meta": { "requestId": "req_user_003", "version": "v1" }
 }
@@ -841,7 +989,7 @@ Retrieve the authenticated user's subscription details.
 
 ### 3.5 Delete Account
 
-Permanently delete the authenticated user's account and all associated data.
+Permanently delete the authenticated user's account and all associated data (GDPR right to erasure).
 
 **Endpoint:** `DELETE /api/v1/nexus/users/me`
 
@@ -856,15 +1004,23 @@ Permanently delete the authenticated user's account and all associated data.
 
 | Field | Type | Required | Validation |
 |-------|------|----------|------------|
-| `password` | `string` | Yes | Must match current password |
+| `password` | `string` | Yes | Must match current password (OAuth-only users: see note) |
 | `confirmation` | `string` | Yes | Must be exactly `"DELETE MY ACCOUNT"` |
+
+> **OAuth-only users** without a password: the `password` field is replaced by a `providerReverification` object containing a freshly signed provider assertion token issued by `/api/auth/reverify/{provider}`. This ensures the user still controls the linked OAuth account before deletion.
 
 **Zod Schema:**
 
 ```typescript
 const DeleteAccountSchema = z.object({
-  password: z.string().min(1, "Password is required"),
+  password: z.string().min(1).optional(),
   confirmation: z.literal("DELETE MY ACCOUNT"),
+  providerReverification: z.object({
+    provider: z.enum(["google", "discord"]),
+    token: z.string().min(1),
+  }).optional(),
+}).refine((d) => d.password || d.providerReverification, {
+  message: "Either password or providerReverification is required",
 });
 ```
 
@@ -873,11 +1029,21 @@ const DeleteAccountSchema = z.object({
 ```json
 {
   "data": {
-    "message": "Account deleted successfully."
+    "message": "Account scheduled for permanent deletion. You have 30 days to cancel."
   },
   "meta": { "requestId": "req_user_006", "version": "v1" }
 }
 ```
+
+**Side effects:**
+1. `users.deleted_at` set to now (soft delete).
+2. All JTIs for user blacklisted in `revoked_sessions`.
+3. All `user_device_sessions` rows deleted.
+4. All `accounts` (OAuth) rows deleted.
+5. Redis revocation cache invalidated for user.
+6. `user_deleted` audit event emitted.
+7. Vercel Cron job hard-deletes after 30 days (GDPR grace period).
+8. Resend email to user confirming deletion with cancellation link.
 
 **Error Response (401):**
 
@@ -891,6 +1057,21 @@ const DeleteAccountSchema = z.object({
   "meta": { "requestId": "req_user_007", "version": "v1" }
 }
 ```
+
+**Error Response (403) — OAuth-only without reverify:**
+
+```json
+{
+  "error": {
+    "code": "SET_PASSWORD_FIRST",
+    "message": "Please set a password or reverify your OAuth provider before deleting your account.",
+    "details": []
+  },
+  "meta": { "requestId": "req_user_008", "version": "v1" }
+}
+```
+
+> **Audit:** `user_deleted`.
 
 ---
 
@@ -3493,6 +3674,8 @@ const AddShelfItemSchema = z.object({
 
 ### 11.8 Admin — User Management
 
+> **Expanded in M3.8.** See [§19 Admin User API (Expanded)](#19-admin-user-api-expanded) for complete user management including role assignment, suspension, force-logout, and admin deletion.
+
 #### 11.8.1 List Users
 
 **Endpoint:** `GET /api/v1/admin/users`
@@ -3746,6 +3929,8 @@ Receives events from Stripe for subscription lifecycle management.
 
 ### Appendix A: Complete Error Codes Reference
 
+> **Expanded in M3.8.** The table below supersedes §1.3.
+
 | Code | HTTP Status | Meaning | Example |
 |------|-------------|---------|---------|
 | `VALIDATION_ERROR` | 400 | Input failed Zod validation | Invalid email format, missing required field |
@@ -3753,8 +3938,15 @@ Receives events from Stripe for subscription lifecycle management.
 | `FORBIDDEN` | 403 | Valid session, insufficient permission | Non-admin accessing admin endpoint, non-subscriber accessing stream |
 | `NOT_FOUND` | 404 | Resource does not exist | Invalid slug, deleted resource |
 | `CONFLICT` | 409 | Duplicate resource | Email already registered, anime already in watchlist |
-| `RATE_LIMITED` | 429 | Too many requests | Exceeded 100 req/15min limit |
+| `RATE_LIMITED` | 429 | Too many requests | Exceeded rate limit |
 | `INTERNAL_ERROR` | 500 | Unexpected server failure | Database connection lost, unhandled exception |
+| `ACCOUNT_LOCKED` | 423 | Account temporarily locked (brute force) | 5 failed login attempts in 15 min |
+| `ACCOUNT_SUSPENDED` | 423 | Account suspended by admin | Admin suspension |
+| `CANNOT_UNLINK` | 400 | Cannot unlink OAuth provider | User has no other auth method |
+| `SET_PASSWORD_FIRST` | 403 | Must set password before sensitive action | OAuth-only user attempting account deletion or provider unlink |
+| `OAUTH_ACCOUNT_NOT_LINKED` | 409 | OAuth email exists with different provider | Google login with email that uses Discord |
+| `CONCURRENT_SESSION_LIMIT` | 409 | Device session limit reached | Tier-based limit (Free 2 / Prime 5 / Resonance 10) |
+| `TOKEN_EXPIRED` | 401 | JWT explicitly expired (distinct from UNTOKEN) | Client-side token refresh failed |
 
 ### Appendix B: Pagination Parameters Summary
 
@@ -3778,15 +3970,19 @@ Every API response includes these headers:
 
 | Header | Type | Description |
 |--------|------|-------------|
-| `X-RateLimit-Limit` | `integer` | Maximum requests per window (100) |
+| `X-RateLimit-Limit` | `integer` | Maximum requests per window |
 | `X-RateLimit-Remaining` | `integer` | Requests remaining in current window |
 | `X-RateLimit-Reset` | `integer` | Unix timestamp when the window resets |
 
-### Appendix D: Authentication Cookie
+### Appendix D: Authentication Cookies
 
-| Cookie | Attributes | Description |
-|--------|-----------|-------------|
-| `__Host-nexus-session` | `HttpOnly; Secure; SameSite=Lax; Path=/` | Session JWT (Auth.js v5) |
+| Cookie | Attributes | TTL | Description |
+|--------|-----------|-----|-------------|
+| `__Host-nexus-session` | `HttpOnly; Secure; SameSite=Lax; Path=/` | 30 days (rolling) | Session JWT (Auth.js v5) |
+| `__Host-nexus-remember` | `HttpOnly; Secure; SameSite=Lax; Path=/` | 365 days | Remember Me token |
+| `__Host-next-auth.csrf-token` | `HttpOnly=False; Secure; SameSite=Lax; Path=/` | Session | CSRF double-submit (Auth.js) |
+| `nexus_consent` | `HttpOnly=False; Secure; SameSite=Lax; Path=/` | 1 year | GDPR consent |
+| `nexus_theme` | `HttpOnly=False; Secure; SameSite=Lax; Path=/` | 1 year | Theme preference |
 
 ### Appendix E: API Version Lifecycle
 
@@ -3803,6 +3999,7 @@ catalog ←── auth ←── billing
    ↑           ↑
 library ←── catalog
 admin ←── auth + catalog
+session ←── auth
 ```
 
 | Module | Domain | Key Endpoints |
@@ -3811,7 +4008,8 @@ admin ←── auth + catalog
 | `auth` | Authentication, session, OAuth | `POST /api/auth/callback/credentials`, `GET /api/auth/session` |
 | `billing` | Subscriptions, Stripe | `POST /api/v1/webhooks/stripe` |
 | `library` | Watchlist, watch progress, preferences | `GET /api/v1/nexus/watchlists`, `PATCH /api/v1/nexus/users/me/preferences` |
-| `admin` | CMS, content ingestion | `POST /api/v1/admin/titles`, `GET /api/v1/admin/dashboard` |
+| `admin` | CMS, content ingestion, user management | `POST /api/v1/admin/titles`, `GET /api/v1/admin/dashboard` |
+| `session` | Device management, session revocation | `GET /api/v1/nexus/settings/security/devices` |
 
 ### Appendix G: Database ENUM Summary
 
@@ -3824,6 +4022,8 @@ admin ←── auth + catalog
 | `review_status` | `published`, `draft`, `hidden` | `reviews.status` |
 | `subscription_status` | `active`, `past_due`, `canceled`, `unpaid`, `trialing` | `subscriptions.status` |
 | `notification_type` | `system`, `episode`, `social`, `promo` | `notifications.type` |
+
+> **Note:** `user_role` post-MVP adds `premium`, `moderator` via `ALTER TYPE user_role ADD VALUE`.
 
 ### Appendix H: Zod Validation Quick Reference
 
@@ -3855,9 +4055,1120 @@ admin ←── auth + catalog
 | 403 | Permission denied |
 | 404 | Resource not found |
 | 409 | Conflict (duplicate resource) |
+| 423 | Account locked / suspended |
 | 429 | Rate limit exceeded |
 | 500 | Internal server error |
 
 ---
 
-*This document is the authoritative API contract for Nexus Anime. All route handlers, services, and client integrations must conform to the specifications defined herein. For the canonical database schema, see [database-design.md](./database-design.md). For the backend architecture, see [backend-architecture.md](./architecture/backend-architecture.md).*
+## 14. Resolved Decisions (M3.8)
+
+This section documents decisions that resolve contradictions between earlier specs (M2.7, M3.2, M3.3, M3.4, M3.5, M3.6, M3.7). All decisions are **authoritative** — where a conflict exists, this section supersedes the referenced documents.
+
+### RD-01: `sessions` table is NOT implemented
+
+- **Conflict:** M3.2 §3.5 defines a `sessions` table; M3.3 §9.1 states it is not implemented.
+- **Decision:** Do NOT create a `sessions` table. Session state lives entirely in the JWT cookie.
+- **Rationale:** Auth.js v5 with JWT strategy does not materialize a session table. M3.3 is authoritative.
+- **Supersedes:** M3.2 §3.5 (session table definition).
+
+### RD-02: `revoked_sessions` schema
+
+- **Conflict:** M2.7 §8.4 / M3.2 §3.5 omit `revoked_by`; M3.3 §9.2 includes it.
+- **Decision:** Use M3.3 schema: `jti` (PK), `user_id`, `revoked_at`, `expires_at`, `reason`, `revoked_by` (nullable FK → users).
+- **Rationale:** Audit trail requires knowing who revoked the session (admin vs self).
+- **Supersedes:** M2.7 §8.4, M3.2 §3.5.
+
+### RD-03: Redis revocation key format
+
+- **Conflict:** M2.7 §5.4 uses `SADD revoked_sessions {jti}` (Redis SET); M3.3 §8.2 uses per-JTI keys `v1:revoked:{jti}`.
+- **Decision:** Per-JTI keys (`v1:revoked:{jti}`) with TTL = `min(30d, remaining token lifetime)`.
+- **Rationale:** Per-key TTL avoids a growing SET; faster lookup (O(1) vs SMEMBERS).
+- **Supersedes:** M2.7 §5.4.
+
+### RD-04: Role ENUM values
+
+- **Conflict:** M2.7 §4.1 / M3.2 §3.3 define 4 roles; M3.5 §2.1 adds `premium` and `moderator`.
+- **Decision:** Start with 3 ENUM values (`user`, `admin`, `superadmin`). Add `premium` and `moderator` post-MVP via `ALTER TYPE user_role ADD VALUE`.
+- **Rationale:** MVP only needs 3 roles; ENUM additions are non-breaking in Postgres.
+- **Supersedes:** M2.7 §4.1, M3.2 §3.3 (partial — M3.5 is authoritative for RBAC design).
+
+### RD-05: Permission seed count
+
+- **Conflict:** M3.2 §3.4 seeds 14 permissions; M3.5 §3.1 seeds 16.
+- **Decision:** 16 permissions (M3.5 is authoritative). Includes `comment:delete_any` and `review:delete_any` granted to moderator, admin, superadmin.
+- **Rationale:** M3.5 is the canonical RBAC spec.
+- **Supersedes:** M3.2 §3.4.
+
+### RD-06: Session TTL
+
+- **Conflict:** M3.3 §5 says 30-day absolute / 365-day Remember Me; M3.7 env says 7-day / 30-day.
+- **Decision:** 30-day absolute max, 365-day Remember Me (M3.3 is authoritative).
+- **Rationale:** M3.3 is the canonical session strategy; M3.7 env values are stale.
+- **Supersedes:** M3.7 §9.1 (TTL values only).
+
+### RD-07: Concurrent device limits
+
+- **Conflict:** M3.3 §6.6 says tier-based (2/5/10); M3.7 §8.3 says 5 devices flat.
+- **Decision:** Tier-based: Free 2 / Prime 5 / Resonance 10. Oldest device evicted on LIFO.
+- **Rationale:** Tier-based aligns with business model; M3.7's "5" is the Prime default.
+- **Supersedes:** M3.7 §8.3.
+
+### RD-08: `user_device_sessions` vs `user_sessions`
+
+- **Conflict:** M3.3 §6 defines `user_device_sessions`; M3.7 §11.4 defines `user_sessions`.
+- **Decision:** Both exist. `user_device_sessions` = device-level tracking (fingerprint, label). `user_sessions` = denormalized read model for `/settings/sessions` UI.
+- **Rationale:** Separation of concerns: device tracking vs session listing.
+- **Supersedes:** None — both retained.
+
+### RD-09: OAuth account linking
+
+- **Conflict:** M3.4 §5.2 allows linking when provider email is verified; no guidance for unverified.
+- **Decision:** Link only when `email_verified = true` from provider. Otherwise reject with `OAuthAccountNotLinked`.
+- **Rationale:** Prevents account takeover via unverified email.
+- **Supersedes:** M3.4 §5.2 (clarified).
+
+### RD-10: Audit table naming
+
+- **Conflict:** M3.7 uses `audit_events`; M2.7 §7.6 uses `audit_logs`.
+- **Decision:** `audit_events` (M3.7 is authoritative).
+- **Rationale:** M3.7 is the newer, more detailed spec.
+- **Supersedes:** M2.7 §7.6.
+
+### RD-11: Account deletion
+
+- **Conflict:** M3.6 defers deletion; no endpoint defined.
+- **Decision:** M3.8 defines `DELETE /api/v1/nexus/users/me` with soft-delete + 30-day GDPR grace + JTI blacklist.
+- **Rationale:** GDPR right to erasure requires a deletion endpoint.
+- **Supersedes:** M3.6 (deletion deferred → now implemented).
+
+### RD-12: Token encryption at rest
+
+- **Conflict:** M3.2 says `refresh_token`, `access_token`, `id_token` are encrypted at rest; no scheme specified.
+- **Decision:** Application-layer AES-256-GCM. Key from `AUTH_ENCRYPTION_KEY` env var. Encryption/decryption in `@nexus/auth`.
+- **Rationale:** Column-level encryption is transparent to ORM; application-level gives key rotation control.
+- **Supersedes:** M3.2 (added specificity).
+
+### RD-13: Profile/preferences row creation
+
+- **Conflict:** M3.2 / M3.6 do not specify when `user_profiles` and `user_preferences` rows are created.
+- **Decision:** Both rows created eagerly at registration time (in the same transaction as `users` insert).
+- **Rationale:** Avoids null-checking on every profile read; simplifies queries.
+- **Supersedes:** None (gap fill).
+
+### RD-14: `nonce` parameter for OAuth
+
+- **Conflict:** M3.7 §3 mentions "state/nonce" but only state is implemented.
+- **Decision:** State only for MVP. Nonce deferred to post-MVP (OIDC ID token replay protection).
+- **Rationale:** Auth.js v5 handles state; nonce requires additional OIDC library.
+- **Supersedes:** M3.7 §3 (clarified).
+
+### RD-15: OAuth state TTL
+
+- **Gap:** No TTL specified for OAuth state cookie.
+- **Decision:** State cookie TTL = 10 minutes. Failed OAuth flows redirect to `/login?error=...`.
+- **Rationale:** Short-lived state prevents stale CSRF tokens.
+- **Supersedes:** None (gap fill).
+
+---
+
+## 15. Auth API (Expanded)
+
+> This section expands [§2](#2-authentication) with M3.8 additions. Endpoints defined in §2 are retained; additions below supplement them.
+
+### 15.1 Login — Device Tracking
+
+When a login succeeds, the server ensures a `user_device_sessions` row exists for the device fingerprint.
+
+**Fingerprint = SHA-256 of `{UA}|{Accept-Language}|{/24 subnet}` → 16 hex chars.**
+
+**Device label** = simplified UA parse (Chrome/Firefox/Safari + OS) + GeoIP (from `cf-ipcountry` header).
+
+**Concurrent session limit check:**
+1. Count active `user_device_sessions` for user.
+2. If count > tier limit (Free 2 / Prime 5 / Resonance 10), evict oldest `last_active_at` session.
+3. Evicted session's JTI is blacklisted in `revoked_sessions`.
+4. New session is created.
+
+If the limit is hit on a **new** device login, the response includes a warning:
+
+```json
+{
+  "data": {
+    "user": { "..." : "..." },
+    "sessionExpires": "...",
+    "deviceSession": {
+      "id": "uuid-devicesession",
+      "deviceLabel": "Chrome • macOS • US",
+      "isCurrent": true
+    }
+  },
+  "meta": { "..." : "..." }
+}
+```
+
+### 15.2 Login — Brute Force
+
+| Attempt | Action |
+|---------|--------|
+| 1–4 failed | Log normally, increment counter in Redis |
+| 5 failed (in 15 min) | Lock account 15 min, respond 423 `ACCOUNT_LOCKED` |
+| Retry while locked | Exponential backoff: `attempt^1.5 × 10` seconds between attempts |
+
+**IP-level:** 50 failed logins in 15 min from same IP (across accounts) → block IP for 1 hour via Redis key `v1:ip_block:{ip}` with TTL 3600s.
+
+**Audit:** Every lockout triggers `brute_force_lockout` event. Email alert to user via Resend.
+
+### 15.3 OAuth — Account Unlink
+
+**Endpoint:** `POST /api/auth/oauth/{provider}/unlink`
+
+**Guard:** `requireAuth()`
+
+**Request Body:**
+
+```json
+{
+  "password": "currentPassword"
+}
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `password` | `string` | Yes (if password user) | Must match current password |
+| `provider` | `string` | Yes (path) | `google`, `discord` |
+
+> **OAuth-only users** (no password): must use `providerReverification` token from `/api/auth/reverify/{provider}` instead of `password`.
+
+**Business rule:** User may only unlink if at least one other auth method remains (another OAuth provider OR a password). Otherwise respond 400 `CANNOT_UNLINK`.
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "message": "{provider} account unlinked."
+  },
+  "meta": { "requestId": "req_auth_unlink", "version": "v1" }
+}
+```
+
+**Error Response (400):**
+
+```json
+{
+  "error": {
+    "code": "CANNOT_UNLINK",
+    "message": "You cannot unlink your only authentication method. Set a password or link another provider first.",
+    "details": []
+  },
+  "meta": { "requestId": "req_auth_unlink_fail", "version": "v1" }
+}
+```
+
+> **Audit:** `account_unlink`.
+
+### 15.4 OAuth — Provider Reverification
+
+Used for sensitive actions (account deletion, unlinking) by OAuth-only users.
+
+**Endpoint:** `POST /api/auth/reverify/{provider}`
+
+**Guard:** `requireAuth()`
+
+**Request:** Initiates a fresh OAuth flow with `prompt=consent`. Returns a redirect URL to the provider.
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "redirectUrl": "https://accounts.google.com/...",
+    "token": "signed-reverify-token"
+  },
+  "meta": { "requestId": "req_auth_reverify", "version": "v1" }
+}
+```
+
+> The `token` is a short-lived (5 min) JWT signed with `AUTH_SECRET` that embeds the user's ID and the intended action (`delete` or `unlink`). The callback endpoint validates this token before proceeding.
+
+### 15.5 Password Change
+
+**Endpoint:** `POST /api/auth/password/change`
+
+**Guard:** `requireAuth()`
+
+**Request Body:**
+
+```json
+{
+  "currentPassword": "oldPassword123",
+  "newPassword": "newSecurePassword456"
+}
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `currentPassword` | `string` | Yes | Must match current password |
+| `newPassword` | `string` | Yes | Min 8 chars, zxcvbn ≥ 2, not identical to current |
+
+**Zod Schema:**
+
+```typescript
+const ChangePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z
+    .string()
+    .min(8)
+    .regex(/[A-Z]/)
+    .regex(/[0-9]/),
+});
+```
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "message": "Password changed successfully. All other sessions have been revoked."
+  },
+  "meta": { "requestId": "req_auth_pw_change", "version": "v1" }
+}
+```
+
+**Side effects:**
+1. `users.hashed_password` updated (bcrypt 12 rounds).
+2. All JTIs for user blacklisted **except current session**.
+3. All `user_device_sessions` rows kept (not deleted).
+4. Redis revocation cache invalidated.
+5. Resend email notification to user.
+
+> **Audit:** `password_change`.
+
+### 15.6 Session Token Encryption
+
+All OAuth tokens stored in the `accounts` table (`refresh_token`, `access_token`, `id_token`) are encrypted at rest using **AES-256-GCM**.
+
+**Implementation:**
+- Key: 32-byte key from `AUTH_ENCRYPTION_KEY` env var (validated at startup via Zod).
+- IV: 16-byte random per encryption, stored alongside ciphertext.
+- Auth tag: 16-byte GCM tag, stored alongside ciphertext.
+- Encryption/decryption: `@nexus/auth/encryption.ts` module.
+- Key rotation: Re-encrypt all tokens on next write after key change; old key decryption supported for 24h via `AUTH_ENCRYPTION_KEY_PREVIOUS` env var.
+
+---
+
+## 16. User API
+
+> This section expands [§3](#3-users) with M3.8 additions.
+
+### 16.1 Get Public User Profile
+
+Retrieve another user's profile (privacy-gated).
+
+**Endpoint:** `GET /api/v1/nexus/users/[userId]`
+
+**Guard:** `requireAuth()`
+
+**Path Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userId` | `string` (UUID) | Yes | User ID |
+
+**Privacy resolution:**
+- Owner or admin → full profile.
+- `profile_visibility = public` → limited profile (id, name, image, bio, role).
+- `profile_visibility = friends` → limited profile if friends (post-MVP: treated as `private`).
+- `profile_visibility = private` → 403 `FORBIDDEN`.
+
+**Success Response (200) — Public:**
+
+```json
+{
+  "data": {
+    "id": "uuid-user-2",
+    "name": "OtherUser",
+    "image": "https://...",
+    "role": "user",
+    "profile": {
+      "bio": "Anime enthusiast",
+      "avatarUrl": null,
+      "website": null,
+      "location": null,
+      "socialLinks": null
+    }
+  },
+  "meta": { "requestId": "req_user_public", "version": "v1" }
+}
+```
+
+**Error Response (403):**
+
+```json
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "This user's profile is private.",
+    "details": []
+  },
+  "meta": { "requestId": "req_user_private", "version": "v1" }
+}
+```
+
+### 16.2 Update Email
+
+Email update requires re-verification.
+
+**Endpoint:** `PATCH /api/v1/nexus/users/me/email`
+
+**Guard:** `requireAuth()`
+
+**Request Body:**
+
+```json
+{
+  "email": "newemail@example.com",
+  "password": "currentPassword123"
+}
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `email` | `string` | Yes | Valid email, not already in use |
+| `password` | `string` | Yes | Must match current password |
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "message": "Email updated. Please verify your new email address.",
+    "emailVerified": false
+  },
+  "meta": { "requestId": "req_user_email", "version": "v1" }
+}
+```
+
+**Side effects:**
+1. `users.email` updated.
+2. `users.email_verified` set to `null`.
+3. Verification email sent to new address.
+4. Old address notified of change via Resend.
+
+> **Audit:** `email_changed`.
+
+### 16.3 Update Avatar
+
+Avatar update uses the presigned URL flow (see [§17.4](#174-avatar-presign)).
+
+**Endpoint:** `PATCH /api/v1/nexus/users/me/avatar`
+
+**Guard:** `requireAuth()`
+
+**Request Body:**
+
+```json
+{
+  "avatarUrl": "https://cdn.nexus-anime.com/avatars/uuid-123/abc.jpg"
+}
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `avatarUrl` | `string` | Yes | Must be a URL from the presigned upload response |
+
+> **Note:** The client must first call `POST /api/v1/nexus/profile/avatar/presign` to get a presigned PUT URL, upload the image directly to R2, then call this endpoint with the public URL.
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "avatarUrl": "https://cdn.nexus-anime.com/avatars/uuid-123/abc.jpg"
+  },
+  "meta": { "requestId": "req_user_avatar", "version": "v1" }
+}
+```
+
+**Avatar resolution order (when reading):**
+1. `user_profiles.avatar_url` (if non-null) — custom override
+2. `users.image` (if non-null) — custom upload
+3. OAuth provider image (from `accounts` / Auth.js session)
+4. Generated fallback (DiceBear based on email hash)
+
+---
+
+## 17. Profile API
+
+> This section expands [§3.2](#32-update-user-profile) and [§3.3](#33-update-preferences) with M3.8 additions.
+
+### 17.1 Get Profile (Self)
+
+Alias for `GET /api/v1/nexus/users/me` that returns the profile + preferences section only.
+
+**Endpoint:** `GET /api/v1/nexus/profile`
+
+**Guard:** `requireAuth()`
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "id": "uuid-profile-1",
+    "userId": "uuid-123",
+    "bio": "Love isekai and mecha anime!",
+    "avatarUrl": "https://...",
+    "website": "https://myblog.com",
+    "location": "Tokyo, Japan",
+    "dateOfBirth": "1995-03-15",
+    "socialLinks": {
+      "twitter": "@animefan",
+      "discord": "animefan#1234"
+    }
+  },
+  "meta": { "requestId": "req_profile_001", "version": "v1" }
+}
+```
+
+### 17.2 Update Profile
+
+**Endpoint:** `PATCH /api/v1/nexus/profile`
+
+**Guard:** `requireAuth()` + `requirePermission('user:update')`
+
+**Request Body:** Same fields as §3.2.
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "id": "uuid-profile-1",
+    "bio": "Updated bio",
+    "website": "https://newblog.com",
+    "location": "Osaka, Japan"
+  },
+  "meta": { "requestId": "req_profile_002", "version": "v1" }
+}
+```
+
+### 17.3 Update Privacy Settings
+
+**Endpoint:** `PATCH /api/v1/nexus/profile/privacy`
+
+**Guard:** `requireAuth()` + `requirePermission('user:update')`
+
+**Request Body:**
+
+```json
+{
+  "profileVisibility": "friends",
+  "watchHistoryVisibility": "private",
+  "showOnlineStatus": false
+}
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `profileVisibility` | `string` | No | `public`, `friends`, `private` |
+| `watchHistoryVisibility` | `string` | No | `public`, `friends`, `private` |
+| `showOnlineStatus` | `boolean` | No | — |
+
+**Zod Schema:**
+
+```typescript
+const UpdatePrivacySchema = z.object({
+  profileVisibility: z.enum(["public", "friends", "private"]).optional(),
+  watchHistoryVisibility: z.enum(["public", "friends", "private"]).optional(),
+  showOnlineStatus: z.boolean().optional(),
+});
+```
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "profileVisibility": "friends",
+    "watchHistoryVisibility": "private",
+    "showOnlineStatus": false
+  },
+  "meta": { "requestId": "req_profile_privacy", "version": "v1" }
+}
+```
+
+### 17.4 Avatar Presign
+
+Generate a presigned PUT URL for direct avatar upload to Cloudflare R2.
+
+**Endpoint:** `POST /api/v1/nexus/profile/avatar/presign`
+
+**Guard:** `requireAuth()` + `requirePermission('user:update')`
+
+**Request Body:**
+
+```json
+{
+  "contentType": "image/png"
+}
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `contentType` | `string` | Yes | `image/jpeg`, `image/png`, `image/webp`, `image/gif` |
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "uploadUrl": "https://r2.cloudflarestorage.com/nexus-anime/avatars/uuid-123/abc.png?X-Amz-Algorithm=...&X-Amz-Signature=...",
+    "publicUrl": "https://cdn.nexus-anime.com/avatars/uuid-123/abc.png",
+    "expiresAt": "2026-06-25T13:00:00.000Z",
+    "key": "avatars/uuid-123/abc.png"
+  },
+  "meta": { "requestId": "req_avatar_presign", "version": "v1" }
+}
+```
+
+**Constraints:**
+- MIME: `image/jpeg`, `image/png`, `image/webp`, `image/gif`
+- Max size: 5 MB (enforced by R2 presigned policy)
+- Min dimensions: 64×64
+- Max dimensions: 4096×4096
+- Storage layout: `s3://nexus-anime/avatars/{user_id}/{uuid}.{ext}`
+- Previous avatars kept 30 days then lifecycle-deleted
+
+**Error Response (400):**
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Unsupported content type",
+    "details": [{ "field": "contentType", "message": "Must be image/jpeg, image/png, image/webp, or image/gif" }]
+  },
+  "meta": { "requestId": "req_avatar_presign_err", "version": "v1" }
+}
+```
+
+### 17.5 Avatar Delete
+
+Reset avatar to fallback (OAuth provider image or generated).
+
+**Endpoint:** `DELETE /api/v1/nexus/profile/avatar`
+
+**Guard:** `requireAuth()` + `requirePermission('user:update')`
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "avatarUrl": null,
+    "message": "Avatar reset to fallback."
+  },
+  "meta": { "requestId": "req_avatar_delete", "version": "v1" }
+}
+```
+
+> **Side effect:** `user_profiles.avatar_url` set to null. Old avatar file lifecycle-deleted after 30 days.
+
+---
+
+## 18. Session API
+
+> M3.8 new module. Manages active device sessions and revocation.
+
+### 18.1 List Active Devices
+
+**Endpoint:** `GET /api/v1/nexus/settings/security/devices`
+
+**Guard:** `requireAuth()`
+
+**Success Response (200):**
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid-device-1",
+      "deviceLabel": "Chrome • macOS • US",
+      "deviceId": "a1b2c3d4",
+      "isCurrent": true,
+      "lastActiveAt": "2026-06-25T10:00:00.000Z",
+      "createdAt": "2026-06-01T00:00:00.000Z",
+      "expiresAt": "2026-07-25T10:00:00.000Z"
+    },
+    {
+      "id": "uuid-device-2",
+      "deviceLabel": "Safari • iOS • JP",
+      "deviceId": "e5f6g7h8",
+      "isCurrent": false,
+      "lastActiveAt": "2026-06-20T15:30:00.000Z",
+      "createdAt": "2026-05-20T00:00:00.000Z",
+      "expiresAt": "2026-07-20T15:30:00.000Z"
+    }
+  ],
+  "meta": { "requestId": "req_devices_list", "version": "v1" }
+}
+```
+
+### 18.2 Revoke Device Session
+
+**Endpoint:** `DELETE /api/v1/nexus/settings/security/devices/[deviceId]`
+
+**Guard:** `requireAuth()`
+
+**Path Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `deviceId` | `string` (UUID) | Yes | Device session ID |
+
+> **Note:** Cannot revoke the current session via this endpoint (use `POST /api/auth/signout` instead). Attempting to revoke current device returns 400.
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "message": "Device session revoked."
+  },
+  "meta": { "requestId": "req_device_revoke", "version": "v1" }
+}
+```
+
+**Side effects:**
+1. Device's JTI blacklisted in `revoked_sessions`.
+2. `user_device_sessions` row deleted.
+3. Redis revocation cache updated.
+
+> **Audit:** `session_revoke`.
+
+### 18.3 Revoke All Other Sessions
+
+**Endpoint:** `POST /api/v1/nexus/settings/security/devices/revoke-all`
+
+**Guard:** `requireAuth()`
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "revokedCount": 3,
+    "message": "All other sessions revoked."
+  },
+  "meta": { "requestId": "req_devices_revoke_all", "version": "v1" }
+}
+```
+
+**Side effects:**
+1. All `user_device_sessions` rows for user deleted **except current**.
+2. All JTIs for user blacklisted **except current**.
+3. Redis revocation cache invalidated.
+
+> **Audit:** `session_revoke_all`.
+
+---
+
+## 19. Admin User API (Expanded)
+
+> This section expands [§11.8](#118-admin--user-management) with M3.8 additions.
+
+### 19.1 Get User Detail
+
+**Endpoint:** `GET /api/v1/admin/users/[userId]`
+
+**Guard:** `requireRole('admin')` + `X-API-Key`
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "id": "uuid-user-1",
+    "email": "user@example.com",
+    "name": "AnimeFan",
+    "role": "user",
+    "emailVerified": true,
+    "isSuspended": false,
+    "suspensionReason": null,
+    "suspendedAt": null,
+    "lastLoginAt": "2026-06-22T00:00:00.000Z",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-06-22T00:00:00.000Z",
+    "subscription": {
+      "status": "active",
+      "currentPeriodEnd": "2026-07-01T00:00:00.000Z"
+    },
+    "accounts": [
+      { "provider": "google", "linkedAt": "2026-01-01T00:00:00.000Z" }
+    ],
+    "deviceCount": 2,
+    "watchlistCount": 15,
+    "reviewCount": 3
+  },
+  "meta": { "requestId": "req_admin_user_detail", "version": "v1" }
+}
+```
+
+### 19.2 Assign Role
+
+**Endpoint:** `PATCH /api/v1/admin/users/[userId]/role`
+
+**Guard:** `requireRole('superadmin')` + `X-API-Key` (role assignment is superadmin-only)
+
+**Request Body:**
+
+```json
+{
+  "role": "admin"
+}
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `role` | `string` | Yes | `user`, `admin`, `superadmin` |
+
+> **Note:** `requirePermission('role:assign')` resolves to superadmin-only per M3.5.
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "id": "uuid-user-1",
+    "role": "admin",
+    "updatedAt": "2026-06-23T15:00:00.000Z"
+  },
+  "meta": { "requestId": "req_admin_role", "version": "v1" }
+}
+```
+
+> **Audit:** `role_changed` with payload `{ from: "user", to: "admin", by: "uuid-admin" }`.
+
+### 19.3 Force Logout User
+
+**Endpoint:** `POST /api/v1/admin/users/[userId]/revoke-sessions`
+
+**Guard:** `requireRole('admin')` + `X-API-Key`
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "revokedCount": 3,
+    "message": "All sessions for user revoked."
+  },
+  "meta": { "requestId": "req_admin_revoke", "version": "v1" }
+}
+```
+
+**Side effects:**
+1. All JTIs for user blacklisted.
+2. All `user_device_sessions` rows deleted.
+3. Redis revocation cache invalidated.
+
+> **Audit:** `session_revoke_all` with `{ by: "uuid-admin", target: "uuid-user" }`.
+
+### 19.4 Admin Delete User
+
+**Endpoint:** `DELETE /api/v1/admin/users/[userId]`
+
+**Guard:** `requireRole('admin')` + `X-API-Key` + `requirePermission('user:manage')`
+
+**Request Body:**
+
+```json
+{
+  "reason": "Fraudulent account"
+}
+```
+
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `reason` | `string` | Yes | 1–500 characters |
+
+**Success Response (200):**
+
+```json
+{
+  "data": {
+    "message": "User scheduled for permanent deletion."
+  },
+  "meta": { "requestId": "req_admin_user_delete", "version": "v1" }
+}
+```
+
+**Side effects:** Same as self-deletion (§3.5) but initiated by admin. 30-day GDPR grace period still applies.
+
+> **Audit:** `user_deleted` with `{ by: "uuid-admin", reason: "..." }`.
+
+### 19.5 List User Sessions (Admin)
+
+**Endpoint:** `GET /api/v1/admin/users/[userId]/sessions`
+
+**Guard:** `requireRole('admin')` + `X-API-Key`
+
+**Success Response (200):**
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid-device-1",
+      "deviceLabel": "Chrome • macOS • US",
+      "isCurrent": true,
+      "lastActiveAt": "2026-06-25T10:00:00.000Z",
+      "createdAt": "2026-06-01T00:00:00.000Z",
+      "expiresAt": "2026-07-25T10:00:00.000Z"
+    }
+  ],
+  "meta": { "requestId": "req_admin_sessions", "version": "v1" }
+}
+```
+
+---
+
+## 20. Error Code Registry (Expanded)
+
+> This section supersedes [Appendix A](#appendix-a-complete-error-codes-reference).
+
+### 20.1 Core Error Codes (unchanged)
+
+| Code | HTTP | Meaning |
+|------|------|---------|
+| `VALIDATION_ERROR` | 400 | Input failed Zod validation |
+| `UNAUTHORIZED` | 401 | Missing or invalid session |
+| `FORBIDDEN` | 403 | Valid session, insufficient permission |
+| `NOT_FOUND` | 404 | Resource does not exist |
+| `CONFLICT` | 409 | Duplicate resource |
+| `RATE_LIMITED` | 429 | Too many requests |
+| `INTERNAL_ERROR` | 500 | Unexpected server failure |
+
+### 20.2 M3.8 New Error Codes
+
+| Code | HTTP | Meaning | Triggered By |
+|------|------|---------|--------------|
+| `ACCOUNT_LOCKED` | 423 | Account temporarily locked (brute force) | §2.1 Login |
+| `ACCOUNT_SUSPENDED` | 423 | Account suspended by admin | §2.1 Login |
+| `CANNOT_UNLINK` | 400 | Cannot unlink OAuth provider (last auth method) | §15.3 OAuth Unlink |
+| `SET_PASSWORD_FIRST` | 403 | Must set password before sensitive action | §3.5 Delete Account, §15.3 OAuth Unlink |
+| `OAUTH_ACCOUNT_NOT_LINKED` | 409 | OAuth email exists with different provider | §2.5 Google OAuth, §2.6 Discord OAuth |
+| `CONCURRENT_SESSION_LIMIT` | 409 | Device session limit reached | §15.1 Login |
+| `TOKEN_EXPIRED` | 401 | JWT explicitly expired (distinct from UNTOKEN) | Any authenticated endpoint |
+
+### 20.3 Error Code Priority
+
+When multiple error codes could apply, use the most specific one:
+
+1. `VALIDATION_ERROR` for input issues (always 400).
+2. `ACCOUNT_LOCKED` / `ACCOUNT_SUSPENDED` for login failures (423 — more specific than 401).
+3. `TOKEN_EXPIRED` for expired JWTs (401 — more specific than generic UNTOKEN).
+4. `CANNOT_UNLINK` / `SET_PASSWORD_FIRST` for OAuth issues (400/403 — more specific than FORBIDDEN).
+5. `CONCURRENT_SESSION_LIMIT` for device limits (409 — more specific than FORBIDDEN).
+6. `OAUTH_ACCOUNT_NOT_LINKED` for OAuth conflicts (409 — more specific than UNTOKEN).
+
+---
+
+## 21. Audit Event Triggers
+
+> M3.8 new section. Defines which events fire on which operations.
+
+### 21.1 Event Registry
+
+| Event Type | Trigger | Payload Shape | Retention |
+|------------|---------|---------------|-----------|
+| `login_success` | Successful login (§2.1) | `{ channel, device_id, ip }` | 90 days |
+| `login_failure` | Failed login (bad password) | `{ email, ip, reason: "bad_password" }` | 90 days |
+| `logout` | Logout (§2.3) | `{ user_id, device_id, scope: "self" \| "all" }` | 90 days |
+| `registration_success` | Account created (§2.2) | `{ email, channel: "credentials" }` | 90 days |
+| `oauth_signin` | OAuth login success (§2.5, §2.6) | `{ provider, device_id, ip }` | 90 days |
+| `account_link` | OAuth account linked | `{ user_id, provider }` | 90 days |
+| `account_unlink` | OAuth account unlinked (§15.3) | `{ user_id, provider }` | 90 days |
+| `password_change` | Password changed (§15.5) | `{ user_id }` | 90 days |
+| `password_reset` | Password reset complete (§2.7) | `{ user_id }` | 90 days |
+| `email_changed` | Email updated (§16.2) | `{ user_id, old_email, new_email }` | 90 days |
+| `email_verified` | Email verified (§2.8) | `{ user_id }` | 90 days |
+| `profile_updated` | Profile updated (§3.2) | `{ user_id, fields: string[] }` | 90 days |
+| `avatar_uploaded` | Avatar uploaded (§17.4) | `{ user_id, key }` | 90 days |
+| `avatar_deleted` | Avatar deleted (§17.5) | `{ user_id }` | 90 days |
+| `brute_force_lockout` | Account locked (§15.2) | `{ user_id, email, ip, attempt_count }` | 90 days |
+| `session_revoke` | Single session revoked (§18.2) | `{ user_id, device_id, revoked_by }` | 90 days |
+| `session_revoke_all` | All sessions revoked (§18.3, §19.3) | `{ user_id, revoked_by, count }` | 90 days |
+| `role_changed` | Role assigned (§19.2) | `{ user_id, from, to, by }` | 1 year |
+| `user_suspended` | User suspended (§11.8.3) | `{ user_id, reason, by }` | 1 year |
+| `user_unsuspended` | User unsuspended (§11.8.4) | `{ user_id, by }` | 1 year |
+| `user_deleted` | Account deleted (§3.5, §19.4) | `{ user_id, by, reason, self_delete }` | 1 year |
+| `permission_denied` | Guard rejection | `{ user_id, permission, resource }` | 90 days |
+
+### 21.2 Audit Event Schema
+
+```typescript
+interface AuditEvent {
+  id: string;                 // UUID
+  user_id: string | null;     // nullable (login failures may have no user)
+  ip_address: string;         // inet
+  user_agent: string;
+  event_type: string;         // one of the above
+  payload: Record<string, unknown>;
+  created_at: string;         // timestamptz
+  request_id: string;         // correlation ID from API envelope
+}
+```
+
+### 21.3 Audit Write Strategy
+
+1. Event payload pushed to Redis list `v1:audit_queue`.
+2. Batch flush worker (Vercel Cron every 60s) drains the list into `audit_events` table.
+3. Redis list survives DB outages; DB is the durable store.
+4. Retention enforced by monthly partition drop (PostgreSQL declarative partitioning on `created_at`).
+
+---
+
+## 22. Rate Limit Matrix
+
+> This section supersedes [§1.5](#1-5-rate-limiting) with the per-endpoint matrix.
+
+### 22.1 Endpoint Rate Limits
+
+| Endpoint | Limit / Window | Identifier | Response on Excess |
+|----------|---------------|------------|---------------------|
+| `POST /api/auth/callback/credentials` (login) | 5 req / 5 min | IP + email | 429 `RATE_LIMITED` |
+| `POST /api/auth/register` | 3 req / 5 min | IP | 429 `RATE_LIMITED` |
+| `POST /api/auth/forgot-password` | 3 req / 10 min | IP + email | 429 `RATE_LIMITED` |
+| `POST /api/auth/reset-password` | 5 req / 10 min | IP | 429 `RATE_LIMITED` |
+| `POST /api/auth/verify-email/resend` | 3 req / 10 min | User ID | 429 `RATE_LIMITED` |
+| `POST /api/auth/password/change` | 5 req / 10 min | User ID | 429 `RATE_LIMITED` |
+| `POST /api/auth/signout` | 20 req / 15 min | User ID | 429 `RATE_LIMITED` |
+| `GET /api/auth/session` | 100 req / 15 min | IP | 429 `RATE_LIMITED` |
+| `GET /api/auth/signin/{provider}` | 20 req / 15 min | IP | 429 `RATE_LIMITED` |
+| `GET /api/auth/callback/{provider}` | 20 req / 15 min | IP | 429 `RATE_LIMITED` |
+| `POST /api/auth/oauth/{provider}/unlink` | 10 req / 10 min | User ID | 429 `RATE_LIMITED` |
+| `POST /api/auth/reverify/{provider}` | 5 req / 10 min | User ID | 429 `RATE_LIMITED` |
+| `GET /api/v1/*` (public endpoints) | 100 req / 15 min | IP | 429 `RATE_LIMITED` |
+| `GET /api/v1/nexus/*` (authed reads) | 200 req / 15 min | User ID | 429 `RATE_LIMITED` |
+| `POST /api/v1/nexus/*` (authed writes) | 100 req / 15 min | User ID | 429 `RATE_LIMITED` |
+| `PATCH /api/v1/nexus/users/me/preferences` | 30 req / 15 min | User ID | 429 `RATE_LIMITED` |
+| `DELETE /api/v1/nexus/users/me` | 3 req / 10 min | User ID | 429 `RATE_LIMITED` |
+| `POST /api/v1/nexus/profile/avatar/presign` | 10 req / 10 min | User ID | 429 `RATE_LIMITED` |
+| `GET /api/v1/nexus/settings/security/devices` | 30 req / 15 min | User ID | 429 `RATE_LIMITED` |
+| `DELETE /api/v1/nexus/settings/security/devices/:id` | 20 req / 15 min | User ID | 429 `RATE_LIMITED` |
+| `POST /api/v1/nexus/settings/security/devices/revoke-all` | 3 req / 10 min | User ID | 429 `RATE_LIMITED` |
+| `GET /api/v1/admin/*` | 30 req / 15 min | IP | 429 `RATE_LIMITED` |
+| `POST /api/v1/admin/users/:id/suspend` | 10 req / 15 min | IP | 429 `RATE_LIMITED` |
+| `POST /api/v1/admin/users/:id/revoke-sessions` | 10 req / 15 min | IP | 429 `RATE_LIMITED` |
+| `PATCH /api/v1/admin/users/:id/role` | 10 req / 15 min | IP | 429 `RATE_LIMITED` |
+| `POST /api/v1/webhooks/stripe` | Unlimited | Stripe signature | 400 on bad signature |
+
+### 22.2 Rate Limit Implementation
+
+- Implementation: `@upstash/ratelimit` via `@nexus/cache`.
+- Keys: `v1:ratelimit:{identifier}:{window}`.
+- Sliding window: 15-minute window, refreshed on each request.
+- Headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After` (429 only).
+
+### 22.3 IP Blocking (Brute Force)
+
+- Key: `v1:ip_block:{ip}`.
+- TTL: 3600s (1 hour).
+- Trigger: 50 failed logins in 15 min from same IP (across accounts).
+- Response: 403 `FORBIDDEN` with message "IP temporarily blocked due to suspicious activity."
+
+---
+
+## 23. Security Headers & Cookie Policy
+
+> M3.8 new section. Codifies M3.7 security requirements.
+
+### 23.1 Security Headers
+
+All responses include the following headers (set in `middleware.ts` and `next.config.ts`):
+
+| Header | Value | Layer |
+|--------|-------|-------|
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | middleware, next.config.ts |
+| `Content-Security-Policy` | See §23.2 | middleware |
+| `X-Content-Type-Options` | `nosniff` | middleware |
+| `X-Frame-Options` | `DENY` | middleware |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | middleware |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(self)` | middleware |
+| `X-Powered-By` | (removed) | next.config.ts |
+| `X-DNS-Prefetch-Control` | `off` | middleware |
+
+### 23.2 CSP String
+
+```
+default-src 'self';
+script-src 'self';
+style-src 'self' 'unsafe-inline';
+img-src 'self' data: https://cdn.nexus-anime.com https://img.nexus-anime.com;
+font-src 'self' data:;
+connect-src 'self';
+frame-src 'self' https://player.cloudflare.stream;
+frame-ancestors 'none';
+base-uri 'self';
+form-action 'self';
+upgrade-insecure-requests;
+```
+
+> **Note:** `script-src 'self'` forbids inline scripts and `eval()`. Use Webpack/Vite nonce if third-party scripts are needed (post-MVP).
+
+### 23.3 XSS Protections
+
+1. React auto-escaping (default).
+2. `script-src 'self'` CSP.
+3. DOMPurify (strict allowlist) for any user-generated HTML (reviews with allowed tags: `b`, `i`, `em`, `strong`, `br`, `p`, `ul`, `ol`, `li`, `a` with `href` — all other tags/attributes stripped).
+4. **Forbidden:** `dangerouslySetInnerHTML` without DOMPurify, `eval()`, inline event handlers with user data.
+
+### 23.4 CSRF Protections (layered)
+
+1. `SameSite=Lax` cookie (prevents cross-origin cookie attachment).
+2. Auth.js built-in CSRF token (double-submit cookie pattern via `__Host-next-auth.csrf-token`).
+3. `__Host-` prefix (host-only, no subdomain leakage).
+4. Origin header check in middleware (POST/PUT/PATCH/DELETE only) against `Origin: https://nexus-anime.com`.
+5. Custom CSRF token for non-Auth.js forms (e.g., admin panel).
+
+### 23.5 CORS Policy
+
+- Production: same-origin only (`https://nexusanime.com`, `https://www.nexusanime.com`).
+- Development: `http://localhost:3000`.
+- Credentials allowed.
+- No wildcard origin (`Access-Control-Allow-Origin: *` is forbidden).
+
+### 23.6 Secret Management
+
+| Secret | Storage | Rotation |
+|--------|---------|----------|
+| `AUTH_SECRET` | Vercel env | Rotate via Vercel dashboard; invalidates all sessions |
+| `AUTH_ENCRYPTION_KEY` | Vercel env | See §15.6 key rotation |
+| `DATABASE_URL` | Vercel env | Neon dashboard → redeploy |
+| `AUTH_GOOGLE_ID/SECRET` | Vercel env | Google Cloud Console → redeploy |
+| `AUTH_DISCORD_ID/SECRET` | Vercel env | Discord Developer Portal → redeploy |
+| `STRIPE_SECRET_KEY` | Vercel env | Stripe dashboard → redeploy |
+| `STRIPE_WEBHOOK_SECRET` | Vercel env | Stripe dashboard → redeploy |
+| `RESEND_API_KEY` | Vercel env | Resend dashboard → redeploy |
+| `UPSTASH_REDIS_REST_TOKEN` | Vercel env | Upstash dashboard → redeploy |
+| `R2_ACCESS_KEY_ID/SECRET` | Vercel env | Cloudflare dashboard → redeploy |
+
+**Prohibited:** Secrets in source code, commit history, client bundles, SSR props, CI workflow files, `NEXT_PUBLIC_` prefix on secrets.
+
+### 23.7 Incident Response
+
+| Severity | Response Time | Examples |
+|----------|--------------|---------|
+| P0 | 15 min | Site down, breach, all streams fail |
+| P1 | 1 hour | Login broken, payments fail |
+| P2 | 4 hours | Search slow, single title broken |
+| P3 | Next business day | Cosmetic issues |
+
+Playbooks (stored in `/docs/incidents/`): credential leak, account takeover, SQL injection, DDoS, data breach (< 72h GDPR notification).
+
+---
+
+*This document is the authoritative API contract for Nexus Anime. All route handlers, services, and client integrations must conform to the specifications defined herein. For the canonical database schema, see [database-design.md](./database-design.md). For the backend architecture, see [backend-architecture.md](./architecture/backend-architecture.md). For the resolved cross-spec decisions that take precedence where conflicts exist, see [§14 Resolved Decisions](#14-resolved-decisions-m38).*

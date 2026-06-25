@@ -8,7 +8,7 @@ const envSchema = z.object({
   STRIPE_SECRET_KEY: z.string().min(1).default(""),
   STRIPE_WEBHOOK_SECRET: z.string().min(1).default(""),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1).default(""),
-  STRIPE_NEXUS_PRICE_ID: z.string().min(1).default(""),
+  STRIPE_NEXUS_PRICE_ID: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse({
