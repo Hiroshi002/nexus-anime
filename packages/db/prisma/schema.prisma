@@ -1,0 +1,517 @@
+// Prisma Schema for Nexus Anime
+// Source: docs/m2/prisma-specification.md (M2.3 — Prisma Schema Specification)
+// Provider: PostgreSQL 16
+//
+// This file holds the canonical Prisma Schema Language (PSL) representation of
+// the Nexus Anime database. The project's runtime ORM is Drizzle (see
+// packages/db/src/schema/); this Prisma schema is the approved M2.3 artifact
+// and the source of truth for model shape, enum values, and constraint intent.
+//
+// Prisma limitations requiring raw-SQL migration edits (see spec §8, §6.2, §7.3):
+//   - tsvector column & GIN index
+//   - partial indexes (deleted_at, parent_comment_id, is_active)
+//   - CHECK constraints (score, total_episodes, season_number, etc.)
+//   - varchar(n) length constraints
+//   - search_vector trigger function
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  user
+  admin
+  superadmin
+}
+
+enum AnimeType {
+  TV
+  OVA
+  ONA
+  Movie
+  Special
+}
+
+enum AnimeStatus {
+  airing
+  finished
+  upcoming
+}
+
+enum WatchlistStatus {
+  plan_to_watch
+  watching
+  completed
+  dropped
+  on_hold
+}
+
+enum ReviewStatus {
+  published
+  draft
+  hidden
+}
+
+enum SubscriptionStatus {
+  active
+  past_due
+  canceled
+  unpaid
+  trialing
+}
+
+enum NotificationType {
+  system
+  episode
+  social
+  promo
+}
+
+// ─── Core Identity ─────────────────────────────────────────────────────────
+
+model User {
+  id             String    @id @default(uuid()) @map("id")
+  email          String    @unique @map("email")
+  name           String    @default("") @map("name")
+  image          String?   @map("image")
+  hashedPassword String?   @map("hashed_password")
+  role           UserRole  @default(user) @map("role")
+  emailVerified  DateTime? @map("email_verified")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  profile       UserProfile?
+  preferences   UserPreferences?
+  subscription  Subscription?
+  watchHistory  WatchHistory[]
+  watchlists    Watchlist[]
+  favorites     Favorite[]
+  reviews       Review[]
+  ratings       Rating[]
+  comments      Comment[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model UserProfile {
+  id          String   @id @default(uuid()) @map("id")
+  userId      String   @unique @map("user_id")
+  bio         String?  @map("bio")
+  avatarUrl   String?  @map("avatar_url")
+  website     String?  @map("website")
+  location    String?  @map("location")
+  dateOfBirth DateTime? @map("date_of_birth")
+  socialLinks Json?    @map("social_links")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model UserPreferences {
+  id                String   @id @default(uuid()) @map("id")
+  userId            String   @unique @map("user_id")
+  playbackQuality   String   @default("auto") @map("playback_quality")
+  subtitleLanguage  String?  @default("en") @map("subtitle_language")
+  autoplay          Boolean  @default(true) @map("autoplay")
+  skipIntro         Boolean  @default(false) @map("skip_intro")
+  theme             String   @default("dark") @map("theme")
+  language          String   @default("en") @map("language")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+// ─── Content Hierarchy ─────────────────────────────────────────────────────
+
+model Anime {
+  id               String      @id @default(uuid()) @map("id")
+  slug             String      @unique @map("slug")
+  title            String      @map("title")
+  titleJp          String?     @map("title_jp")
+  synopsis         String?     @map("synopsis")
+  coverImageUrl    String?     @map("cover_image_url")
+  bannerImageUrl   String?     @map("banner_image_url")
+  type             AnimeType?  @map("type")
+  status           AnimeStatus? @map("status")
+  totalEpisodes    Int?        @map("total_episodes")
+  durationMinutes  Int?        @map("duration_minutes")
+  startDate        DateTime?   @map("start_date")
+  endDate          DateTime?   @map("end_date")
+  score            Decimal?    @map("score")
+  popularityRank   Int?        @map("popularity_rank")
+  studioId         String?     @map("studio_id")
+  searchVector     Unsupported("tsvector")? @map("search_vector")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+  deletedAt        DateTime?   @map("deleted_at")
+
+  // Relations
+  studio       Studio?       @relation(fields: [studioId], references: [id], onDelete: SetNull)
+  seasons      Season[]
+  animeGenres  AnimeGenre[]
+  watchlists   Watchlist[]
+  favorites    Favorite[]
+  reviews      Review[]
+  ratings      Rating[]
+  shelfItems   ShelfItem[]
+
+  @@index([slug])
+  @@index([studioId])
+  @@index([status])
+  @@index([type])
+  @@index([score(sort: Desc)])
+  @@index([popularityRank])
+  @@index([deletedAt])
+  @@map("anime")
+}
+
+model Season {
+  id           String    @id @default(uuid()) @map("id")
+  animeId      String    @map("anime_id")
+  seasonNumber Int       @map("season_number")
+  title        String?   @map("title")
+  synopsis     String?   @map("synopsis")
+  startDate    DateTime? @map("start_date")
+  endDate      DateTime? @map("end_date")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  // Relations
+  anime   Anime     @relation(fields: [animeId], references: [id], onDelete: Cascade)
+  episodes Episode[]
+
+  @@unique([animeId, seasonNumber])
+  @@index([animeId])
+  @@map("seasons")
+}
+
+model Episode {
+  id              String    @id @default(uuid()) @map("id")
+  seasonId        String    @map("season_id")
+  episodeNumber    Int       @map("episode_number")
+  title           String?   @map("title")
+  synopsis        String?   @map("synopsis")
+  durationSeconds Int?      @map("duration_seconds")
+  airDate         DateTime? @map("air_date")
+  isFiller        Boolean   @default(false) @map("is_filler")
+  thumbnailUrl    String?   @map("thumbnail_url")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  // Relations
+  season       Season        @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  streamAssets StreamAsset[]
+  watchHistory WatchHistory[]
+
+  @@unique([seasonId, episodeNumber])
+  @@index([seasonId])
+  @@index([airDate])
+  @@map("episodes")
+}
+
+model StreamAsset {
+  id             String   @id @default(uuid()) @map("id")
+  episodeId      String   @map("episode_id")
+  manifestUrl    String   @map("manifest_url")
+  subtitleUrl    String?  @map("subtitle_url")
+  bitrate        Int?     @map("bitrate")
+  resolution     String?  @map("resolution")
+  codec          String?  @map("codec")
+  fileSizeBytes  Int?     @map("file_size_bytes")
+  expiresAt      DateTime @map("expires_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  episode Episode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+  @@index([episodeId])
+  @@index([expiresAt])
+  @@map("stream_assets")
+}
+
+// ─── Taxonomy ──────────────────────────────────────────────────────────────
+
+model Genre {
+  id          String   @id @default(uuid()) @map("id")
+  slug        String   @unique @map("slug")
+  name        String   @map("name")
+  description String?  @map("description")
+  iconUrl     String?  @map("icon_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  animeGenres AnimeGenre[]
+
+  @@index([slug])
+  @@map("genres")
+}
+
+model Studio {
+  id           String    @id @default(uuid()) @map("id")
+  slug         String    @unique @map("slug")
+  name         String    @map("name")
+  description  String?   @map("description")
+  logoUrl      String?   @map("logo_url")
+  website      String?   @map("website")
+  foundedDate  DateTime? @map("founded_date")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  anime Anime[]
+
+  @@index([slug])
+  @@map("studios")
+}
+
+/// Junction table for many-to-many relationship between Anime and Genre.
+model AnimeGenre {
+  animeId String @map("anime_id")
+  genreId String @map("genre_id")
+
+  // Relations
+  anime Anime @relation(fields: [animeId], references: [id], onDelete: Cascade)
+  genre Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([animeId, genreId])
+  @@index([genreId])
+  @@map("anime_genres")
+}
+
+// ─── Engagement ────────────────────────────────────────────────────────────
+
+model WatchHistory {
+  id              String   @id @default(uuid()) @map("id")
+  userId          String   @map("user_id")
+  episodeId       String   @map("episode_id")
+  positionSeconds Int      @default(0) @map("position_seconds")
+  durationSeconds Int?     @map("duration_seconds")
+  completionPct   Decimal? @map("completion_pct")
+  watchedAt       DateTime @default(now()) @map("watched_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  episode Episode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([episodeId])
+  @@index([watchedAt(sort: Desc)])
+  @@index([userId, episodeId])
+  @@map("watch_history")
+}
+
+model Watchlist {
+  id              String          @id @default(uuid()) @map("id")
+  userId          String          @map("user_id")
+  animeId         String          @map("anime_id")
+  status          WatchlistStatus @default(plan_to_watch) @map("status")
+  episodesWatched Int             @default(0) @map("episodes_watched")
+  priority        Int             @default(0) @map("priority")
+  notes           String?         @map("notes")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anime Anime @relation(fields: [animeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, animeId])
+  @@index([userId])
+  @@index([animeId])
+  @@index([status])
+  @@index([userId, status])
+  @@map("watchlists")
+}
+
+model Favorite {
+  id        String   @id @default(uuid()) @map("id")
+  userId    String   @map("user_id")
+  animeId   String   @map("anime_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anime Anime @relation(fields: [animeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, animeId])
+  @@index([userId])
+  @@index([animeId])
+  @@map("favorites")
+}
+
+// ─── Social ────────────────────────────────────────────────────────────────
+
+model Review {
+  id           String        @id @default(uuid()) @map("id")
+  userId       String        @map("user_id")
+  animeId      String        @map("anime_id")
+  title        String?       @map("title")
+  body         String        @map("body")
+  isSpoiler    Boolean       @default(false) @map("is_spoiler")
+  helpfulCount Int           @default(0) @map("helpful_count")
+  status       ReviewStatus  @default(published) @map("status")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  deletedAt    DateTime?     @map("deleted_at")
+
+  // Relations
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anime   Anime    @relation(fields: [animeId], references: [id], onDelete: Cascade)
+  comments Comment[]
+
+  @@unique([userId, animeId])
+  @@index([userId])
+  @@index([animeId])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("reviews")
+}
+
+model Rating {
+  id        String   @id @default(uuid()) @map("id")
+  userId    String   @map("user_id")
+  animeId   String   @map("anime_id")
+  score     Int      @map("score")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anime Anime @relation(fields: [animeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, animeId])
+  @@index([userId])
+  @@index([animeId])
+  @@map("ratings")
+}
+
+model Comment {
+  id              String    @id @default(uuid()) @map("id")
+  userId          String    @map("user_id")
+  reviewId        String    @map("review_id")
+  parentCommentId String?   @map("parent_comment_id")
+  body            String    @map("body")
+  likesCount      Int       @default(0) @map("likes_count")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  // Relations
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review       Review    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  parentComment Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies      Comment[] @relation("CommentReplies")
+
+  @@index([reviewId])
+  @@index([parentCommentId])
+  @@index([userId])
+  @@map("comments")
+}
+
+// ─── System ────────────────────────────────────────────────────────────────
+
+model Subscription {
+  id                    String             @id @default(uuid()) @map("id")
+  userId                String             @map("user_id")
+  stripeCustomerId      String             @unique @map("stripe_customer_id")
+  stripeSubscriptionId  String?            @unique @map("stripe_subscription_id")
+  status                SubscriptionStatus @default(trialing) @map("status")
+  currentPeriodStart    DateTime?          @map("current_period_start")
+  currentPeriodEnd      DateTime?          @map("current_period_end")
+  cancelAtPeriodEnd   Boolean            @default(false) @map("cancel_at_period_end")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+model Notification {
+  id         String           @id @default(uuid()) @map("id")
+  userId     String           @map("user_id")
+  title      String           @map("title")
+  body       String?          @map("body")
+  type       NotificationType @default(system) @map("type")
+  isRead     Boolean          @default(false) @map("is_read")
+  actionUrl  String?          @map("action_url")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@index([createdAt(sort: Desc)])
+  @@map("notifications")
+}
+
+// ─── Curation ──────────────────────────────────────────────────────────────
+
+model Shelf {
+  id          String   @id @default(uuid()) @map("id")
+  key         String   @unique @map("key")
+  name        String   @map("name")
+  description String?  @map("description")
+  iconUrl     String?  @map("icon_url")
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  items ShelfItem[]
+
+  @@index([key])
+  @@index([isActive])
+  @@map("shelves")
+}
+
+model ShelfItem {
+  id        String   @id @default(uuid()) @map("id")
+  shelfId   String   @map("shelf_id")
+  animeId   String   @map("anime_id")
+  position  Int      @default(0) @map("position")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  shelf Shelf @relation(fields: [shelfId], references: [id], onDelete: Cascade)
+  anime Anime @relation(fields: [animeId], references: [id], onDelete: Cascade)
+
+  @@unique([shelfId, animeId])
+  @@index([shelfId])
+  @@index([animeId])
+  @@index([shelfId, position])
+  @@map("shelf_items")
+}

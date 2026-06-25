@@ -1,2 +1,2 @@
-export { db } from "./client";
+export { db, getDb, databaseConfig } from "./client";
 export * from "./schema";
