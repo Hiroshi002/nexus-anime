@@ -382,7 +382,7 @@ function computeDeviceFingerprint(req: NextRequest): string {
 CREATE TABLE user_device_sessions (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    device_id varchar(32) NOT NULL,        -- fingerprint prefix
+    device_id varchar(32) NOT NULL,        -- 8-char fingerprint prefix (display ID)
     device_label varchar(255),              -- "Chrome on macOS • SF, CA"
     device_fingerprint varchar(64) NOT NULL, -- full hash
     current_jti varchar(255),              -- current session JTI (for revocation)
@@ -712,7 +712,15 @@ The per-JTI cache avoids DB lookups on every request. The user-level set enables
 
 ## 9. Database Schema
 
-### 9.1 New Tables
+### 9.1 Schema Reconciliation with M3.2 and M2.7
+
+M3.3 supersedes prior definitions of `revoked_sessions` from M3.2 §3.5 and M2.7 §8.4. The M3.3 schema adds a `revoked_by` column (nullable UUID referencing `users.id`) so admin-initiated revocations are auditable. M3.2 and M2.7 did not include this column; implementers should follow the M3.3 schema as the authoritative shape.
+
+M3.2 §3.5 defines a `sessions` table (columns: `id`, `user_id`, `session_token`, `expires_at`, `ip_address`, `user_agent`, `created_at`, `updated_at`). M3.3 does **not** create or use this table — Auth.js v5 with JWT strategy does not materialize a `sessions` table at runtime. The M3.2 `sessions` table is therefore **not implemented**; session state lives entirely in the JWT cookie. M3.3's `user_device_sessions` table replaces the M3.2 `sessions` table for device-tracking purposes, with a different column shape (`ip_subnet varchar(45)` instead of `ip_address inet`, `device_label varchar(255)` instead of `user_agent text`).
+
+M2.7 §5.4 specified a Redis SET key `revoked_sessions` (via `SADD revoked_sessions {jti}`). M3.3 supersedes this with per-JTI keys `v1:revoked:{jti}` (§8.2) and a user-level set `v1:revoked_user:{userId}` (§8.6). The M2.7 key format is **not used**; M3.3's key format is authoritative.
+
+### 9.2 New Tables
 
 #### `revoked_sessions`
 
@@ -756,8 +764,8 @@ CREATE INDEX idx_device_sessions_expires ON user_device_sessions(expires_at);
 
 | Migration | Tables | Sprint |
 |-----------|--------|--------|
-| `016_create_revoked_sessions` | `revoked_sessions` | S4 |
-| `017_create_user_device_sessions` | `user_device_sessions` | S4 |
+| `016_create_revoked_sessions` | `revoked_sessions` (supersedes M3.2 §3.5 and M2.7 §8.4 definition) | S4 |
+| `017_create_user_device_sessions` | `user_device_sessions` (replaces unused M3.2 `sessions` table) | S4 |
 
 ---
 
