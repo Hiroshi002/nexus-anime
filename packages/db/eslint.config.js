@@ -1,3 +1,3 @@
-import { baseConfig } from "@nexus/config-eslint/base.js";
+import { baseConfig } from "@nexus/config-eslint/base";
 
 export default [...baseConfig];
