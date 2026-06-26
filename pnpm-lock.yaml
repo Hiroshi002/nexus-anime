@@ -106,6 +106,9 @@ importers:
         specifier: ^0.0.1
         version: 0.0.1
     devDependencies:
+      '@nexus/config-eslint':
+        specifier: workspace:*
+        version: link:../config-eslint
       '@nexus/config-typescript':
         specifier: workspace:*
         version: link:../config-typescript
