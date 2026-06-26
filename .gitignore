@@ -152,6 +152,19 @@ test-results/
 # Vercel
 .vercel/
 
+# Docker
+docker-compose.override.yml
+.docker/
+
+# JetBrains IDE (IntelliJ, WebStorm, GoLand, etc.)
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
 # OS files
 Thumbs.db
 .DS_Store
+ehthumbs.db
+Desktop.ini

@@ -1,0 +1,83 @@
+# CODEOWNERS — Nexus Anime
+#
+# GitHub uses this file to assign reviewers automatically when a PR touches
+# files matching the listed patterns. Rules are evaluated top-to-bottom; the
+# last matching pattern wins.
+#
+# Keep this file in sync with the team roster. When ownership changes, update
+# the entry and open a PR — do not edit `main` directly.
+#
+# Format:
+#   <pattern>    <user-or-team> [<user-or-team> ...]
+#
+# Patterns follow gitignore-style globbing:
+#   *            any characters (except /)
+#   **           any characters (including /)
+#   ?            any single character
+#   [char-set]   one of the characters in the set
+#   !pattern     negates a previous pattern
+#
+# Reference: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# --- Fallback owners (catch-all) ---
+# Every file in the repo is owned by the core team. More specific rules below
+# narrow ownership for sub-areas.
+* @nexus-anime/core
+
+# --- Applications ---
+# The web app is owned by the frontend team. Any PR touching apps/web
+# requires sign-off from someone on that team.
+/apps/web/                                                          @nexus-anime/frontend
+
+# --- Packages ---
+# Shared libraries are owned by the platform team. Breaking changes to any
+# @nexus/* package require platform-team sign-off.
+/packages/ui/                                                          @nexus-anime/design-system
+/packages/db/                                                          @nexus-anime/platform
+/packages/cache/                                                       @nexus-anime/platform
+/packages/config-eslint/                                               @nexus-anime/platform
+
+# --- Tooling & CI ---
+# Docker, scripts, and GitHub workflows are owned by the platform team.
+/tooling/docker/                                                    @nexus-anime/platform
+/tooling/scripts/                                                    @nexus-anime/platform
+/.github/                                                            @nexus-anime/platform
+
+# --- Documentation ---
+# Docs are owned by the docs team, with the core team as a fallback.
+/docs/                                                               @nexus-anime/docs @nexus-anime/core
+
+# --- Root config files ---
+# Root-level configuration (package.json, turbo.json, prettier, eslint, etc.)
+# is owned by the platform team because changes here affect every workspace
+# member.
+/package.json                                                        @nexus-anime/platform
+/pnpm-workspace.yaml                                                 @nexus-anime/platform
+/turbo.json                                                          @nexus-anime/platform
+/.prettierrc                                                        @nexus-anime/platform
+/.prettierignore                                                     @nexus-anime/platform
+/tsconfig.base.json                                                  @nexus-anime/platform
+/.nvmrc                                                              @nexus-anime/platform
+/.env.example                                                        @nexus-anime/platform
+/.gitignore                                                          @nexus-anime/platform
+/.gitattributes                                                      @nexus-anime/platform
+/.editorconfig                                                       @nexus-anime/platform
+
+# --- Security-sensitive files ---
+# Changes to the security policy or CI workflows that gate merges should be
+# reviewed by the core team.
+/SECURITY.md                                                          @nexus-anime/core
+/.github/workflows/ci.yml                                            @nexus-anime/core @nexus-anime/platform
+/.github/workflows/release.yml                                       @nexus-anime/core @nexus-anime/platform
+
+# --- Repository bootstrap files ---
+# The repository constitution and roadmap are owned by the core team.
+/REPOSITORY-DESIGN.md                                                @nexus-anime/core
+/ROADMAP.md                                                           @nexus-anime/core
+/CHANGELOG.md                                                        @nexus-anime/core
+/CONTRIBUTING.md                                                     @nexus-anime/core
+/CODE_OF_CONDUCT.md                                                  @nexus-anime/core
+/SUPPORT.md                                                          @nexus-anime/core
+/CODEOWNERS                                                          @nexus-anime/core
+/LICENSE                                                             @nexus-anime/core
+/README.md                                                           @nexus-anime/core @nexus-anime/docs

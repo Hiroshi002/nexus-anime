@@ -1,0 +1,66 @@
+# EditorConfig — Nexus Anime
+#
+# EditorConfig keeps formatting consistent across editors and IDEs without
+# per-project configuration by each engineer. It is a complement to Prettier
+# (which handles code formatting) — EditorConfig handles file-level defaults
+# that Prettier does not cover (final newline, trailing whitespace, etc.).
+#
+# Reference: https://editorconfig.org/
+# Most editors ship native support; some require a plugin (check your editor).
+
+root = true
+
+# All files: 2-space indentation, UTF-8, LF line endings, final newline.
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Markdown: preserve long lines (wrapping is a stylistic choice, not a rule).
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# YAML: 2-space indent (matches GitHub Actions expectations).
+[*.{yml,yaml}]
+indent_size = 2
+
+# JSON: 2-space indent.
+[*.json]
+indent_size = 2
+
+# JavaScript / TypeScript: 2-space indent (matches Prettier default).
+[*.{js,jsx,ts,tsx,mjs,cjs}]
+indent_size = 2
+
+# package.json: npm uses 2-space indent by default; stay consistent.
+[package.json]
+indent_size = 2
+
+# Markdown files for docs: do not trim trailing whitespace because two trailing
+# spaces are a Markdown line break convention.
+[docs/**/*.md]
+trim_trailing_whitespace = false
+
+# Makefiles require tabs — do not convert them.
+[Makefile]
+indent_style = tab
+
+# Dockerfiles: 4-space indent is conventional.
+[Dockerfile*]
+indent_size = 4
+
+# Shell scripts: 2-space indent.
+[*.sh]
+indent_size = 2
+
+# Terraform (if added later): 2-space indent.
+[*.tf]
+indent_size = 2
+
+# Windows-specific files: keep CRLF line endings.
+[*.{bat,cmd,ps1}]
+end_of_line = crlf

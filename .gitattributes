@@ -1,0 +1,75 @@
+# Git attributes — Nexus Anime
+#
+# Declares per-file behavior for Git's text handling, diffing, and export.
+# Reference: https://git-scm.com/docs/gitattributes
+
+# --- Line endings ---
+# Force LF line endings for all text files. This prevents Windows editors from
+# silently converting LF → CRLF, which would pollute diffs and break shell
+# scripts in CI.
+* text=auto eol=lf
+
+# Explicitly mark source files as text so Git never binary-guess them.
+*.js    text
+*.jsx   text
+*.ts    text
+*.tsx   text
+*.mjs   text
+*.cjs   text
+*.json  text
+*.md    text
+*.mdx   text
+*.yml   text
+*.yaml  text
+*.css   text
+*.html  text
+*.svg   text
+*.sh    text
+*.sql   text
+*.txt   text
+*.toml  text
+*.xml   text
+
+# --- Binary files ---
+# Tell Git these are binary — do not attempt to diff or line-ending-convert them.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.avif  binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
+*.pdf   binary
+*.zip   binary
+*.gz    binary
+*.tar   binary
+*.wasm  binary
+
+# --- Diff drivers ---
+# Use a custom diff driver for lockfiles so diffs are readable (shows package
+# names, not hashes). Requires `npm install -g lockfile-lint` or a local tool;
+# harmless if not installed — Git falls back to plain text diff.
+*.lock diff=lockfile
+
+# Markdown: use word-level diff for more readable diffs in prose.
+*.md diff=markdown
+
+# --- Merge strategies ---
+# For CHANGELOG.md, prefer "union" merge to reduce conflicts when two branches
+# both add entries to the top of the file.
+CHANGELOG.md merge=union
+
+# --- Export ignore ---
+# Files excluded from `git archive` exports — keeps artifacts small.
+.gitattributes   export-ignore
+.gitignore       export-ignore
+.github          export-ignore
+docs             export-ignore
+tooling          export-ignore
+*.md             export-ignore
+.editorconfig    export-ignore
+.env.example     export-ignore
