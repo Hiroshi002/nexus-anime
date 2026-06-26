@@ -1,4 +1,4 @@
-import { uuid, varchar, text, integer, boolean, timestamp, pgTable } from "drizzle-orm/pg-core";
+import { uuid, varchar, text, integer, boolean, timestamp, pgTable, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { reviewStatusEnum } from "./enums";
 import { users } from "./users";
 import { anime } from "./anime";
@@ -42,7 +42,7 @@ export const comments = pgTable("comments", {
   reviewId: uuid("review_id")
     .notNull()
     .references(() => reviews.id, { onDelete: "cascade" }),
-  parentCommentId: uuid("parent_comment_id").references(() => comments.id, {
+  parentCommentId: uuid("parent_comment_id").references((): AnyPgColumn => comments.id, {
     onDelete: "cascade",
   }),
   body: text("body").notNull(),

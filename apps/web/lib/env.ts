@@ -15,7 +15,8 @@ const envSchema = z.object({
   DATABASE_POOL_SIZE: z.coerce.number().int().positive().default(10),
 
   // ── Authentication [S4] ────────────────────────────────
-  AUTH_SECRET: z.string().min(32).optional(),
+  // Required: Auth.js v5 throws at boot without a secret to sign JWTs.
+  AUTH_SECRET: z.string().min(32),
   AUTH_URL: z.string().url().optional(),
   AUTH_GITHUB_ID: z.string().optional(),
   AUTH_GITHUB_SECRET: z.string().optional(),
@@ -34,9 +35,11 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().email().default("noreply@nexusanime.com"),
 
   // ── Stripe [S5] ────────────────────────────────────────
-  STRIPE_SECRET_KEY: z.string().min(1).default(""),
-  STRIPE_WEBHOOK_SECRET: z.string().min(1).default(""),
-  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1).default(""),
+  // No defaults: the server must refuse to boot with an empty Stripe secret.
+  // Set these in your environment; runtime Stripe calls fail-late otherwise.
+  STRIPE_SECRET_KEY: z.string().min(1),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1),
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
   STRIPE_NEXUS_PRICE_ID: z.string().optional(),
 
   // ── Cloudflare [S6] ────────────────────────────────────

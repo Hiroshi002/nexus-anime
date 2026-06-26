@@ -1,6 +1,7 @@
 import { Ratelimit } from "@upstash/ratelimit";
 
 import { getRedis } from "./client";
+import { safeCall } from "./safe";
 
 export const rateLimiters = {
   standard: new Ratelimit({
@@ -29,7 +30,8 @@ export async function consumeRateLimit(
   identifier: string,
 ): Promise<{ success: boolean; limit: number; remaining: number; reset: number }> {
   const limiter = rateLimiters[limiterKey];
-  const result = await limiter.limit(identifier);
+  const fallback = { success: true, limit: 0, remaining: 0, reset: 0 };
+  const result = await safeCall(() => limiter.limit(identifier), "ratelimit.limit", fallback);
   return {
     success: result.success,
     limit: result.limit,

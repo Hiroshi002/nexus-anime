@@ -1,6 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["NODE_ENV", "VERCEL", "VERCEL_ENV", "UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN", "ENABLE_REDIS_CACHE", "ENABLE_REDIS_SHELVES"],
+  "futureFlags": {
+    "globalConfiguration": true
+  },
+  "global": {
+    "env": ["NODE_ENV", "VERCEL", "VERCEL_ENV", "UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN", "ENABLE_REDIS_CACHE", "ENABLE_REDIS_SHELVES"]
+  },
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
