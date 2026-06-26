@@ -28,6 +28,17 @@ export class ValidationError extends NexusError {
     super("Request validation failed", 400, "VALIDATION_ERROR", details);
     this.name = "ValidationError";
   }
+
+  static fromZod(error: {
+    issues: { path: (string | number)[]; message: string }[];
+  }): ValidationError {
+    return new ValidationError(
+      error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      })),
+    );
+  }
 }
 
 export class UnauthorizedError extends NexusError {

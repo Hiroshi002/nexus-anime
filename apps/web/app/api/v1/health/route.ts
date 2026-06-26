@@ -1,12 +1,26 @@
-import { successResponse } from "@/lib/api/envelope";
-import { handleApiError } from "@/lib/api/errors/handler";
-import { getRequestId } from "@/lib/logging/request-id";
+import { route } from "@/lib/api/route";
 
-export async function GET() {
-  const requestId = getRequestId();
-  try {
-    return successResponse({ status: "ok" as const }, { requestId, version: "v1" });
-  } catch (error) {
-    return handleApiError(error, requestId, "GET /api/v1/health");
-  }
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+interface HealthStatus {
+  status: "ok" | "degraded";
+  version: string;
+  uptimeSeconds: number;
+  checks: {
+    memory: "ok";
+  };
 }
+
+const START_TIME = Date.now();
+
+export const GET = route(async (): Promise<HealthStatus> => {
+  return {
+    status: "ok",
+    version: "v1",
+    uptimeSeconds: Math.floor((Date.now() - START_TIME) / 1000),
+    checks: {
+      memory: "ok",
+    },
+  };
+});
