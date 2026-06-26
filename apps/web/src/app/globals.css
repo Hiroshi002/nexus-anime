@@ -1,0 +1,22 @@
+:root {
+  /* Pure placeholder tokens. The Wuthering Waves design system (Tailwind 4 +
+     @nexus/ui) replaces these in M2 — see docs/03-architecture/Styling.md. */
+  --bg: #0a0a0f;
+  --fg: #e8e8f0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+}
