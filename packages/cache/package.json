@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
+  "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
@@ -26,6 +27,7 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "@nexus/config-eslint": "workspace:*",
     "@nexus/config-typescript": "workspace:*",
     "@types/node": "^22.13.10",
     "typescript": "^5.8.2",
