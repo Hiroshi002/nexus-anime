@@ -66,18 +66,18 @@ See [API-Standards.md](./API-Standards.md) section on caching for the full cache
 
 All endpoints in this document share the error envelope and code registry defined in [`Error-Codes.md`](./Error-Codes.md). The codes you will see here:
 
-| Code                 | HTTP | Trigger in this resource                 |
-| :------------------- | :--- | :--------------------------------------- |
-| `VALIDATION_ERROR`   | 400  | Query/body failed Zod schema            |
-| `FIELD_REQUIRED`     | 400  | Nested in `VALIDATION_ERROR.details`     |
-| `FIELD_INVALID`      | 400  | Nested in `VALIDATION_ERROR.details`     |
-| `UNAUTHORIZED`       | 401  | Missing bearer token on admin endpoints  |
-| `FORBIDDEN`          | 403  | Non-admin caller on admin endpoints     |
-| `ANIME_NOT_FOUND`    | 404  | `animeId` path param lookup miss         |
-| `SEASON_NOT_FOUND`   | 404  | `id` lookup miss (no deleted)            |
-| `CONFLICT`           | 409  | Duplicate `(anime_id, number)` on create |
-| `RATE_LIMITED`       | 429  | Quota exhausted                          |
-| `INTERNAL_ERROR`     | 500  | Unhandled failure                        |
+| Code               | HTTP | Trigger in this resource                 |
+| :----------------- | :--- | :--------------------------------------- |
+| `VALIDATION_ERROR` | 400  | Query/body failed Zod schema             |
+| `FIELD_REQUIRED`   | 400  | Nested in `VALIDATION_ERROR.details`     |
+| `FIELD_INVALID`    | 400  | Nested in `VALIDATION_ERROR.details`     |
+| `UNAUTHORIZED`     | 401  | Missing bearer token on admin endpoints  |
+| `FORBIDDEN`        | 403  | Non-admin caller on admin endpoints      |
+| `ANIME_NOT_FOUND`  | 404  | `animeId` path param lookup miss         |
+| `SEASON_NOT_FOUND` | 404  | `id` lookup miss (no deleted)            |
+| `CONFLICT`         | 409  | Duplicate `(anime_id, number)` on create |
+| `RATE_LIMITED`     | 429  | Quota exhausted                          |
+| `INTERNAL_ERROR`   | 500  | Unhandled failure                        |
 
 Sub-code naming follows the `*_NOT_FOUND` pattern for each entity. A deleted season returns `SEASON_NOT_FOUND`, not `410 Gone` — soft-deleted rows are indistinguishable from non-existent rows at the API layer.
 
@@ -85,12 +85,12 @@ Sub-code naming follows the `*_NOT_FOUND` pattern for each entity. A deleted sea
 
 ## 5. Authentication
 
-| Endpoint group                          | Auth required                         |
-| :-------------------------------------- | :------------------------------------ |
-| GET reads (section 6.1–6.2)             | None — public endpoint                |
+| Endpoint group                               | Auth required                                      |
+| :------------------------------------------- | :------------------------------------------------- |
+| GET reads (section 6.1–6.2)                  | None — public endpoint                             |
 | POST `/api/v1/anime/{animeId}/seasons` (6.3) | `Authorization: Bearer <admin-token>` + admin role |
-| PATCH `/api/v1/seasons/{id}` (6.4)      | Same                                  |
-| DELETE `/api/v1/seasons/{id}` (6.5)     | Same                                  |
+| PATCH `/api/v1/seasons/{id}` (6.4)           | Same                                               |
+| DELETE `/api/v1/seasons/{id}` (6.5)          | Same                                               |
 
 The admin role check follows the policy in [`Authentication.md`](./Authentication.md). Bearer tokens are validated by middleware before the handler runs. A `401 UNAUTHORIZED` reply is returned when the token is absent or invalid; a `403 FORBIDDEN` reply is returned when the token identifies a user who is not in the admin role.
 
@@ -112,9 +112,9 @@ GET /api/v1/anime/{animeId}/seasons
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `animeId` | `string` (uuid) | yes | Parent anime surrogate key. |
+| Parameter | Type            | Required | Description                 |
+| :-------- | :-------------- | :------- | :-------------------------- |
+| `animeId` | `string` (uuid) | yes      | Parent anime surrogate key. |
 
 #### Auth
 
@@ -122,9 +122,9 @@ None.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Accept` | `application/json` |
+| Header                     | Value                                                |
+| :------------------------- | :--------------------------------------------------- |
+| `Accept`                   | `application/json`                                   |
 | `Cache-Control` (response) | `public, max-age=3600, stale-while-revalidate=86400` |
 
 #### Response schema
@@ -184,10 +184,10 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `animeId` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `animeId` |
-| No active anime with that `animeId` | 404 | `ANIME_NOT_FOUND` | `{ animeId }` |
+| Scenario                            | HTTP | `code`             | `details`               |
+| :---------------------------------- | :--- | :----------------- | :---------------------- |
+| `animeId` not a valid UUID          | 400  | `VALIDATION_ERROR` | `errors[]` on `animeId` |
+| No active anime with that `animeId` | 404  | `ANIME_NOT_FOUND`  | `{ animeId }`           |
 
 ---
 
@@ -205,9 +205,9 @@ GET /api/v1/seasons/{id}
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Season surrogate key. |
+| Parameter | Type            | Required | Description           |
+| :-------- | :-------------- | :------- | :-------------------- |
+| `id`      | `string` (uuid) | yes      | Season surrogate key. |
 
 #### Auth
 
@@ -215,9 +215,9 @@ None.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Accept` | `application/json` |
+| Header                     | Value                                                |
+| :------------------------- | :--------------------------------------------------- |
+| `Accept`                   | `application/json`                                   |
 | `Cache-Control` (response) | `public, max-age=3600, stale-while-revalidate=86400` |
 
 #### Response schema
@@ -261,10 +261,10 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `id` |
-| No active season with that `id` | 404 | `SEASON_NOT_FOUND` | `{ id }` |
+| Scenario                        | HTTP | `code`             | `details`          |
+| :------------------------------ | :--- | :----------------- | :----------------- |
+| `id` not a valid UUID           | 400  | `VALIDATION_ERROR` | `errors[]` on `id` |
+| No active season with that `id` | 404  | `SEASON_NOT_FOUND` | `{ id }`           |
 
 ---
 
@@ -282,17 +282,17 @@ POST /api/v1/anime/{animeId}/seasons
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Authorization` | `Bearer <admin-token>` |
-| `Content-Type` | `application/json` |
+| Header                     | Value                         |
+| :------------------------- | :---------------------------- |
+| `Authorization`            | `Bearer <admin-token>`        |
+| `Content-Type`             | `application/json`            |
 | `Cache-Control` (response) | none (response not cacheable) |
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `animeId` | `string` (uuid) | yes | Parent anime surrogate key. |
+| Parameter | Type            | Required | Description                 |
+| :-------- | :-------------- | :------- | :-------------------------- |
+| `animeId` | `string` (uuid) | yes      | Parent anime surrogate key. |
 
 #### Body schema
 
@@ -346,14 +346,14 @@ HTTP: `201`. `Location: /api/v1/seasons/{id}`.
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `animeId` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `animeId` |
-| No active anime with that `animeId` | 404 | `ANIME_NOT_FOUND` | `{ animeId }` |
-| Missing required `number` | 400 | `VALIDATION_ERROR` | `errors[].code: "FIELD_REQUIRED"` on `number` |
-| `number` already in use for this anime (active row) | 409 | `CONFLICT` | `{ animeId, number }` |
-| `number <= 0` | 400 | `VALIDATION_ERROR` | `errors[]` on `number` |
-| `aired_to < aired_from` | 400 | `VALIDATION_ERROR` | `errors[]` on `aired_to` |
+| Scenario                                            | HTTP | `code`             | `details`                                     |
+| :-------------------------------------------------- | :--- | :----------------- | :-------------------------------------------- |
+| `animeId` not a valid UUID                          | 400  | `VALIDATION_ERROR` | `errors[]` on `animeId`                       |
+| No active anime with that `animeId`                 | 404  | `ANIME_NOT_FOUND`  | `{ animeId }`                                 |
+| Missing required `number`                           | 400  | `VALIDATION_ERROR` | `errors[].code: "FIELD_REQUIRED"` on `number` |
+| `number` already in use for this anime (active row) | 409  | `CONFLICT`         | `{ animeId, number }`                         |
+| `number <= 0`                                       | 400  | `VALIDATION_ERROR` | `errors[]` on `number`                        |
+| `aired_to < aired_from`                             | 400  | `VALIDATION_ERROR` | `errors[]` on `aired_to`                      |
 
 ---
 
@@ -371,17 +371,17 @@ PATCH /api/v1/seasons/{id}
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Authorization` | `Bearer <admin-token>` |
-| `Content-Type` | `application/json` |
-| `Cache-Control` (response) | none |
+| Header                     | Value                  |
+| :------------------------- | :--------------------- |
+| `Authorization`            | `Bearer <admin-token>` |
+| `Content-Type`             | `application/json`     |
+| `Cache-Control` (response) | none                   |
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Season surrogate key. |
+| Parameter | Type            | Required | Description           |
+| :-------- | :-------------- | :------- | :-------------------- |
+| `id`      | `string` (uuid) | yes      | Season surrogate key. |
 
 #### Body schema
 
@@ -433,13 +433,13 @@ HTTP: `200`.
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `id` |
-| No active season with that `id` | 404 | `SEASON_NOT_FOUND` | `{ id }` |
-| `number` conflict with another active season of the same anime | 409 | `CONFLICT` | `{ animeId, number }` |
-| `number <= 0` | 400 | `VALIDATION_ERROR` | `errors[]` on `number` |
-| `aired_to < aired_from` | 400 | `VALIDATION_ERROR` | `errors[]` on `aired_to` |
+| Scenario                                                       | HTTP | `code`             | `details`                |
+| :------------------------------------------------------------- | :--- | :----------------- | :----------------------- |
+| `id` not a valid UUID                                          | 400  | `VALIDATION_ERROR` | `errors[]` on `id`       |
+| No active season with that `id`                                | 404  | `SEASON_NOT_FOUND` | `{ id }`                 |
+| `number` conflict with another active season of the same anime | 409  | `CONFLICT`         | `{ animeId, number }`    |
+| `number <= 0`                                                  | 400  | `VALIDATION_ERROR` | `errors[]` on `number`   |
+| `aired_to < aired_from`                                        | 400  | `VALIDATION_ERROR` | `errors[]` on `aired_to` |
 
 ---
 
@@ -457,16 +457,16 @@ DELETE /api/v1/seasons/{id}
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Authorization` | `Bearer <admin-token>` |
-| `Cache-Control` (response) | none |
+| Header                     | Value                  |
+| :------------------------- | :--------------------- |
+| `Authorization`            | `Bearer <admin-token>` |
+| `Cache-Control` (response) | none                   |
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Season to soft-delete. |
+| Parameter | Type            | Required | Description            |
+| :-------- | :-------------- | :------- | :--------------------- |
+| `id`      | `string` (uuid) | yes      | Season to soft-delete. |
 
 #### Body
 
@@ -499,10 +499,10 @@ The soft-delete is idempotent: calling `DELETE` on an already-deleted season ret
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` |
-| No record exists with that `id` (including hard-deleted archival) | 404 | `SEASON_NOT_FOUND` | `{ id }` |
+| Scenario                                                          | HTTP | `code`             | `details`  |
+| :---------------------------------------------------------------- | :--- | :----------------- | :--------- |
+| `id` not a valid UUID                                             | 400  | `VALIDATION_ERROR` | `errors[]` |
+| No record exists with that `id` (including hard-deleted archival) | 404  | `SEASON_NOT_FOUND` | `{ id }`   |
 
 #### Cascade note
 
@@ -512,13 +512,13 @@ Soft-delete does **not** cascade — episodes retain their `season_id` FK; query
 
 ## 7. Endpoint map reference
 
-| Method | URL | Auth |
-| :----- | :-- | :---- |
-| `GET` | `/api/v1/anime/{animeId}/seasons` | none |
-| `GET` | `/api/v1/seasons/{id}` | none |
-| `POST` | `/api/v1/anime/{animeId}/seasons` | bearer + admin |
-| `PATCH` | `/api/v1/seasons/{id}` | bearer + admin |
-| `DELETE` | `/api/v1/seasons/{id}` | bearer + admin |
+| Method   | URL                               | Auth           |
+| :------- | :-------------------------------- | :------------- |
+| `GET`    | `/api/v1/anime/{animeId}/seasons` | none           |
+| `GET`    | `/api/v1/seasons/{id}`            | none           |
+| `POST`   | `/api/v1/anime/{animeId}/seasons` | bearer + admin |
+| `PATCH`  | `/api/v1/seasons/{id}`            | bearer + admin |
+| `DELETE` | `/api/v1/seasons/{id}`            | bearer + admin |
 
 ---
 
@@ -554,10 +554,10 @@ Re-importing a previously deleted season re-inserts — the partial unique index
 
 The following are explicitly **not** covered in this document but are companions to the Seasons resource:
 
-| Topic | Where |
-| :---- | :---- |
-| Episodes within a season | `docs/06-api/Episodes.md` |
-| Parent anime resource | `docs/06-api/Anime.md` |
+| Topic                                      | Where                                            |
+| :----------------------------------------- | :----------------------------------------------- |
+| Episodes within a season                   | `docs/06-api/Episodes.md`                        |
+| Parent anime resource                      | `docs/06-api/Anime.md`                           |
 | User engagement (watch-progress, comments) | `docs/06-api/Watchlists.md`, `Comments.md`, etc. |
 
 ---
@@ -578,11 +578,11 @@ Before landing a change to this surface, verify:
 
 ## 12. Changelog
 
-| Date       | Change                    | Ticket / PR |
-| :--------- | :------------------------ | :---------- |
-| 2026-06-26 | Initial Seasons endpoint spec | —         |
-|            |                           |             |
-|            |                           |             |
+| Date       | Change                        | Ticket / PR |
+| :--------- | :---------------------------- | :---------- |
+| 2026-06-26 | Initial Seasons endpoint spec | —           |
+|            |                               |             |
+|            |                               |             |
 
 ---
 

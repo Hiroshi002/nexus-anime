@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://nexus-anime.com  # <-- Update to your production domain.
+      url: https://nexus-anime.com # <-- Update to your production domain.
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

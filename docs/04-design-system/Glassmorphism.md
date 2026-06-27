@@ -39,7 +39,7 @@ Every glass surface is composed of 5 layers. All 5 must be present for the glass
 ### Layer 1: Border
 
 ```css
-border: 1px solid oklch(0.60 0.02 260 / var(--glass-border-opacity));
+border: 1px solid oklch(0.6 0.02 260 / var(--glass-border-opacity));
 ```
 
 The border is **always semi-transparent** — this is what makes the glass edge feel like a light refraction rather than a painted line. The opacity varies by glass variant.
@@ -76,81 +76,81 @@ Text, icons, controls rendered on the glass surface. Always at full opacity — 
 
 The default glass surface for cards and UI panels.
 
-| Property | Value | Rationale |
-|----------|-------|-----------|
+| Property   | Value           | Rationale                                        |
+| ---------- | --------------- | ------------------------------------------------ |
 | Background | `void-2 / 0.70` | Readable but background color influences surface |
-| Border | `void-8 / 0.15` | Barely visible edge — light refraction |
-| Blur | `blur-sm` (8px) | Light frost — detail obscured, color present |
-| Shadow | `elevation-1` | Subtly raised |
+| Border     | `void-8 / 0.15` | Barely visible edge — light refraction           |
+| Blur       | `blur-sm` (8px) | Light frost — detail obscured, color present     |
+| Shadow     | `elevation-1`   | Subtly raised                                    |
 
 ### Frosted Glass
 
 Heavy glass for modals, overlays, and surfaces that need strong separation from background content.
 
-| Property | Value | Rationale |
-|----------|-------|-----------|
-| Background | `void-3 / 0.85` | Nearly opaque — readability priority |
-| Border | `void-7 / 0.20` | Visible edge — clear boundary |
-| Blur | `blur-md` (16px) | Standard frost |
-| Shadow | `elevation-3` | Prominent elevation |
+| Property   | Value            | Rationale                            |
+| ---------- | ---------------- | ------------------------------------ |
+| Background | `void-3 / 0.85`  | Nearly opaque — readability priority |
+| Border     | `void-7 / 0.20`  | Visible edge — clear boundary        |
+| Blur       | `blur-md` (16px) | Standard frost                       |
+| Shadow     | `elevation-3`    | Prominent elevation                  |
 
 ### Crystal Glass
 
 Minimal glass for badges, chips, and small elements. Lightest touch.
 
-| Property | Value | Rationale |
-|----------|-------|-----------|
+| Property   | Value           | Rationale                               |
+| ---------- | --------------- | --------------------------------------- |
 | Background | `void-2 / 0.50` | Very transparent — background dominates |
-| Border | `void-8 / 0.10` | Near-invisible edge |
-| Blur | `blur-xs` (4px) | Minimal frost |
-| Shadow | `elevation-0` | No elevation |
+| Border     | `void-8 / 0.10` | Near-invisible edge                     |
+| Blur       | `blur-xs` (4px) | Minimal frost                           |
+| Shadow     | `elevation-0`   | No elevation                            |
 
 ### Tinted Glass
 
 Glass with an accent color bleed. Used for featured content, premium features, and branded surfaces.
 
-| Property | Value | Rationale |
-|----------|-------|-----------|
-| Background | `aether-2 / 0.15` | Subtle Aether tint |
-| Border | `aether-5 / 0.20` | Colored edge — Aether light |
-| Blur | `blur-sm` (8px) | Light frost |
-| Shadow | `elevation-1` + `glow-sm` | Subtle Aether glow |
+| Property   | Value                     | Rationale                   |
+| ---------- | ------------------------- | --------------------------- |
+| Background | `aether-2 / 0.15`         | Subtle Aether tint          |
+| Border     | `aether-5 / 0.20`         | Colored edge — Aether light |
+| Blur       | `blur-sm` (8px)           | Light frost                 |
+| Shadow     | `elevation-1` + `glow-sm` | Subtle Aether glow          |
 
 ### Nova Glass
 
 Premium glass with Nova (violet-magenta) accent. For subscriber-exclusive content and premium CTAs.
 
-| Property | Value | Rationale |
-|----------|-------|-----------|
-| Background | `nova-1 / 0.15` | Nova tint |
-| Border | `nova-5 / 0.25` | Nova edge |
-| Blur | `blur-sm` (8px) | Light frost |
-| Shadow | `elevation-1` + `glow-nova-sm` | Nova glow |
+| Property   | Value                          | Rationale   |
+| ---------- | ------------------------------ | ----------- |
+| Background | `nova-1 / 0.15`                | Nova tint   |
+| Border     | `nova-5 / 0.25`                | Nova edge   |
+| Blur       | `blur-sm` (8px)                | Light frost |
+| Shadow     | `elevation-1` + `glow-nova-sm` | Nova glow   |
 
 ---
 
 ## Glass by Component
 
-| Component | Variant | Rationale |
-|-----------|---------|-----------|
-| Anime card | Standard | Default browsing surface |
-| Featured anime card | Tinted | Aether accent highlights the featured item |
-| Premium content card | Nova | Signals exclusivity |
-| Navigation bar | Frosted | Must be readable over scrolling content |
-| Sidebar/drawer | Frosted | Persistent but separate from content |
-| Modal/dialog | Frosted | Strong separation from background |
-| Bottom sheet | Frosted | Mobile overlay — needs strong frost |
-| Tooltip | Crystal | Small and lightweight |
-| Badge | Crystal | Minimal glass decoration |
-| Dropdown | Frosted | Needs readability over trigger content |
-| Toast | Frosted | Transient but readable |
-| Hero overlay | Standard (reversed) | Text over hero image — glass helps readability |
+| Component            | Variant             | Rationale                                      |
+| -------------------- | ------------------- | ---------------------------------------------- |
+| Anime card           | Standard            | Default browsing surface                       |
+| Featured anime card  | Tinted              | Aether accent highlights the featured item     |
+| Premium content card | Nova                | Signals exclusivity                            |
+| Navigation bar       | Frosted             | Must be readable over scrolling content        |
+| Sidebar/drawer       | Frosted             | Persistent but separate from content           |
+| Modal/dialog         | Frosted             | Strong separation from background              |
+| Bottom sheet         | Frosted             | Mobile overlay — needs strong frost            |
+| Tooltip              | Crystal             | Small and lightweight                          |
+| Badge                | Crystal             | Minimal glass decoration                       |
+| Dropdown             | Frosted             | Needs readability over trigger content         |
+| Toast                | Frosted             | Transient but readable                         |
+| Hero overlay         | Standard (reversed) | Text over hero image — glass helps readability |
 
 ---
 
 ## Glass + Shadow Interaction
 
-Glass surfaces at higher elevations need stronger shadows to communicate depth. The shadow must be visible *around* the glass edge, not just behind it. This means:
+Glass surfaces at higher elevations need stronger shadows to communicate depth. The shadow must be visible _around_ the glass edge, not just behind it. This means:
 
 - **Border radius** on the glass surface and its shadow must match.
 - **No `overflow: hidden`** on glass containers that need visible shadow edges.
@@ -170,14 +170,14 @@ Glassmorphism only works when there's something interesting to blur. The system 
 
 ## Responsive Behavior
 
-| Viewport | Glass Behavior |
-|----------|---------------|
-| Desktop (≥1024px) | Full glass — blur + transparency + glow |
-| Tablet (768–1023px) | Standard glass — blur + transparency, no glow on non-interactive elements |
-| Mobile (<768px) | Reduced glass — `blur-xs` (4px), higher background opacity (0.85), no glow |
-| Low-end | Opaque fallback — no blur, full opacity, border + shadow only |
+| Viewport            | Glass Behavior                                                             |
+| ------------------- | -------------------------------------------------------------------------- |
+| Desktop (≥1024px)   | Full glass — blur + transparency + glow                                    |
+| Tablet (768–1023px) | Standard glass — blur + transparency, no glow on non-interactive elements  |
+| Mobile (<768px)     | Reduced glass — `blur-xs` (4px), higher background opacity (0.85), no glow |
+| Low-end             | Opaque fallback — no blur, full opacity, border + shadow only              |
 
-**Decision: Reduce glass on mobile.** Mobile GPUs struggle with multiple blur regions. Reducing blur amount and increasing opacity preserves the glass *feeling* (semi-transparent border, subtle shadow) while reducing GPU cost. On low-end devices, the fallback is fully opaque — the border and shadow still communicate depth.
+**Decision: Reduce glass on mobile.** Mobile GPUs struggle with multiple blur regions. Reducing blur amount and increasing opacity preserves the glass _feeling_ (semi-transparent border, subtle shadow) while reducing GPU cost. On low-end devices, the fallback is fully opaque — the border and shadow still communicate depth.
 
 ---
 

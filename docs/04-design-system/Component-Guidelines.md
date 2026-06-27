@@ -28,14 +28,14 @@ Every component has:
 
 ### Interactive States
 
-| State | Visual Treatment | Trigger |
-|-------|-----------------|---------|
-| **Rest** | Default appearance per variant | Default |
-| **Hover** | Elevation +1, background +shade, glow (if accent), cursor: pointer | Mouse hover |
-| **Focus** | 2px focus ring (aether-4), elevation +1, no glow | Keyboard focus, programmatic focus |
-| **Active/Pressed** | Elevation -1, inset shadow, slight scale(0.98) | Mouse down, key held |
-| **Disabled** | Reduced opacity (0.4), cursor: not-allowed, no hover/focus effects, aria-disabled | Prop |
-| **Loading** | Skeleton placeholder matching component shape | Loading state |
+| State              | Visual Treatment                                                                  | Trigger                            |
+| ------------------ | --------------------------------------------------------------------------------- | ---------------------------------- |
+| **Rest**           | Default appearance per variant                                                    | Default                            |
+| **Hover**          | Elevation +1, background +shade, glow (if accent), cursor: pointer                | Mouse hover                        |
+| **Focus**          | 2px focus ring (aether-4), elevation +1, no glow                                  | Keyboard focus, programmatic focus |
+| **Active/Pressed** | Elevation -1, inset shadow, slight scale(0.98)                                    | Mouse down, key held               |
+| **Disabled**       | Reduced opacity (0.4), cursor: not-allowed, no hover/focus effects, aria-disabled | Prop                               |
+| **Loading**        | Skeleton placeholder matching component shape                                     | Loading state                      |
 
 ### State Precedence
 
@@ -53,36 +53,36 @@ Disabled overrides everything — a disabled focused button shows disabled, not 
 
 ### Button States
 
-| State | Background | Text | Shadow | Border | Scale |
-|-------|-----------|------|--------|--------|-------|
-| Rest | `action-primary-bg` | `action-primary-text` | `elevation-1` | none | 1 |
-| Hover | `action-primary-hover` | same | `elevation-2` | none | 1 |
-| Focus | `action-primary-bg` | same | `elevation-1` | `2px aether-4` (ring) | 1 |
-| Active | `action-primary-pressed` | same | `elevation-0` + inset | none | 0.98 |
-| Disabled | `void-3` | `void-7` | none | `1px void-6` | 1 |
-| Loading | `void-3` | hidden | none | `1px void-6` + spinner | 1 |
+| State    | Background               | Text                  | Shadow                | Border                 | Scale |
+| -------- | ------------------------ | --------------------- | --------------------- | ---------------------- | ----- |
+| Rest     | `action-primary-bg`      | `action-primary-text` | `elevation-1`         | none                   | 1     |
+| Hover    | `action-primary-hover`   | same                  | `elevation-2`         | none                   | 1     |
+| Focus    | `action-primary-bg`      | same                  | `elevation-1`         | `2px aether-4` (ring)  | 1     |
+| Active   | `action-primary-pressed` | same                  | `elevation-0` + inset | none                   | 0.98  |
+| Disabled | `void-3`                 | `void-7`              | none                  | `1px void-6`           | 1     |
+| Loading  | `void-3`                 | hidden                | none                  | `1px void-6` + spinner | 1     |
 
 ### Input States
 
-| State | Background | Border | Shadow | Ring |
-|-------|-----------|--------|--------|------|
-| Rest | `void-2` | `1px border-default` | none | none |
-| Hover | `void-2` | `1px border-strong` | none | none |
-| Focus | `void-2` | `1px border-accent` | none | `2px aether-4` offset 2px |
-| Error | `void-2` | `1px error` | none | `2px error` offset 2px |
-| Disabled | `void-3` | `1px void-6` | none | none |
-| Loading | `void-2` | `1px border-default` | none | none + spinner |
+| State    | Background | Border               | Shadow | Ring                      |
+| -------- | ---------- | -------------------- | ------ | ------------------------- |
+| Rest     | `void-2`   | `1px border-default` | none   | none                      |
+| Hover    | `void-2`   | `1px border-strong`  | none   | none                      |
+| Focus    | `void-2`   | `1px border-accent`  | none   | `2px aether-4` offset 2px |
+| Error    | `void-2`   | `1px error`          | none   | `2px error` offset 2px    |
+| Disabled | `void-3`   | `1px void-6`         | none   | none                      |
+| Loading  | `void-2`   | `1px border-default` | none   | none + spinner            |
 
 ### Card States
 
-| State | Elevation | Border | Glow | Transform |
-|-------|-----------|--------|------|-----------|
-| Rest | `elevation-0` | `1px void-6 / 0.30` | none | none |
-| Hover | `elevation-1` | `1px void-7 / 0.50` | `glow-sm` | `translateY(-2px)` |
-| Focus | `elevation-1` | `1px aether-4` | `glow-sm` | none |
-| Active | `elevation-0` | `1px aether-4` | none | none |
-| Selected | `elevation-1` | `1px aether-4` | `glow-sm` | none |
-| Disabled | `elevation-0` | `1px void-6 / 0.20` | none | none |
+| State    | Elevation     | Border              | Glow      | Transform          |
+| -------- | ------------- | ------------------- | --------- | ------------------ |
+| Rest     | `elevation-0` | `1px void-6 / 0.30` | none      | none               |
+| Hover    | `elevation-1` | `1px void-7 / 0.50` | `glow-sm` | `translateY(-2px)` |
+| Focus    | `elevation-1` | `1px aether-4`      | `glow-sm` | none               |
+| Active   | `elevation-0` | `1px aether-4`      | none      | none               |
+| Selected | `elevation-1` | `1px aether-4`      | `glow-sm` | none               |
+| Disabled | `elevation-0` | `1px void-6 / 0.20` | none      | none               |
 
 ---
 
@@ -92,30 +92,29 @@ Skeletons replace content during loading. They mirror the exact layout of the lo
 
 ### Skeleton Appearance
 
-| Property | Value |
-|----------|-------|
-| Color | `void-6` (shimmer base) |
-| Shimmer color | `void-7` (highlight pass) |
-| Animation | Shimmer — gradient sweep left to right, 2s loop |
-| Border radius | Matches the element it replaces |
-| Opacity | 1 (full — skeletons don't fade in, they swap with content) |
+| Property      | Value                                                      |
+| ------------- | ---------------------------------------------------------- |
+| Color         | `void-6` (shimmer base)                                    |
+| Shimmer color | `void-7` (highlight pass)                                  |
+| Animation     | Shimmer — gradient sweep left to right, 2s loop            |
+| Border radius | Matches the element it replaces                            |
+| Opacity       | 1 (full — skeletons don't fade in, they swap with content) |
 
 ### Shimmer Animation
 
 ```css
 /* Design specification */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--void-6) 25%,
-    var(--void-7) 50%,
-    var(--void-6) 75%
-  );
+  background: linear-gradient(90deg, var(--void-6) 25%, var(--void-7) 50%, var(--void-6) 75%);
   background-size: 200% 100%;
   animation: shimmer 2s ease-in-out infinite;
 }
@@ -127,14 +126,14 @@ Skeletons replace content during loading. They mirror the exact layout of the lo
 
 ### Skeleton Presets
 
-| Preset | Elements | Layout |
-|--------|----------|--------|
-| `skeleton-card` | Image rectangle + title line + subtitle line | Match AnimeCard layout |
-| `skeleton-card-compact` | Image square + title line | Match compact card |
-| `skeleton-detail` | Hero rect + title + 3 meta lines + synopsis block (4 lines) | Match anime detail |
-| `skeleton-episode-row` | Thumbnail square + 2 text lines | Match episode row |
-| `skeleton-list-item` | Avatar circle + 2 text lines | Match list item |
-| `skeleton-form` | Label + input rect, repeated | Match form layout |
+| Preset                  | Elements                                                    | Layout                 |
+| ----------------------- | ----------------------------------------------------------- | ---------------------- |
+| `skeleton-card`         | Image rectangle + title line + subtitle line                | Match AnimeCard layout |
+| `skeleton-card-compact` | Image square + title line                                   | Match compact card     |
+| `skeleton-detail`       | Hero rect + title + 3 meta lines + synopsis block (4 lines) | Match anime detail     |
+| `skeleton-episode-row`  | Thumbnail square + 2 text lines                             | Match episode row      |
+| `skeleton-list-item`    | Avatar circle + 2 text lines                                | Match list item        |
+| `skeleton-form`         | Label + input rect, repeated                                | Match form layout      |
 
 ---
 
@@ -142,41 +141,41 @@ Skeletons replace content during loading. They mirror the exact layout of the lo
 
 ### Card Variants
 
-| Variant | Surface | Border | Content | Use When |
-|---------|---------|--------|---------|----------|
-| `default` | `void-2` opaque | `void-6` | Title, score, metadata | Standard catalog grid |
-| `glass` | Standard glass | Glass border | Title, score | Home page, featured sections |
-| `compact` | Transparent | None | Title only | Dense lists, inline references |
-| `featured` | Tinted glass | Tinted border | Title, score, synopsis | Hero/featured carousel |
+| Variant    | Surface         | Border        | Content                | Use When                       |
+| ---------- | --------------- | ------------- | ---------------------- | ------------------------------ |
+| `default`  | `void-2` opaque | `void-6`      | Title, score, metadata | Standard catalog grid          |
+| `glass`    | Standard glass  | Glass border  | Title, score           | Home page, featured sections   |
+| `compact`  | Transparent     | None          | Title only             | Dense lists, inline references |
+| `featured` | Tinted glass    | Tinted border | Title, score, synopsis | Hero/featured carousel         |
 
 ### Button Variants
 
-| Variant | Background | Text | Border | Use When |
-|---------|-----------|------|--------|----------|
-| `primary` | `aether-4` | `void-1` | None | Primary CTA, play button |
-| `secondary` | `void-3` | `void-11` | `1px void-7` | Secondary action, cancel |
-| `ghost` | transparent | `void-10` | None | Tertiary, icon buttons, nav |
-| `accent` | `nova-4` | `void-1` | None | Premium CTA, upsell |
-| `destructive` | `error-muted` | `error` | `1px error / 0.50` | Delete, remove, disconnect |
-| `link` | transparent | `aether-6` | None | Inline text link |
+| Variant       | Background    | Text       | Border             | Use When                    |
+| ------------- | ------------- | ---------- | ------------------ | --------------------------- |
+| `primary`     | `aether-4`    | `void-1`   | None               | Primary CTA, play button    |
+| `secondary`   | `void-3`      | `void-11`  | `1px void-7`       | Secondary action, cancel    |
+| `ghost`       | transparent   | `void-10`  | None               | Tertiary, icon buttons, nav |
+| `accent`      | `nova-4`      | `void-1`   | None               | Premium CTA, upsell         |
+| `destructive` | `error-muted` | `error`    | `1px error / 0.50` | Delete, remove, disconnect  |
+| `link`        | transparent   | `aether-6` | None               | Inline text link            |
 
 ### Button Sizes
 
-| Size | Padding (V × H) | Font | Icon Size | Min Height |
-|------|-----------------|------|-----------|------------|
-| `sm` | `space-1 × space-2` | `text-sm` (12px) | `icon-xs` (12px) | 28px |
-| `md` | `space-2 × space-3` | `text-sm` (12px) | `icon-sm` (16px) | 36px |
-| `lg` | `space-2 × space-4` | `text-base` (14px) | `icon-sm` (16px) | 44px |
-| `xl` | `space-3 × space-5` | `text-md` (16px) | `icon-md` (20px) | 52px |
+| Size | Padding (V × H)     | Font               | Icon Size        | Min Height |
+| ---- | ------------------- | ------------------ | ---------------- | ---------- |
+| `sm` | `space-1 × space-2` | `text-sm` (12px)   | `icon-xs` (12px) | 28px       |
+| `md` | `space-2 × space-3` | `text-sm` (12px)   | `icon-sm` (16px) | 36px       |
+| `lg` | `space-2 × space-4` | `text-base` (14px) | `icon-sm` (16px) | 44px       |
+| `xl` | `space-3 × space-5` | `text-md` (16px)   | `icon-md` (20px) | 52px       |
 
 **Decision: 36px default button height (md).** 36px is compact enough for dense UIs but large enough to tap accurately. 44px (lg) is used for prominent CTAs.
 
 ### Input Variants
 
-| Variant | Use When |
-|---------|----------|
-| `default` | Standard form inputs |
-| `glass` | Inputs on glassmorphic surfaces (search overlay, modal) |
+| Variant   | Use When                                                |
+| --------- | ------------------------------------------------------- |
+| `default` | Standard form inputs                                    |
+| `glass`   | Inputs on glassmorphic surfaces (search overlay, modal) |
 
 ---
 
@@ -212,13 +211,13 @@ Some components can render as different elements:
 
 ## Naming Conventions
 
-| Category | Prefix | Examples |
-|----------|--------|----------|
-| Primitives | None | `Button`, `Input`, `Badge`, `Avatar` |
-| Layout | None | `Stack`, `Grid`, `Container`, `Divider` |
-| Composite | Feature prefix | `AnimeCard`, `EpisodeRow`, `PlayerControls` |
-| Overlay | None | `Modal`, `Drawer`, `Tooltip`, `Toast` |
-| Hooks | `use` | `useWatchlist`, `useContinueWatching` |
+| Category   | Prefix         | Examples                                    |
+| ---------- | -------------- | ------------------------------------------- |
+| Primitives | None           | `Button`, `Input`, `Badge`, `Avatar`        |
+| Layout     | None           | `Stack`, `Grid`, `Container`, `Divider`     |
+| Composite  | Feature prefix | `AnimeCard`, `EpisodeRow`, `PlayerControls` |
+| Overlay    | None           | `Modal`, `Drawer`, `Tooltip`, `Toast`       |
+| Hooks      | `use`          | `useWatchlist`, `useContinueWatching`       |
 
 **Decision: Feature prefix on composites only.** Primitives are generic — `Button` is `Button` everywhere. Composites embed domain concepts — `AnimeCard` makes the context explicit.
 

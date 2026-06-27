@@ -15,25 +15,25 @@ This is **documentation only** — the migration tooling (Drizzle Kit, migration
 
 ## 2. Guiding Principles
 
-| Principle | Meaning |
-|-----------|---------|
-| **Migrations are immutable.** | Once a migration is applied to production, it is never edited. If it needs to change, write a new migration. |
-| **Every migration is reversible.** | Every `UP` has a corresponding `DOWN` — except for data-transforming migrations, which are explicitly marked irreversible. |
-| **No breaking changes without a transition.** | Column renames and type changes use a multi-migration transition (add → backfill → switch → drop). |
-| **Migrations are applied, not reset.** | We never `DROP` and recreate the database in production. We migrate forward. |
-| **Lock time is measured.** | Every migration is tested for lock duration before production. Long-running DDL is split or scheduled. |
-| **Backups precede migrations.** | A verified backup (or Neon point-in-time recovery point) exists before any production migration. |
+| Principle                                     | Meaning                                                                                                                    |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Migrations are immutable.**                 | Once a migration is applied to production, it is never edited. If it needs to change, write a new migration.               |
+| **Every migration is reversible.**            | Every `UP` has a corresponding `DOWN` — except for data-transforming migrations, which are explicitly marked irreversible. |
+| **No breaking changes without a transition.** | Column renames and type changes use a multi-migration transition (add → backfill → switch → drop).                         |
+| **Migrations are applied, not reset.**        | We never `DROP` and recreate the database in production. We migrate forward.                                               |
+| **Lock time is measured.**                    | Every migration is tested for lock duration before production. Long-running DDL is split or scheduled.                     |
+| **Backups precede migrations.**               | A verified backup (or Neon point-in-time recovery point) exists before any production migration.                           |
 
 ---
 
 ## 3. Migration Tooling
 
-| Tool | Role |
-|------|------|
-| **Drizzle Kit** | Generates migration SQL from schema diffs (`drizzle-kit generate`). |
-| **Drizzle ORM migrator** | Applies migrations (`drizzle-orm/migrator`). |
-| **Neon branching** | Creates an ephemeral copy of production to test migrations before applying. |
-| **pg_dump / pg_restore** | Full backups for disaster recovery (Neon handles PITR natively). |
+| Tool                     | Role                                                                        |
+| ------------------------ | --------------------------------------------------------------------------- |
+| **Drizzle Kit**          | Generates migration SQL from schema diffs (`drizzle-kit generate`).         |
+| **Drizzle ORM migrator** | Applies migrations (`drizzle-orm/migrator`).                                |
+| **Neon branching**       | Creates an ephemeral copy of production to test migrations before applying. |
+| **pg_dump / pg_restore** | Full backups for disaster recovery (Neon handles PITR natively).            |
 
 We use **Drizzle Kit's generated SQL migrations**, not hand-written SQL, as the default. Hand-written SQL is permitted only for:
 
@@ -124,13 +124,13 @@ CREATE INDEX CONCURRENTLY idx_anime_trailer_url ON anime (trailer_url);
 
 A rename is **not** a single `ALTER TABLE RENAME` in production — it's a transition:
 
-| Step | Migration | Effect |
-|------|-----------|--------|
-| 1 | Add new column `new_col`, keep `old_col`. | Both exist. |
-| 2 | Backfill `new_col` from `old_col`. | Data is duplicated. |
-| 3 | Deploy app code that writes to both columns. | App is dual-write. |
-| 4 | Deploy app code that reads from `new_col`. | App is switched. |
-| 5 | Drop `old_col`. | Old column removed. |
+| Step | Migration                                    | Effect              |
+| ---- | -------------------------------------------- | ------------------- |
+| 1    | Add new column `new_col`, keep `old_col`.    | Both exist.         |
+| 2    | Backfill `new_col` from `old_col`.           | Data is duplicated. |
+| 3    | Deploy app code that writes to both columns. | App is dual-write.  |
+| 4    | Deploy app code that reads from `new_col`.   | App is switched.    |
+| 5    | Drop `old_col`.                              | Old column removed. |
 
 Each step is a separate migration, with deploys between them. This avoids any moment where the app and schema disagree.
 
@@ -173,14 +173,14 @@ Run in a loop (application or script) until all rows are backfilled. Each batch 
 
 ## 7. Dangerous Patterns (Forbidden)
 
-| Pattern | Why forbidden | Safe alternative |
-|---------|---------------|------------------|
-| `ALTER TABLE … ALTER COLUMN TYPE` directly. | Rewrites whole table, long lock. | Multi-step add → backfill → switch → drop. |
-| `CREATE INDEX` (without `CONCURRENTLY`). | Locks writes for the duration of the build. | `CREATE INDEX CONCURRENTLY`. |
-| `DROP COLUMN` while app still writes to it. | Data loss. | Stop writing first, then drop. |
-| `TRUNCATE` in a migration. | Destroys data, can't be rolled back easily. | Use only in test/seed migrations. |
-| Editing an applied migration file. | Diverges production state from the file. | Write a new migration. |
-| `VACUUM FULL` in a migration. | Rewrites the table, exclusive lock. | Run `VACUUM FULL` as a separate maintenance operation, not in a migration. |
+| Pattern                                     | Why forbidden                               | Safe alternative                                                           |
+| ------------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------- |
+| `ALTER TABLE … ALTER COLUMN TYPE` directly. | Rewrites whole table, long lock.            | Multi-step add → backfill → switch → drop.                                 |
+| `CREATE INDEX` (without `CONCURRENTLY`).    | Locks writes for the duration of the build. | `CREATE INDEX CONCURRENTLY`.                                               |
+| `DROP COLUMN` while app still writes to it. | Data loss.                                  | Stop writing first, then drop.                                             |
+| `TRUNCATE` in a migration.                  | Destroys data, can't be rolled back easily. | Use only in test/seed migrations.                                          |
+| Editing an applied migration file.          | Diverges production state from the file.    | Write a new migration.                                                     |
+| `VACUUM FULL` in a migration.               | Rewrites the table, exclusive lock.         | Run `VACUUM FULL` as a separate maintenance operation, not in a migration. |
 
 ---
 
@@ -190,11 +190,11 @@ When a table grows too large for efficient querying or purging, we **partition**
 
 ### 8.1 Tables That Will Need Partitioning
 
-| Table | Partition key | Strategy | When |
-|-------|--------------|----------|------|
-| `watch_history` | `watched_at` | Range (monthly) | > 50M rows (M5+). |
-| `audit_log` | `created_at` | Range (yearly) | > 100M rows (M5+). |
-| `notifications` | `created_at` | Range (monthly) | > 100M rows (M6+). |
+| Table            | Partition key | Strategy        | When               |
+| ---------------- | ------------- | --------------- | ------------------ |
+| `watch_history`  | `watched_at`  | Range (monthly) | > 50M rows (M5+).  |
+| `audit_log`      | `created_at`  | Range (yearly)  | > 100M rows (M5+). |
+| `notifications`  | `created_at`  | Range (monthly) | > 100M rows (M6+). |
 | `search_history` | `searched_at` | Range (monthly) | > 100M rows (M6+). |
 
 ### 8.2 Partitioning Approach
@@ -215,12 +215,12 @@ Partitioning adds complexity (query planning, index management, cross-partition 
 
 ## 9. Rollback Strategy
 
-| Scenario | Rollback |
-|----------|----------|
-| Migration fails mid-apply. | Postgres DDL is transactional — the failed statement rolls back. Fix the migration and retry. |
-| Migration succeeds but app errors. | Apply the `DOWN` migration (if reversible) or restore from PITR. |
-| Data corruption discovered later. | Restore from PITR to a point before the migration, then re-apply a fixed migration. |
-| App and schema out of sync. | Roll back the app deploy first (instant), then decide on the migration. |
+| Scenario                           | Rollback                                                                                      |
+| ---------------------------------- | --------------------------------------------------------------------------------------------- |
+| Migration fails mid-apply.         | Postgres DDL is transactional — the failed statement rolls back. Fix the migration and retry. |
+| Migration succeeds but app errors. | Apply the `DOWN` migration (if reversible) or restore from PITR.                              |
+| Data corruption discovered later.  | Restore from PITR to a point before the migration, then re-apply a fixed migration.           |
+| App and schema out of sync.        | Roll back the app deploy first (instant), then decide on the migration.                       |
 
 **PITR (Point-in-Time Recovery)** is our ultimate safety net. Neon supports PITR with a configurable retention window (default 7 days, extendable). We can restore the entire database to any second within that window.
 

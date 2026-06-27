@@ -62,4 +62,4 @@ See [`architecture/adr/000-record-architecture-decisions.md#how-to-propose-a-new
 
 ## Conventions
 
-Branch naming, commit messages, versioning, and the PR/issue workflow are all defined in [Repository Design](REPOSITORY-DESIGN.md). This folder records the *why* and *what*; that document defines the *how*.
+Branch naming, commit messages, versioning, and the PR/issue workflow are all defined in [Repository Design](REPOSITORY-DESIGN.md). This folder records the _why_ and _what_; that document defines the _how_.

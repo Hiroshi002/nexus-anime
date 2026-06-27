@@ -3,8 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Nexus Anime",
-  description:
-    "A premium, cinematic anime streaming portal for gaming-crossover and anime fans.",
+  description: "A premium, cinematic anime streaming portal for gaming-crossover and anime fans.",
 };
 
 export const viewport: Viewport = {

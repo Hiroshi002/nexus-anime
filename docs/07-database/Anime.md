@@ -17,109 +17,109 @@
 
 ### 2.1 Fields
 
-| Column | Type | Constraint | Description |
-|--------|------|------------|-------------|
-| `id` | `uuid` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key. |
-| `slug` | `text` | `NOT NULL` | URL-safe identifier (e.g. `attack-on-titan`). Unique among active rows. |
-| `title` | `text` | `NOT NULL` | Romaji/English title — the primary display name. |
-| `title_jp` | `text` | nullable | Original Japanese title (kanji/kana). |
-| `title_synonyms` | `text[]` | `NOT NULL DEFAULT '{}'` | Alternate titles for search. GIN-indexed. |
-| `synopsis` | `text` | nullable | Short description. Sanitized at render. |
-| `status` | `text` | `NOT NULL DEFAULT 'unknown'` | Airing lifecycle. See §2.3. |
-| `type` | `text` | `NOT NULL DEFAULT 'tv'` | Format. See §2.4. |
-| `season_year` | `integer` | nullable | Year of the broadcast season (e.g. 2024). |
-| `season_name` | `text` | nullable | Season label: `'spring'`, `'summer'`, `'fall'`, `'winter'`. |
-| `total_episodes` | `integer` | nullable | Declared episode count; `NULL` if unknown. |
-| `average_duration_minutes` | `integer` | nullable | Typical runtime per episode. |
-| `age_rating` | `text` | nullable | Content rating. See §2.5. |
-| `poster_url` | `text` | nullable | Primary poster image URL. |
-| `cover_url` | `text` | nullable | Wide banner/cover image URL. |
-| `trailer_url` | `text` | nullable | Promotional trailer URL. |
-| `tmdb_id` | `integer` | nullable | TMDB external id. Unique among active rows when set. |
-| `anilist_id` | `integer` | nullable | AniList external id. Unique among active rows when set. |
-| `mal_id` | `integer` | nullable | MyAnimeList external id (future import source). |
-| `popularity_score` | `numeric(8,4)` | `NOT NULL DEFAULT 0` | Computed popularity (trending sort). Updated by a background job. |
-| `average_rating` | `numeric(3,2)` | `NOT NULL DEFAULT 0` | Mean of all active ratings. Maintained by trigger/application. |
-| `rating_count` | `integer` | `NOT NULL DEFAULT 0` | Number of active ratings. |
-| `view_count` | `bigint` | `NOT NULL DEFAULT 0` | Total watch-event count. `bigint` — exceeds 2^31 at scale. |
-| `bookmark_count` | `integer` | `NOT NULL DEFAULT 0` | Denormalized bookmark count for sort/display. |
-| `published_at` | `timestamptz` | nullable | When the anime was first released/aired. |
-| `next_episode_at` | `timestamptz` | nullable | Expected next episode air time (for airing shows). |
-| `import_metadata` | `jsonb` | `NOT NULL DEFAULT '{}'` | Raw upstream payload for reprocessing. GIN-indexed. |
-| `deleted_at` | `timestamptz` | nullable | Soft-delete marker. |
-| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()` | — |
-| `updated_at` | `timestamptz` | `NOT NULL DEFAULT now()` | — |
-| `version` | `integer` | `NOT NULL DEFAULT 1` | Optimistic concurrency — catalog edits are frequent. |
-| `created_by` | `uuid` nullable | FK → `users.id` | Admin who imported/curated it. |
-| `updated_by` | `uuid` nullable | FK → `users.id` | Last curator. |
+| Column                     | Type            | Constraint                              | Description                                                             |
+| -------------------------- | --------------- | --------------------------------------- | ----------------------------------------------------------------------- |
+| `id`                       | `uuid`          | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key.                                                          |
+| `slug`                     | `text`          | `NOT NULL`                              | URL-safe identifier (e.g. `attack-on-titan`). Unique among active rows. |
+| `title`                    | `text`          | `NOT NULL`                              | Romaji/English title — the primary display name.                        |
+| `title_jp`                 | `text`          | nullable                                | Original Japanese title (kanji/kana).                                   |
+| `title_synonyms`           | `text[]`        | `NOT NULL DEFAULT '{}'`                 | Alternate titles for search. GIN-indexed.                               |
+| `synopsis`                 | `text`          | nullable                                | Short description. Sanitized at render.                                 |
+| `status`                   | `text`          | `NOT NULL DEFAULT 'unknown'`            | Airing lifecycle. See §2.3.                                             |
+| `type`                     | `text`          | `NOT NULL DEFAULT 'tv'`                 | Format. See §2.4.                                                       |
+| `season_year`              | `integer`       | nullable                                | Year of the broadcast season (e.g. 2024).                               |
+| `season_name`              | `text`          | nullable                                | Season label: `'spring'`, `'summer'`, `'fall'`, `'winter'`.             |
+| `total_episodes`           | `integer`       | nullable                                | Declared episode count; `NULL` if unknown.                              |
+| `average_duration_minutes` | `integer`       | nullable                                | Typical runtime per episode.                                            |
+| `age_rating`               | `text`          | nullable                                | Content rating. See §2.5.                                               |
+| `poster_url`               | `text`          | nullable                                | Primary poster image URL.                                               |
+| `cover_url`                | `text`          | nullable                                | Wide banner/cover image URL.                                            |
+| `trailer_url`              | `text`          | nullable                                | Promotional trailer URL.                                                |
+| `tmdb_id`                  | `integer`       | nullable                                | TMDB external id. Unique among active rows when set.                    |
+| `anilist_id`               | `integer`       | nullable                                | AniList external id. Unique among active rows when set.                 |
+| `mal_id`                   | `integer`       | nullable                                | MyAnimeList external id (future import source).                         |
+| `popularity_score`         | `numeric(8,4)`  | `NOT NULL DEFAULT 0`                    | Computed popularity (trending sort). Updated by a background job.       |
+| `average_rating`           | `numeric(3,2)`  | `NOT NULL DEFAULT 0`                    | Mean of all active ratings. Maintained by trigger/application.          |
+| `rating_count`             | `integer`       | `NOT NULL DEFAULT 0`                    | Number of active ratings.                                               |
+| `view_count`               | `bigint`        | `NOT NULL DEFAULT 0`                    | Total watch-event count. `bigint` — exceeds 2^31 at scale.              |
+| `bookmark_count`           | `integer`       | `NOT NULL DEFAULT 0`                    | Denormalized bookmark count for sort/display.                           |
+| `published_at`             | `timestamptz`   | nullable                                | When the anime was first released/aired.                                |
+| `next_episode_at`          | `timestamptz`   | nullable                                | Expected next episode air time (for airing shows).                      |
+| `import_metadata`          | `jsonb`         | `NOT NULL DEFAULT '{}'`                 | Raw upstream payload for reprocessing. GIN-indexed.                     |
+| `deleted_at`               | `timestamptz`   | nullable                                | Soft-delete marker.                                                     |
+| `created_at`               | `timestamptz`   | `NOT NULL DEFAULT now()`                | —                                                                       |
+| `updated_at`               | `timestamptz`   | `NOT NULL DEFAULT now()`                | —                                                                       |
+| `version`                  | `integer`       | `NOT NULL DEFAULT 1`                    | Optimistic concurrency — catalog edits are frequent.                    |
+| `created_by`               | `uuid` nullable | FK → `users.id`                         | Admin who imported/curated it.                                          |
+| `updated_by`               | `uuid` nullable | FK → `users.id`                         | Last curator.                                                           |
 
 ### 2.2 Constraints
 
-| Name | Type | Definition |
-|------|------|------------|
-| `uq_anime_slug` | partial unique | `UNIQUE (slug) WHERE deleted_at IS NULL` |
-| `uq_anime_tmdb_id` | partial unique | `UNIQUE (tmdb_id) WHERE deleted_at IS NULL AND tmdb_id IS NOT NULL` |
-| `uq_anime_anilist_id` | partial unique | `UNIQUE (anilist_id) WHERE deleted_at IS NULL AND anilist_id IS NOT NULL` |
-| `uq_anime_mal_id` | partial unique | `UNIQUE (mal_id) WHERE deleted_at IS NULL AND mal_id IS NOT NULL` |
-| `chk_anime_status_range` | check | `status IN ('unknown','upcoming','airing','finished','cancelled')` |
-| `chk_anime_type_range` | check | `type IN ('tv','movie','ova','ona','special','music')` |
-| `chk_anime_season_name_range` | check | `season_name IS NULL OR season_name IN ('spring','summer','fall','winter')` |
-| `chk_anime_age_rating_range` | check | `age_rating IS NULL OR age_rating IN ('g','pg','pg13','r','r18')` |
-| `chk_anime_season_year` | check | `season_year IS NULL OR season_year BETWEEN 1917 AND 2100` |
-| `chk_anime_total_episodes` | check | `total_episodes IS NULL OR total_episodes >= 0` |
-| `chk_anime_average_duration` | check | `average_duration_minutes IS NULL OR average_duration_minutes > 0` |
-| `chk_anime_popularity_range` | check | `popularity_score >= 0` |
-| `chk_anime_average_rating_range` | check | `average_rating BETWEEN 0 AND 10` |
-| `chk_anime_rating_count_positive` | check | `rating_count >= 0` |
-| `chk_anime_view_count_positive` | check | `view_count >= 0` |
+| Name                              | Type           | Definition                                                                  |
+| --------------------------------- | -------------- | --------------------------------------------------------------------------- |
+| `uq_anime_slug`                   | partial unique | `UNIQUE (slug) WHERE deleted_at IS NULL`                                    |
+| `uq_anime_tmdb_id`                | partial unique | `UNIQUE (tmdb_id) WHERE deleted_at IS NULL AND tmdb_id IS NOT NULL`         |
+| `uq_anime_anilist_id`             | partial unique | `UNIQUE (anilist_id) WHERE deleted_at IS NULL AND anilist_id IS NOT NULL`   |
+| `uq_anime_mal_id`                 | partial unique | `UNIQUE (mal_id) WHERE deleted_at IS NULL AND mal_id IS NOT NULL`           |
+| `chk_anime_status_range`          | check          | `status IN ('unknown','upcoming','airing','finished','cancelled')`          |
+| `chk_anime_type_range`            | check          | `type IN ('tv','movie','ova','ona','special','music')`                      |
+| `chk_anime_season_name_range`     | check          | `season_name IS NULL OR season_name IN ('spring','summer','fall','winter')` |
+| `chk_anime_age_rating_range`      | check          | `age_rating IS NULL OR age_rating IN ('g','pg','pg13','r','r18')`           |
+| `chk_anime_season_year`           | check          | `season_year IS NULL OR season_year BETWEEN 1917 AND 2100`                  |
+| `chk_anime_total_episodes`        | check          | `total_episodes IS NULL OR total_episodes >= 0`                             |
+| `chk_anime_average_duration`      | check          | `average_duration_minutes IS NULL OR average_duration_minutes > 0`          |
+| `chk_anime_popularity_range`      | check          | `popularity_score >= 0`                                                     |
+| `chk_anime_average_rating_range`  | check          | `average_rating BETWEEN 0 AND 10`                                           |
+| `chk_anime_rating_count_positive` | check          | `rating_count >= 0`                                                         |
+| `chk_anime_view_count_positive`   | check          | `view_count >= 0`                                                           |
 
 ### 2.3 Status Values
 
-| Value | Meaning |
-|-------|---------|
-| `unknown` | Imported but not yet classified. |
-| `upcoming` | Announced, not yet aired. |
-| `airing` | Currently releasing episodes. |
-| `finished` | Completed its run. |
-| `cancelled` | Discontinued before completion. |
+| Value       | Meaning                          |
+| ----------- | -------------------------------- |
+| `unknown`   | Imported but not yet classified. |
+| `upcoming`  | Announced, not yet aired.        |
+| `airing`    | Currently releasing episodes.    |
+| `finished`  | Completed its run.               |
+| `cancelled` | Discontinued before completion.  |
 
 ### 2.4 Type Values
 
-| Value | Meaning |
-|-------|---------|
-| `tv` | Television series. |
-| `movie` | Feature film. |
-| `ova` | Original Video Animation. |
-| `ona` | Original Net Animation. |
-| `special` | Special episode. |
-| `music` | Music video. |
+| Value     | Meaning                   |
+| --------- | ------------------------- |
+| `tv`      | Television series.        |
+| `movie`   | Feature film.             |
+| `ova`     | Original Video Animation. |
+| `ona`     | Original Net Animation.   |
+| `special` | Special episode.          |
+| `music`   | Music video.              |
 
 ### 2.5 Age Ratings
 
-| Value | Meaning |
-|-------|---------|
-| `g` | All ages. |
-| `pg` | Parental guidance. |
-| `pg13` | Suitable for 13+. |
-| `r` | Restricted (17+ with guardian). |
-| `r18` | Adults only. |
+| Value  | Meaning                         |
+| ------ | ------------------------------- |
+| `g`    | All ages.                       |
+| `pg`   | Parental guidance.              |
+| `pg13` | Suitable for 13+.               |
+| `r`    | Restricted (17+ with guardian). |
+| `r18`  | Adults only.                    |
 
 ### 2.6 Indexes
 
-| Index | Type | Columns | Purpose |
-|-------|------|---------|---------|
-| `pk_anime` | btree (unique) | `id` | PK lookup. |
-| `idx_anime_slug` | btree (unique, partial) | `slug` `WHERE deleted_at IS NULL` | Route `/anime/:slug`. |
-| `idx_anime_status` | btree | `status` `WHERE deleted_at IS NULL` | Filter by status. |
-| `idx_anime_type` | btree | `type` `WHERE deleted_at IS NULL` | Filter by type. |
-| `idx_anime_season` | btree | `(season_year, season_name)` `WHERE deleted_at IS NULL` | Season browsing. |
-| `idx_anime_popularity` | btree | `popularity_score DESC` `WHERE deleted_at IS NULL` | Trending sort. |
-| `idx_anime_average_rating` | btree | `average_rating DESC` `WHERE deleted_at IS NULL` | Top-rated sort. |
-| `idx_anime_published_at` | btree | `published_at DESC` `WHERE deleted_at IS NULL` | New releases. |
-| `idx_anime_next_episode_at` | btree | `next_episode_at` `WHERE status = 'airing' AND deleted_at IS NULL` | "Upcoming episodes" feed. |
-| `idx_anime_title_synonyms` | GIN | `title_synonyms` | Search over alternate titles. |
-| `idx_anime_import_metadata` | GIN | `import_metadata` | Reprocessing/debug queries. |
-| `idx_anime_title_trgm` | GIN (trigram) | `title gin_trgm_ops` | Fuzzy title search (future). |
+| Index                       | Type                    | Columns                                                            | Purpose                       |
+| --------------------------- | ----------------------- | ------------------------------------------------------------------ | ----------------------------- |
+| `pk_anime`                  | btree (unique)          | `id`                                                               | PK lookup.                    |
+| `idx_anime_slug`            | btree (unique, partial) | `slug` `WHERE deleted_at IS NULL`                                  | Route `/anime/:slug`.         |
+| `idx_anime_status`          | btree                   | `status` `WHERE deleted_at IS NULL`                                | Filter by status.             |
+| `idx_anime_type`            | btree                   | `type` `WHERE deleted_at IS NULL`                                  | Filter by type.               |
+| `idx_anime_season`          | btree                   | `(season_year, season_name)` `WHERE deleted_at IS NULL`            | Season browsing.              |
+| `idx_anime_popularity`      | btree                   | `popularity_score DESC` `WHERE deleted_at IS NULL`                 | Trending sort.                |
+| `idx_anime_average_rating`  | btree                   | `average_rating DESC` `WHERE deleted_at IS NULL`                   | Top-rated sort.               |
+| `idx_anime_published_at`    | btree                   | `published_at DESC` `WHERE deleted_at IS NULL`                     | New releases.                 |
+| `idx_anime_next_episode_at` | btree                   | `next_episode_at` `WHERE status = 'airing' AND deleted_at IS NULL` | "Upcoming episodes" feed.     |
+| `idx_anime_title_synonyms`  | GIN                     | `title_synonyms`                                                   | Search over alternate titles. |
+| `idx_anime_import_metadata` | GIN                     | `import_metadata`                                                  | Reprocessing/debug queries.   |
+| `idx_anime_title_trgm`      | GIN (trigram)           | `title gin_trgm_ops`                                               | Fuzzy title search (future).  |
 
 ### 2.7 Decisions & Rationale
 
@@ -139,26 +139,26 @@ Many-to-many between `anime` and `genres`. A show has many genres; a genre label
 
 ### 3.1 Fields
 
-| Column | Type | Constraint | Description |
-|--------|------|------------|-------------|
-| `id` | `uuid` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate PK (join tables are first-class). |
-| `anime_id` | `uuid` | `NOT NULL` FK → `anime.id` | — |
-| `genre_id` | `uuid` | `NOT NULL` FK → `genres.id` | — |
-| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()` | — |
+| Column       | Type          | Constraint                              | Description                                 |
+| ------------ | ------------- | --------------------------------------- | ------------------------------------------- |
+| `id`         | `uuid`        | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate PK (join tables are first-class). |
+| `anime_id`   | `uuid`        | `NOT NULL` FK → `anime.id`              | —                                           |
+| `genre_id`   | `uuid`        | `NOT NULL` FK → `genres.id`             | —                                           |
+| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()`                | —                                           |
 
 ### 3.2 Constraints
 
-| Name | Type | Definition |
-|------|------|------------|
+| Name              | Type   | Definition                    |
+| ----------------- | ------ | ----------------------------- |
 | `uq_anime_genres` | unique | `UNIQUE (anime_id, genre_id)` |
 
 ### 3.3 Indexes
 
-| Index | Type | Columns | Purpose |
-|-------|------|---------|---------|
-| `pk_anime_genres` | btree (unique) | `id` | PK. |
-| `idx_anime_genres_anime_id` | btree | `anime_id` | List genres of a show. |
-| `idx_anime_genres_genre_id` | btree | `genre_id` | List shows in a genre. |
+| Index                       | Type           | Columns    | Purpose                |
+| --------------------------- | -------------- | ---------- | ---------------------- |
+| `pk_anime_genres`           | btree (unique) | `id`       | PK.                    |
+| `idx_anime_genres_anime_id` | btree          | `anime_id` | List genres of a show. |
+| `idx_anime_genres_genre_id` | btree          | `genre_id` | List shows in a genre. |
 
 ### 3.4 Decisions
 
@@ -173,37 +173,37 @@ Many-to-many between `anime` and `studios`, with a `role` distinguishing the stu
 
 ### 4.1 Fields
 
-| Column | Type | Constraint | Description |
-|--------|------|------------|-------------|
-| `id` | `uuid` | `PRIMARY KEY DEFAULT gen_random_uuid()` | — |
-| `anime_id` | `uuid` | `NOT NULL` FK → `anime.id` | — |
-| `studio_id` | `uuid` | `NOT NULL` FK → `studios.id` | — |
-| `role` | `text` | `NOT NULL DEFAULT 'production'` | See §4.3. |
-| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()` | — |
+| Column       | Type          | Constraint                              | Description |
+| ------------ | ------------- | --------------------------------------- | ----------- |
+| `id`         | `uuid`        | `PRIMARY KEY DEFAULT gen_random_uuid()` | —           |
+| `anime_id`   | `uuid`        | `NOT NULL` FK → `anime.id`              | —           |
+| `studio_id`  | `uuid`        | `NOT NULL` FK → `studios.id`            | —           |
+| `role`       | `text`        | `NOT NULL DEFAULT 'production'`         | See §4.3.   |
+| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()`                | —           |
 
 ### 4.2 Constraints
 
-| Name | Type | Definition |
-|------|------|------------|
-| `uq_anime_studios` | unique | `UNIQUE (anime_id, studio_id, role)` |
-| `chk_anime_studios_role_range` | check | `role IN ('production','licensing','music','animation')` |
+| Name                           | Type   | Definition                                               |
+| ------------------------------ | ------ | -------------------------------------------------------- |
+| `uq_anime_studios`             | unique | `UNIQUE (anime_id, studio_id, role)`                     |
+| `chk_anime_studios_role_range` | check  | `role IN ('production','licensing','music','animation')` |
 
 ### 4.3 Role Values
 
-| Value | Meaning |
-|-------|---------|
-| `production` | Primary production studio. |
-| `licensing` | Holds distribution rights. |
-| `music` | Music production. |
-| `animation` | Animation work (co-production). |
+| Value        | Meaning                         |
+| ------------ | ------------------------------- |
+| `production` | Primary production studio.      |
+| `licensing`  | Holds distribution rights.      |
+| `music`      | Music production.               |
+| `animation`  | Animation work (co-production). |
 
 ### 4.4 Indexes
 
-| Index | Type | Columns | Purpose |
-|-------|------|---------|---------|
-| `pk_anime_studios` | btree (unique) | `id` | PK. |
-| `idx_anime_studios_anime_id` | btree | `anime_id` | List studios of a show. |
-| `idx_anime_studios_studio_id` | btree | `studio_id` | List shows by a studio. |
+| Index                         | Type           | Columns     | Purpose                 |
+| ----------------------------- | -------------- | ----------- | ----------------------- |
+| `pk_anime_studios`            | btree (unique) | `id`        | PK.                     |
+| `idx_anime_studios_anime_id`  | btree          | `anime_id`  | List studios of a show. |
+| `idx_anime_studios_studio_id` | btree          | `studio_id` | List shows by a studio. |
 
 ### 4.5 Decisions
 

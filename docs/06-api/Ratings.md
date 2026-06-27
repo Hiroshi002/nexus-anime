@@ -56,13 +56,13 @@ RatingPublic: {
 }
 ```
 
-| Constraint | Definition |
-|-----------|------------|
-| Partial unique | `UNIQUE (user_id, anime_id) WHERE deleted_at IS NULL` |
-| Value range | `value BETWEEN 0 AND 10` |
-| Review title length | `review_title IS NULL OR char_length(review_title) <= 200` |
-| Review body length | `review_body IS NULL OR char_length(review_body) <= 10000` |
-| Review requires value | `review_body IS NULL OR value IS NOT NULL` |
+| Constraint            | Definition                                                 |
+| --------------------- | ---------------------------------------------------------- |
+| Partial unique        | `UNIQUE (user_id, anime_id) WHERE deleted_at IS NULL`      |
+| Value range           | `value BETWEEN 0 AND 10`                                   |
+| Review title length   | `review_title IS NULL OR char_length(review_title) <= 200` |
+| Review body length    | `review_body IS NULL OR char_length(review_body) <= 10000` |
+| Review requires value | `review_body IS NULL OR value IS NOT NULL`                 |
 
 `value` is required on create. Review is optional — a valid rating can carry only a number.
 
@@ -80,13 +80,13 @@ GET /api/v1/anime/{animeId}/ratings
 
 **Query parameters:**
 
-| Parameter  | Type    | Default      | Description                                                            |
-| :--------- | :------ | :----------- | :--------------------------------------------------------------------- |
-| `cursor`   | string  | —            | Cursor for pagination (see `Pagination.md`)                            |
-| `limit`    | integer | 20           | Items per page (1–100)                                                 |
-| `sort`     | string  | `"helpful"`  | Sort key: `"helpful"` sorts by `helpful_count DESC, created_at DESC`; `"recent"` sorts by `created_at DESC`; `"highest"` sorts by `value DESC`; `"lowest"` sorts by `value ASC` |
-| `minValue` | number  | —            | Filter: ratings with `value >= minValue` (0–10)                        |
-| `maxValue` | number  | —            | Filter: ratings with `value <= maxValue` (0–10)                        |
+| Parameter  | Type    | Default     | Description                                                                                                                                                                     |
+| :--------- | :------ | :---------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `cursor`   | string  | —           | Cursor for pagination (see `Pagination.md`)                                                                                                                                     |
+| `limit`    | integer | 20          | Items per page (1–100)                                                                                                                                                          |
+| `sort`     | string  | `"helpful"` | Sort key: `"helpful"` sorts by `helpful_count DESC, created_at DESC`; `"recent"` sorts by `created_at DESC`; `"highest"` sorts by `value DESC`; `"lowest"` sorts by `value ASC` |
+| `minValue` | number  | —           | Filter: ratings with `value >= minValue` (0–10)                                                                                                                                 |
+| `maxValue` | number  | —           | Filter: ratings with `value <= maxValue` (0–10)                                                                                                                                 |
 
 `minValue`/`maxValue` are combined with the partial-index scan on `(anime_id, value)`; they do not disable the sort, the sort column chooses the index.
 
@@ -127,12 +127,12 @@ GET /api/v1/users/me/ratings
 
 **Query parameters:**
 
-| Parameter | Type    | Default | Description                                          |
-| :-------- | :------ | :------ | :--------------------------------------------------- |
-| `cursor`  | string  | —       | Cursor for pagination                                |
-| `limit`   | integer | 20      | Items per page (1–100)                               |
-| `sort`    | string  | `"updated"` | `"updated"` (updated_at DESC), `"created"` (created_at DESC), `"highest"` (value DESC), `"lowest"` (value ASC) |
-| `includeDeleted` | boolean | `false` | When `true`, includes soft-deleted ratings          |
+| Parameter        | Type    | Default     | Description                                                                                                    |
+| :--------------- | :------ | :---------- | :------------------------------------------------------------------------------------------------------------- |
+| `cursor`         | string  | —           | Cursor for pagination                                                                                          |
+| `limit`          | integer | 20          | Items per page (1–100)                                                                                         |
+| `sort`           | string  | `"updated"` | `"updated"` (updated_at DESC), `"created"` (created_at DESC), `"highest"` (value DESC), `"lowest"` (value ASC) |
+| `includeDeleted` | boolean | `false`     | When `true`, includes soft-deleted ratings                                                                     |
 
 When the caller is not the owner of the resource (i.e. they are asking for another user's ratings), this endpoint returns `403 Forbidden`. The `/me` prefix is an ownership contract.
 
@@ -178,12 +178,12 @@ One active rating per `(user_id, anime_id)`. If the caller already has a non-del
 
 **Request body:**
 
-| Field          | Type    | Required | Validation                                                       |
-| :------------- | :------ | :------- | :--------------------------------------------------------------- |
-| `value`        | number  | yes      | 0.00–10.00, numeric(3,2)                                         |
-| `review_title` | string  | no       | 1–200 chars when non-null                                        |
-| `review_body`  | string  | no       | 1–10000 chars when non-null                                      |
-| `is_spoiler`   | boolean | no       | default `false`                                                  |
+| Field          | Type    | Required | Validation                  |
+| :------------- | :------ | :------- | :-------------------------- |
+| `value`        | number  | yes      | 0.00–10.00, numeric(3,2)    |
+| `review_title` | string  | no       | 1–200 chars when non-null   |
+| `review_body`  | string  | no       | 1–10000 chars when non-null |
+| `is_spoiler`   | boolean | no       | default `false`             |
 
 `version` starts at `1`. `helpful_count` starts at `0`.
 
@@ -233,13 +233,13 @@ Caller must be the rating's owner (`ratings.user_id = current_user.id`), else `4
 
 **Request body** (all fields optional except `version`; omit a field to leave it unchanged):
 
-| Field          | Type    | Required | Validation                                      |
-| :------------- | :------ | :------- | :---------------------------------------------- |
-| `version`      | integer | yes      | Must match current row `version`                |
-| `value`        | number  | no       | 0.00–10.00                                      |
-| `review_title` | string\|null | no  | 1–200 chars, or `null` to clear                 |
-| `review_body`  | string\|null | no  | 1–10000 chars, or `null` to clear               |
-| `is_spoiler`   | boolean | no       | —                                               |
+| Field          | Type         | Required | Validation                        |
+| :------------- | :----------- | :------- | :-------------------------------- |
+| `version`      | integer      | yes      | Must match current row `version`  |
+| `value`        | number       | no       | 0.00–10.00                        |
+| `review_title` | string\|null | no       | 1–200 chars, or `null` to clear   |
+| `review_body`  | string\|null | no       | 1–10000 chars, or `null` to clear |
+| `is_spoiler`   | boolean      | no       | —                                 |
 
 If `review_body` is cleared (set to null), `review_title` is also cleared server-side — an empty review is never stored. If `value` is updated, `anime.average_rating` is recalculated in the same transaction. On any successful write, `version` is incremented.
 
@@ -251,7 +251,7 @@ If `review_body` is cleared (set to null), `review_title` is also cleared server
     "id": "rat_01HXG",
     "user_id": "usr_abc",
     "anime_id": "ani_def",
-    "value": 9.50,
+    "value": 9.5,
     "review_title": "Peak fiction",
     "review_body": "Updated: the soundtrack grew on me even more.",
     "is_spoiler": false,
@@ -301,10 +301,10 @@ POST /api/v1/ratings/{id}/helpful
 
 Idempotent per `(rating_id, user_id)` — at most one helpful vote per user per rating. The body carries an explicit intent so the same endpoint produces a deterministic toggle-off:
 
-| Field    | Type    | Required | Description                        |
-| :------- | :------ | :------- | :--------------------------------- |
-| `rating_id` | string | yes (body or path) | Must match `{id}` in the path |
-| `value`  | boolean | yes      | `true` = mark helpful; `false` = remove helpful |
+| Field       | Type    | Required           | Description                                     |
+| :---------- | :------ | :----------------- | :---------------------------------------------- |
+| `rating_id` | string  | yes (body or path) | Must match `{id}` in the path                   |
+| `value`     | boolean | yes                | `true` = mark helpful; `false` = remove helpful |
 
 If `value` is `true` and the user has already voted, the request is a no-op `200` (no double-increment). If `value` is `false` and the user has not voted, it is also a no-op `200`.
 
@@ -333,11 +333,11 @@ When `value` is `false`, `voted` is `false` and `helpful_count` is decremented (
 
 `anime.average_rating` and `anime.rating_count` are denormalized aggregates maintained in the same transaction as the rating mutation:
 
-| Event                | Effect on `anime`                                                                |
-| :------------------- | :------------------------------------------------------------------------------- |
-| Insert rating        | `rating_count += 1`, `average_rating = (old_avg * old_count + value) / new_count` |
-| Update rating value  | `average_rating = (old_avg * count - old_value + new_value) / count`             |
-| Soft-delete rating   | `rating_count -= 1`, `average_rating = (old_avg * old_count - value) / new_count` (or 0 if count = 0) |
+| Event               | Effect on `anime`                                                                                     |
+| :------------------ | :---------------------------------------------------------------------------------------------------- |
+| Insert rating       | `rating_count += 1`, `average_rating = (old_avg * old_count + value) / new_count`                     |
+| Update rating value | `average_rating = (old_avg * count - old_value + new_value) / count`                                  |
+| Soft-delete rating  | `rating_count -= 1`, `average_rating = (old_avg * old_count - value) / new_count` (or 0 if count = 0) |
 
 A nightly background job recomputes these from `ratings` to correct any drift (reconcile pattern).
 
@@ -345,12 +345,12 @@ A nightly background job recomputes these from `ratings` to correct any drift (r
 
 ## 5. Cache policy
 
-| Endpoint                       | Cache-Control                             | Invalidation                                            |
-| :----------------------------- | :---------------------------------------- | :------------------------------------------------------ |
-| `GET /anime/{id}/ratings`      | `public, max-age=60, stale-while-revalidate=300` | Anime-dependent tag `nexus:anime:{id}:ratings`           |
-| `GET /users/me/ratings`        | `private, no-store`                       | —                                                       |
-| `GET /ratings/{id}`           | `public, max-age=60, stale-while-revalidate=300` | Tag `nexus:ratings:{id}`                                  |
-| Mutations (POST/PATCH/DELETE) | `no-store`                                | Invalidate dependent tags via `@nexus/cache` write-through |
+| Endpoint                      | Cache-Control                                    | Invalidation                                               |
+| :---------------------------- | :----------------------------------------------- | :--------------------------------------------------------- |
+| `GET /anime/{id}/ratings`     | `public, max-age=60, stale-while-revalidate=300` | Anime-dependent tag `nexus:anime:{id}:ratings`             |
+| `GET /users/me/ratings`       | `private, no-store`                              | —                                                          |
+| `GET /ratings/{id}`           | `public, max-age=60, stale-while-revalidate=300` | Tag `nexus:ratings:{id}`                                   |
+| Mutations (POST/PATCH/DELETE) | `no-store`                                       | Invalidate dependent tags via `@nexus/cache` write-through |
 
 ---
 
@@ -368,17 +368,17 @@ The 10/60 budget is sized for review-bursts (a user writing several reviews in a
 
 ## 7. Validation summary
 
-| Rule                                               | Error code           | Field            |
-| :------------------------------------------------- | :------------------- | :--------------- |
-| `value` required                                   | `FIELD_REQUIRED`     | `value`          |
-| `value` between 0 and 10                           | `FIELD_INVALID`      | `value`          |
-| `review_body` requires `value`                     | `VALIDATION_ERROR`   | `review_body`    |
-| `review_title` length ≤ 200                        | `VALIDATION_ERROR`   | `review_title`   |
-| `review_body` length ≤ 10000                       | `VALIDATION_ERROR`   | `review_body`    |
-| One active rating per (user, anime)                | `DUPLICATE_RATING`   | `value` (whole)  |
-| `version` must match on PATCH                      | `CONFLICT`           | `version`        |
-| Cannot rate an unknown anime                        | `ANIME_NOT_FOUND`    | `animeId` path   |
-| Cannot modify a rating owned by another user       | `FORBIDDEN`          | —                |
+| Rule                                         | Error code         | Field           |
+| :------------------------------------------- | :----------------- | :-------------- |
+| `value` required                             | `FIELD_REQUIRED`   | `value`         |
+| `value` between 0 and 10                     | `FIELD_INVALID`    | `value`         |
+| `review_body` requires `value`               | `VALIDATION_ERROR` | `review_body`   |
+| `review_title` length ≤ 200                  | `VALIDATION_ERROR` | `review_title`  |
+| `review_body` length ≤ 10000                 | `VALIDATION_ERROR` | `review_body`   |
+| One active rating per (user, anime)          | `DUPLICATE_RATING` | `value` (whole) |
+| `version` must match on PATCH                | `CONFLICT`         | `version`       |
+| Cannot rate an unknown anime                 | `ANIME_NOT_FOUND`  | `animeId` path  |
+| Cannot modify a rating owned by another user | `FORBIDDEN`        | —               |
 
 ---
 

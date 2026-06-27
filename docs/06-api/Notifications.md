@@ -49,31 +49,31 @@ Notification {
 
 ### 2.1 Field rules
 
-| Field | Constraint | Notes |
-| :---- | :--------- | :---- |
-| `userId` | `NOT NULL` FK → `users.id` | Resolved from the session on read; the client cannot set it. |
-| `type` | `NOT NULL`, enum | One of `new_episode`, `reply`, `system`, `recommendation`, `achievement`. |
-| `channel` | `NOT NULL DEFAULT 'in_app'` | M3 only supports `in_app`. Other channels (`email`, `push`) are deferred to M5+. |
-| `priority` | `NOT NULL DEFAULT 'normal'` | One of `low`, `normal`, `high`. Used for client-side sorting/filtering. |
-| `title` | `NOT NULL`, `char_length(title) <= 120` | Plain text. Rendered through DOMPurify on the client. |
-| `body` | `NOT NULL`, `char_length(body) <= 500` | Plain text. |
-| `imageUrl` | nullable, valid URL | Optional thumbnail/hero image. Served via `next/image` compatible URL. |
-| `actionUrl` | nullable, valid URL | Deep-link target (e.g. `/anime/{id}/episodes/{epId}`). |
-| `payload` | `NOT NULL DEFAULT '{}'` | `jsonb`. Structured context (e.g. `{ animeId, episodeId, commentId }`). Schema varies by `type`. |
-| `isRead` | derived | `readAt IS NOT NULL`. Not a stored column — computed in the response. |
-| `readAt` | nullable | Set when the user marks the notification read. Null = unread. |
-| `sentAt` | `NOT NULL DEFAULT now()` | When the notification was created. |
-| `expiresAt` | `NOT NULL` | `sent_at + interval '90 days'`. Rows past `expiresAt` are candidates for hard-delete by the retention job. |
+| Field       | Constraint                              | Notes                                                                                                      |
+| :---------- | :-------------------------------------- | :--------------------------------------------------------------------------------------------------------- |
+| `userId`    | `NOT NULL` FK → `users.id`              | Resolved from the session on read; the client cannot set it.                                               |
+| `type`      | `NOT NULL`, enum                        | One of `new_episode`, `reply`, `system`, `recommendation`, `achievement`.                                  |
+| `channel`   | `NOT NULL DEFAULT 'in_app'`             | M3 only supports `in_app`. Other channels (`email`, `push`) are deferred to M5+.                           |
+| `priority`  | `NOT NULL DEFAULT 'normal'`             | One of `low`, `normal`, `high`. Used for client-side sorting/filtering.                                    |
+| `title`     | `NOT NULL`, `char_length(title) <= 120` | Plain text. Rendered through DOMPurify on the client.                                                      |
+| `body`      | `NOT NULL`, `char_length(body) <= 500`  | Plain text.                                                                                                |
+| `imageUrl`  | nullable, valid URL                     | Optional thumbnail/hero image. Served via `next/image` compatible URL.                                     |
+| `actionUrl` | nullable, valid URL                     | Deep-link target (e.g. `/anime/{id}/episodes/{epId}`).                                                     |
+| `payload`   | `NOT NULL DEFAULT '{}'`                 | `jsonb`. Structured context (e.g. `{ animeId, episodeId, commentId }`). Schema varies by `type`.           |
+| `isRead`    | derived                                 | `readAt IS NOT NULL`. Not a stored column — computed in the response.                                      |
+| `readAt`    | nullable                                | Set when the user marks the notification read. Null = unread.                                              |
+| `sentAt`    | `NOT NULL DEFAULT now()`                | When the notification was created.                                                                         |
+| `expiresAt` | `NOT NULL`                              | `sent_at + interval '90 days'`. Rows past `expiresAt` are candidates for hard-delete by the retention job. |
 
 ### 2.2 Type-specific `payload` shapes
 
-| `type` | `payload` shape |
-| :------ | :-------------- |
-| `new_episode` | `{ animeId: string, episodeId: string, episodeNumber: number, episodeTitle: string }` |
-| `reply` | `{ commentId: string, parentCommentId: string, animeId: string, authorId: string }` |
-| `system` | `{ messageKey: string, params?: Record<string, string> }` |
-| `recommendation` | `{ animeId: string, reason: string }` |
-| `achievement` | `{ achievementId: string, achievementName: string, iconUrl: string }` |
+| `type`           | `payload` shape                                                                       |
+| :--------------- | :------------------------------------------------------------------------------------ |
+| `new_episode`    | `{ animeId: string, episodeId: string, episodeNumber: number, episodeTitle: string }` |
+| `reply`          | `{ commentId: string, parentCommentId: string, animeId: string, authorId: string }`   |
+| `system`         | `{ messageKey: string, params?: Record<string, string> }`                             |
+| `recommendation` | `{ animeId: string, reason: string }`                                                 |
+| `achievement`    | `{ achievementId: string, achievementName: string, iconUrl: string }`                 |
 
 ---
 
@@ -81,12 +81,12 @@ Notification {
 
 Mirrors `docs/07-database/Notifications.md` 2.2.
 
-| Name | Type | Definition |
-| :---- | :--- | :----------- |
-| `pk_notifications` | primary key | `id` |
-| `idx_notifications_user_id` | b-tree | `(user_id, sent_at DESC) WHERE expires_at > now()` | List endpoint scan. |
+| Name                            | Type           | Definition                                               |
+| :------------------------------ | :------------- | :------------------------------------------------------- | ---------------------- |
+| `pk_notifications`              | primary key    | `id`                                                     |
+| `idx_notifications_user_id`     | b-tree         | `(user_id, sent_at DESC) WHERE expires_at > now()`       | List endpoint scan.    |
 | `idx_notifications_user_unread` | partial b-tree | `(user_id) WHERE read_at IS NULL AND expires_at > now()` | Unread count endpoint. |
-| `idx_notifications_expires_at` | b-tree | `expires_at` | Retention job sweep. |
+| `idx_notifications_expires_at`  | b-tree         | `expires_at`                                             | Retention job sweep.   |
 
 No unique constraints — notifications are append-only and may repeat (e.g. multiple `new_episode` notifications for the same anime across seasons).
 
@@ -96,13 +96,13 @@ No unique constraints — notifications are append-only and may repeat (e.g. mul
 
 All user-scoped endpoints require an authenticated session. The user scope is tied to the session identity — `userId` is derived from `session.sub`, never from the request body.
 
-| Method | URL | Auth |
-| :--- | :--- | :--- |
-| `GET` | `/api/v1/users/me/notifications` | required |
-| `GET` | `/api/v1/users/me/notifications/unread-count` | required |
-| `POST` | `/api/v1/users/me/notifications/mark-read` | required |
-| `DELETE` | `/api/v1/users/me/notifications/{id}` | required |
-| `POST` | `/api/v1/admin/notifications` | required + `role: "admin"` |
+| Method   | URL                                           | Auth                       |
+| :------- | :-------------------------------------------- | :------------------------- |
+| `GET`    | `/api/v1/users/me/notifications`              | required                   |
+| `GET`    | `/api/v1/users/me/notifications/unread-count` | required                   |
+| `POST`   | `/api/v1/users/me/notifications/mark-read`    | required                   |
+| `DELETE` | `/api/v1/users/me/notifications/{id}`         | required                   |
+| `POST`   | `/api/v1/admin/notifications`                 | required + `role: "admin"` |
 
 A missing or invalid session returns `401 UNAUTHORIZED`. A non-admin calling the admin broadcast endpoint returns `403 FORBIDDEN`.
 
@@ -112,11 +112,11 @@ A missing or invalid session returns `401 UNAUTHORIZED`. A non-admin calling the
 
 All endpoints in this document share the **user-scoped** quota defined in [`Rate-Limiting.md`](./Rate-Limiting.md) 5 row 9 ("Notifications"):
 
-| Scope | Limit | Window | Bucket key |
-| :--- | :--- | :--- | :--- |
-| Authenticated user — reads | 30 requests | 60 seconds | `nexus:ratelimit:user:{sub}:notifications:read` |
+| Scope                          | Limit       | Window     | Bucket key                                           |
+| :----------------------------- | :---------- | :--------- | :--------------------------------------------------- |
+| Authenticated user — reads     | 30 requests | 60 seconds | `nexus:ratelimit:user:{sub}:notifications:read`      |
 | Authenticated user — mark-read | 10 requests | 60 seconds | `nexus:ratelimit:user:{sub}:notifications:mark-read` |
-| Admin — broadcast | 5 requests | 60 seconds | `nexus:ratelimit:user:{sub}:notifications:admin` |
+| Admin — broadcast              | 5 requests  | 60 seconds | `nexus:ratelimit:user:{sub}:notifications:admin`     |
 
 Standard rate-limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`) are emitted on every response. `Retry-After` is sent only on `429`. Clients implement self-throttle logic against the headers per `Rate-Limiting.md` 12.
 
@@ -159,13 +159,13 @@ Required.
 
 #### Query parameters
 
-| Parameter | Type | Default | Description |
-| :-------- | :--- | :------ | :---------- |
-| `isRead` | `"true"` \| `"false"` | — | Filter by read state. Omit to return all. |
-| `type` | `Notification["type"]` | — | Filter by notification type. Omit to return all. |
-| `channel` | `"in_app"` | — | Filter by channel. M3 only supports `in_app`; other values return `400`. |
-| `cursor` | string | — | Opaque cursor from `data.pagination.nextCursor`. Omit for the first page. |
-| `limit` | integer (1–100) | `20` | Page size. Hard cap 100. |
+| Parameter | Type                   | Default | Description                                                               |
+| :-------- | :--------------------- | :------ | :------------------------------------------------------------------------ |
+| `isRead`  | `"true"` \| `"false"`  | —       | Filter by read state. Omit to return all.                                 |
+| `type`    | `Notification["type"]` | —       | Filter by notification type. Omit to return all.                          |
+| `channel` | `"in_app"`             | —       | Filter by channel. M3 only supports `in_app`; other values return `400`.  |
+| `cursor`  | string                 | —       | Opaque cursor from `data.pagination.nextCursor`. Omit for the first page. |
+| `limit`   | integer (1–100)        | `20`    | Page size. Hard cap 100.                                                  |
 
 #### Response schema
 
@@ -258,12 +258,12 @@ HTTP: `200`.
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `limit` outside 1–100 | 400 | `VALIDATION_ERROR` | `errors[]` on `limit` |
-| Malformed `cursor` | 400 | `VALIDATION_ERROR` | `errors[]` on `cursor` |
-| Invalid `type` | 400 | `VALIDATION_ERROR` | `errors[]` on `type` |
-| Invalid `channel` (not `in_app`) | 400 | `VALIDATION_ERROR` | `errors[]` on `channel` |
+| Scenario                         | HTTP | `code`             | `details`               |
+| :------------------------------- | :--- | :----------------- | :---------------------- |
+| `limit` outside 1–100            | 400  | `VALIDATION_ERROR` | `errors[]` on `limit`   |
+| Malformed `cursor`               | 400  | `VALIDATION_ERROR` | `errors[]` on `cursor`  |
+| Invalid `type`                   | 400  | `VALIDATION_ERROR` | `errors[]` on `type`    |
+| Invalid `channel` (not `in_app`) | 400  | `VALIDATION_ERROR` | `errors[]` on `channel` |
 
 ---
 
@@ -329,9 +329,9 @@ Required.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Content-Type` | `application/json` |
+| Header                     | Value               |
+| :------------------------- | :------------------ |
+| `Content-Type`             | `application/json`  |
 | `Cache-Control` (response) | `private, no-store` |
 
 #### Body schema
@@ -409,14 +409,14 @@ HTTP: `200`.
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| Neither `ids` nor `all` provided | 400 | `VALIDATION_ERROR` | `errors[]` |
-| Both `ids` and `all` provided | 400 | `VALIDATION_ERROR` | `errors[]` |
-| `ids` empty array | 400 | `VALIDATION_ERROR` | `errors[]` on `ids` |
-| `ids` exceeds 100 items | 400 | `VALIDATION_ERROR` | `errors[]` on `ids` |
-| Any `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `ids` |
-| Any `id` not found or not owned by user | 404 | `NOTIFICATION_NOT_FOUND` | `{ id }` |
+| Scenario                                | HTTP | `code`                   | `details`           |
+| :-------------------------------------- | :--- | :----------------------- | :------------------ |
+| Neither `ids` nor `all` provided        | 400  | `VALIDATION_ERROR`       | `errors[]`          |
+| Both `ids` and `all` provided           | 400  | `VALIDATION_ERROR`       | `errors[]`          |
+| `ids` empty array                       | 400  | `VALIDATION_ERROR`       | `errors[]` on `ids` |
+| `ids` exceeds 100 items                 | 400  | `VALIDATION_ERROR`       | `errors[]` on `ids` |
+| Any `id` not a valid UUID               | 400  | `VALIDATION_ERROR`       | `errors[]` on `ids` |
+| Any `id` not found or not owned by user | 404  | `NOTIFICATION_NOT_FOUND` | `{ id }`            |
 
 ---
 
@@ -434,9 +434,9 @@ DELETE /api/v1/users/me/notifications/{id}
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | string (uuid) | yes | Notification to delete. |
+| Parameter | Type          | Required | Description             |
+| :-------- | :------------ | :------- | :---------------------- |
+| `id`      | string (uuid) | yes      | Notification to delete. |
 
 #### Auth
 
@@ -444,8 +444,8 @@ Required.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
+| Header                     | Value               |
+| :------------------------- | :------------------ |
 | `Cache-Control` (response) | `private, no-store` |
 
 #### Body
@@ -483,10 +483,10 @@ HTTP: `200`.
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `id` |
-| Notification not found or not owned | 404 | `NOTIFICATION_NOT_FOUND` | `{ id }` |
+| Scenario                            | HTTP | `code`                   | `details`          |
+| :---------------------------------- | :--- | :----------------------- | :----------------- |
+| `id` not a valid UUID               | 400  | `VALIDATION_ERROR`       | `errors[]` on `id` |
+| Notification not found or not owned | 404  | `NOTIFICATION_NOT_FOUND` | `{ id }`           |
 
 ---
 
@@ -508,11 +508,11 @@ Required. `role: "admin"` — non-admins receive `403 FORBIDDEN`.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Content-Type` | `application/json` |
-| `Idempotency-Key` | uuid-v4 or opaque token, max 128 chars — **required** |
-| `Cache-Control` (response) | `private, no-store` |
+| Header                     | Value                                                 |
+| :------------------------- | :---------------------------------------------------- |
+| `Content-Type`             | `application/json`                                    |
+| `Idempotency-Key`          | uuid-v4 or opaque token, max 128 chars — **required** |
+| `Cache-Control` (response) | `private, no-store`                                   |
 
 `Idempotency-Key` is **required** on this endpoint. A missing or malformed key returns `400 Bad Request` with code `IDEMPOTENCY_KEY_REQUIRED` per [`API-Standards.md`](./API-Standards.md) 9. The key is stored in `@nexus/cache` under `nexus:idem:{sha256(key)}` with a 24-hour TTL; repeat requests within the TTL return the byte-identical original response.
 
@@ -625,29 +625,29 @@ HTTP: `202`. Poll `jobId` via the admin jobs endpoint (deferred to M5+).
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| Missing `Idempotency-Key` | 400 | `IDEMPOTENCY_KEY_REQUIRED` | — |
-| Missing required field (`type`, `title`, `body`) | 400 | `VALIDATION_ERROR` | `errors[]` |
-| `title` exceeds 120 chars | 400 | `VALIDATION_ERROR` | `errors[]` on `title` |
-| `body` exceeds 500 chars | 400 | `VALIDATION_ERROR` | `errors[]` on `body` |
-| Invalid `type` | 400 | `VALIDATION_ERROR` | `errors[]` on `type` |
-| Invalid `channel` (not `in_app`) | 400 | `VALIDATION_ERROR` | `errors[]` on `channel` |
-| `userIds` array contains invalid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `userIds` |
-| `userIds` array references non-active user | 404 | `USER_NOT_FOUND` | `{ userId }` |
-| Non-admin caller | 403 | `FORBIDDEN` | — |
+| Scenario                                         | HTTP | `code`                     | `details`               |
+| :----------------------------------------------- | :--- | :------------------------- | :---------------------- |
+| Missing `Idempotency-Key`                        | 400  | `IDEMPOTENCY_KEY_REQUIRED` | —                       |
+| Missing required field (`type`, `title`, `body`) | 400  | `VALIDATION_ERROR`         | `errors[]`              |
+| `title` exceeds 120 chars                        | 400  | `VALIDATION_ERROR`         | `errors[]` on `title`   |
+| `body` exceeds 500 chars                         | 400  | `VALIDATION_ERROR`         | `errors[]` on `body`    |
+| Invalid `type`                                   | 400  | `VALIDATION_ERROR`         | `errors[]` on `type`    |
+| Invalid `channel` (not `in_app`)                 | 400  | `VALIDATION_ERROR`         | `errors[]` on `channel` |
+| `userIds` array contains invalid UUID            | 400  | `VALIDATION_ERROR`         | `errors[]` on `userIds` |
+| `userIds` array references non-active user       | 404  | `USER_NOT_FOUND`           | `{ userId }`            |
+| Non-admin caller                                 | 403  | `FORBIDDEN`                | —                       |
 
 ---
 
 ## 8. Endpoint map reference
 
-| Method | URL | Auth | Idempotency-Key | Cache (response) |
-| :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/users/me/notifications` | required | optional | `private, no-store` |
-| `GET` | `/api/v1/users/me/notifications/unread-count` | required | optional | `private, no-store` |
-| `POST` | `/api/v1/users/me/notifications/mark-read` | required | optional | `private, no-store` |
-| `DELETE` | `/api/v1/users/me/notifications/{id}` | required | optional | `private, no-store` |
-| `POST` | `/api/v1/admin/notifications` | required + admin | **required** | `private, no-store` |
+| Method   | URL                                           | Auth             | Idempotency-Key | Cache (response)    |
+| :------- | :-------------------------------------------- | :--------------- | :-------------- | :------------------ |
+| `GET`    | `/api/v1/users/me/notifications`              | required         | optional        | `private, no-store` |
+| `GET`    | `/api/v1/users/me/notifications/unread-count` | required         | optional        | `private, no-store` |
+| `POST`   | `/api/v1/users/me/notifications/mark-read`    | required         | optional        | `private, no-store` |
+| `DELETE` | `/api/v1/users/me/notifications/{id}`         | required         | optional        | `private, no-store` |
+| `POST`   | `/api/v1/admin/notifications`                 | required + admin | **required**    | `private, no-store` |
 
 ---
 
@@ -655,18 +655,18 @@ HTTP: `202`. Poll `jobId` via the admin jobs endpoint (deferred to M5+).
 
 All endpoints share the error envelope and code registry defined in [`Error-Codes.md`](./Error-Codes.md). The codes you will see here:
 
-| Code | HTTP | Trigger in this resource |
-| :---| :--- | :---|
-| `VALIDATION_ERROR` | 400 | Path/body/query failed Zod schema |
-| `FIELD_REQUIRED` | 400 | Nested in `VALIDATION_ERROR.details` |
-| `FIELD_INVALID` | 400 | Nested in `VALIDATION_ERROR.details` |
-| `IDEMPOTENCY_KEY_REQUIRED` | 400 | POST without `Idempotency-Key` |
-| `UNAUTHORIZED` | 401 | Missing or invalid session |
-| `FORBIDDEN` | 403 | Non-admin calling admin broadcast |
-| `NOTIFICATION_NOT_FOUND` | 404 | `id` lookup miss or not owned by user |
-| `USER_NOT_FOUND` | 404 | Admin broadcast references non-active user |
-| `RATE_LIMITED` | 429 | Notification quota exhausted |
-| `INTERNAL_ERROR` | 500 | Unhandled failure |
+| Code                       | HTTP | Trigger in this resource                   |
+| :------------------------- | :--- | :----------------------------------------- |
+| `VALIDATION_ERROR`         | 400  | Path/body/query failed Zod schema          |
+| `FIELD_REQUIRED`           | 400  | Nested in `VALIDATION_ERROR.details`       |
+| `FIELD_INVALID`            | 400  | Nested in `VALIDATION_ERROR.details`       |
+| `IDEMPOTENCY_KEY_REQUIRED` | 400  | POST without `Idempotency-Key`             |
+| `UNAUTHORIZED`             | 401  | Missing or invalid session                 |
+| `FORBIDDEN`                | 403  | Non-admin calling admin broadcast          |
+| `NOTIFICATION_NOT_FOUND`   | 404  | `id` lookup miss or not owned by user      |
+| `USER_NOT_FOUND`           | 404  | Admin broadcast references non-active user |
+| `RATE_LIMITED`             | 429  | Notification quota exhausted               |
+| `INTERNAL_ERROR`           | 500  | Unhandled failure                          |
 
 `NOTIFICATION_NOT_FOUND` is a `NOT_FOUND` subtype reserved for this resource. It is **not yet** promoted to a top-level code in `Error-Codes.md` 3.2 — it currently lives in `details.reason` under a `NOT_FOUND` envelope. Promote it to a standalone `code` in the same PR that ships these endpoints.
 
@@ -685,15 +685,15 @@ The 90-day TTL is **fixed in M3**. Configurable per-user TTL and per-type overri
 
 ## 11. Future work (M5+)
 
-| Feature | Status | Notes |
-| :------ | :----- | :---- |
-| Email notifications | deferred | Requires email provider integration (Resend / SES). |
-| Push notifications | deferred | Requires service worker + Web Push setup. |
+| Feature                              | Status   | Notes                                                                                                               |
+| :----------------------------------- | :------- | :------------------------------------------------------------------------------------------------------------------ |
+| Email notifications                  | deferred | Requires email provider integration (Resend / SES).                                                                 |
+| Push notifications                   | deferred | Requires service worker + Web Push setup.                                                                           |
 | Real-time delivery (WebSocket / SSE) | deferred | In M3 the client polls `unread-count` on a 30s interval. M5+ will add a persistent connection for instant delivery. |
-| Per-user TTL overrides | deferred | 90-day fixed in M3. |
-| Per-type channel routing | deferred | M3 is `in_app` only. |
-| Notification preferences UI | deferred | Users cannot opt out of notification types in M3. |
-| Admin broadcast job polling | deferred | `GET /api/v1/admin/jobs/{jobId}` is deferred to M5+. |
+| Per-user TTL overrides               | deferred | 90-day fixed in M3.                                                                                                 |
+| Per-type channel routing             | deferred | M3 is `in_app` only.                                                                                                |
+| Notification preferences UI          | deferred | Users cannot opt out of notification types in M3.                                                                   |
+| Admin broadcast job polling          | deferred | `GET /api/v1/admin/jobs/{jobId}` is deferred to M5+.                                                                |
 
 ---
 
@@ -847,9 +847,9 @@ Retry-After: 42
 
 ## 13. Changelog
 
-| Date | Change | Ticket / PR |
-| :--- | :----- | :--------- |
-| 2026-06-26 | Initial notification endpoint specification | — |
+| Date       | Change                                      | Ticket / PR |
+| :--------- | :------------------------------------------ | :---------- |
+| 2026-06-26 | Initial notification endpoint specification | —           |
 
 ---
 

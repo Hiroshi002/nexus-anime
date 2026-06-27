@@ -2,7 +2,7 @@
 
 > **Audience:** Everyone who touches this repository — engineers, reviewers, and future contributors.
 > **Status:** Accepted. This document is the "repo constitution." Process changes are proposed via PR against this file.
-> **Source of truth:** For any question about *how we organize, branch, version, or govern this repo*, this file wins.
+> **Source of truth:** For any question about _how we organize, branch, version, or govern this repo_, this file wins.
 
 This document captures **all 28 deliverables** for Step 1 (Repository Initialization). Every decision is explained. The goal is a professional, low-friction, auditable workflow that scales from the current small team to a broader contributor base — without over-engineering.
 
@@ -36,6 +36,7 @@ This document captures **all 28 deliverables** for Step 1 (Repository Initializa
 `anime`, `streaming`, `nextjs`, `typescript`, `tailwindcss`, `turborepo`, `pnpm`, `drizzle-orm`, `redis`, `vercel`, `monorepo`, `shadcn-ui`, `framer-motion`
 
 **Why these, specifically:**
+
 - **Product signals** (`anime`, `streaming`) — what it is.
 - **Stack signals** (`nextjs`, `typescript`, `tailwindcss`, `turborepo`, `pnpm`, `drizzle-orm`, `redis`, `shadcn-ui`, `framer-motion`) — what it's built with; these are the terms contributors search for.
 - **Structural signals** (`monorepo`, `vercel`) — how it's organized and deployed.
@@ -49,6 +50,7 @@ This document captures **all 28 deliverables** for Step 1 (Repository Initializa
 **Recommendation: Private during milestones M0–M4**, then evaluate going public at M5 (payments) or later.
 
 **Why private now:**
+
 - Protects unreleased IP (UI design, product direction).
 - Reduces attack surface while payment (Stripe) and video (Cloudflare Stream) integrations are wired up.
 - Avoids promising stability on a product that is explicitly mid-build (M3 in progress).
@@ -78,6 +80,7 @@ This document captures **all 28 deliverables** for Step 1 (Repository Initializa
 ```
 
 Where:
+
 - `type` ∈ `feature`, `bugfix`, `chore`, `docs`, `refactor`, `hotfix`, `release`
 - `milestone` ∈ `m0`..`mN` (e.g. `m3`) — ties the branch to the roadmap
 - `slug` is kebab-case, ≤ 30 characters, descriptive
@@ -124,17 +127,18 @@ Tags mark **releases only**: `v<semver>` (e.g. `v0.3.0`, `v0.3.1`, `v1.0.0`).
 
 **Strict [SemVer 2.0.0](https://semver.org/):** `MAJOR.MINOR.PATCH`
 
-| Bump | When |
-|------|------|
+| Bump    | When                                           |
+| ------- | ---------------------------------------------- |
 | `MAJOR` | Breaking changes to a public API or data model |
-| `MINOR` | New, backward-compatible functionality |
-| `PATCH` | Backward-compatible bug fixes |
+| `MINOR` | New, backward-compatible functionality         |
+| `PATCH` | Backward-compatible bug fixes                  |
 
 **Pre-release suffixes** are allowed during milestones: `v0.3.0-alpha.1`, `v0.3.0-beta.1`, `v0.3.0-rc.1`. These signal "not stable yet" and are not considered production-ready.
 
 **`v1.0.0`** is the first stable public release, targeted at feature-complete launch (M7).
 
 **Conventional Commits drive automated version bumps:**
+
 - `fix:` → PATCH
 - `feat:` → MINOR
 - `BREAKING CHANGE` in the commit body → MAJOR
@@ -168,21 +172,21 @@ Tags mark **releases only**: `v<semver>` (e.g. `v0.3.0`, `v0.3.1`, `v1.0.0`).
 
 ## 11. Root files
 
-| File | Responsibility |
-|------|----------------|
-| `package.json` | Workspace root — scripts, devDeps, `packageManager` field |
-| `pnpm-workspace.yaml` | Declares workspace globs (`apps/*`, `packages/*`) |
-| `turbo.json` | Pipeline config for `dev`, `build`, `lint`, `typecheck`, `test` |
-| `.npmrc` | pnpm behavior (`shamefully-hoist=false`, `strict-peer-dependencies=true`) |
-| `.nvmrc` | Pins Node 22 LTS |
-| `.env.example` | Template for required env vars (no secrets) |
-| `.gitignore` | Standard Node/Next/Turbo/env ignores |
-| `prettier.config.js` | Shared Prettier config (root) |
-| `tsconfig.base.json` | Shared TS base config extended by apps/packages |
-| `LICENSE` | MIT (see §18) |
-| `README.md` | Project overview, quick start, scripts, architecture |
-| `CODE_OF_CONDUCT.md` | Community standards (mirrored in `.github/`) |
-| `CONTRIBUTING.md` | Contributor guide (mirrored in `.github/`) |
+| File                  | Responsibility                                                            |
+| --------------------- | ------------------------------------------------------------------------- |
+| `package.json`        | Workspace root — scripts, devDeps, `packageManager` field                 |
+| `pnpm-workspace.yaml` | Declares workspace globs (`apps/*`, `packages/*`)                         |
+| `turbo.json`          | Pipeline config for `dev`, `build`, `lint`, `typecheck`, `test`           |
+| `.npmrc`              | pnpm behavior (`shamefully-hoist=false`, `strict-peer-dependencies=true`) |
+| `.nvmrc`              | Pins Node 22 LTS                                                          |
+| `.env.example`        | Template for required env vars (no secrets)                               |
+| `.gitignore`          | Standard Node/Next/Turbo/env ignores                                      |
+| `prettier.config.js`  | Shared Prettier config (root)                                             |
+| `tsconfig.base.json`  | Shared TS base config extended by apps/packages                           |
+| `LICENSE`             | MIT (see §18)                                                             |
+| `README.md`           | Project overview, quick start, scripts, architecture                      |
+| `CODE_OF_CONDUCT.md`  | Community standards (mirrored in `.github/`)                              |
+| `CONTRIBUTING.md`     | Contributor guide (mirrored in `.github/`)                                |
 
 **Why:** Each file has one clear responsibility. Shared configs live at the root so apps and packages inherit them via Turborepo, avoiding drift.
 
@@ -231,9 +235,10 @@ docs/
 ```
 
 **Why this split:**
-- **ADRs** capture *why* a decision was made (context, consequences).
-- **Milestone specs** capture *what* a milestone delivers.
-- **The roadmap** captures *when* (milestone table).
+
+- **ADRs** capture _why_ a decision was made (context, consequences).
+- **Milestone specs** capture _what_ a milestone delivers.
+- **The roadmap** captures _when_ (milestone table).
 - **The docs index** is the entry point for anyone new.
 
 Separating "why" from "what" from "when" keeps each document focused and reviewable. ADRs are immutable records — when one is superseded, you add a new ADR that links back, rather than editing history.
@@ -295,10 +300,10 @@ packages/
 
 Located at `tooling/scripts/` (see §10 — colocated with `tooling/docker/` because both are dev-time infra, not shipped code).
 
-| Script | Purpose |
-|--------|---------|
-| `seed-admin.ts` | Creates admin user + roles |
-| `seed-anime.ts` | Seeds anime catalog metadata |
+| Script            | Purpose                       |
+| ----------------- | ----------------------------- |
+| `seed-admin.ts`   | Creates admin user + roles    |
+| `seed-anime.ts`   | Seeds anime catalog metadata  |
 | `seed-catalog.ts` | Seeds genres, tags, relations |
 
 Run with `pnpm tsx tooling/scripts/<name>.ts` (`tsx` is already a root devDependency).
@@ -311,10 +316,10 @@ Run with `pnpm tsx tooling/scripts/<name>.ts` (`tsx` is already a root devDepend
 
 Located at `tooling/docker/`.
 
-| File | Purpose |
-|------|---------|
-| `docker-compose.yml` | Local Postgres, Redis, Mailpit services |
-| `Dockerfile` (optional, later) | App containerization when needed |
+| File                           | Purpose                                 |
+| ------------------------------ | --------------------------------------- |
+| `docker-compose.yml`           | Local Postgres, Redis, Mailpit services |
+| `Dockerfile` (optional, later) | App containerization when needed        |
 
 The root `package.json` already references `tooling/docker/docker-compose.yml` via the `docker:up` / `docker:down` / `docker:reset` / `docker:logs` scripts, so this is a decode-and-fill: the file must exist for those scripts to work.
 
@@ -324,12 +329,12 @@ The root `package.json` already references `tooling/docker/docker-compose.yml` v
 
 ## 18. Recommended licenses (with pros & cons)
 
-| License | Pros | Cons |
-|---------|------|------|
-| **MIT** (recommended) | Permissive, simple, widely understood; allows commercial use; low friction for contributors. | No explicit patent grant; others can relicense proprietary derivatives. |
-| Apache-2.0 | Permissive + explicit patent grant; good when corporate contributors are involved. | Slightly more complex; some hobbyists find the legal language intimidating. |
-| AGPL-3.0 | Ensures derivatives stay open; strong copyleft. | Deters commercial adoption; overkill for a streaming platform's UI scaffold. |
-| Proprietary / "All Rights Reserved" | Maximum control; required if the platform itself is closed-source. | Blocks community contributions; not open-source. |
+| License                             | Pros                                                                                         | Cons                                                                         |
+| ----------------------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| **MIT** (recommended)               | Permissive, simple, widely understood; allows commercial use; low friction for contributors. | No explicit patent grant; others can relicense proprietary derivatives.      |
+| Apache-2.0                          | Permissive + explicit patent grant; good when corporate contributors are involved.           | Slightly more complex; some hobbyists find the legal language intimidating.  |
+| AGPL-3.0                            | Ensures derivatives stay open; strong copyleft.                                              | Deters commercial adoption; overkill for a streaming platform's UI scaffold. |
+| Proprietary / "All Rights Reserved" | Maximum control; required if the platform itself is closed-source.                           | Blocks community contributions; not open-source.                             |
 
 **Recommendation: MIT** for the open-source scaffold. The platform's own content (anime metadata, branding, video) is separately copyrighted and is NOT covered by the repo license — the MIT license covers the code only.
 
@@ -358,19 +363,19 @@ These are the human-readable rules that branch protection (§20) and CI (§21) e
 
 Configured in GitHub → Settings → Branches → `main`:
 
-| Rule | Setting | Why |
-|------|---------|-----|
-| Require a pull request before merging | On | Enforces §19.1 |
-| Require approving reviews | ≥ 1 | Enforces §19.2 |
-| Dismiss stale PR approvals when new commits are pushed | On | Prevents "approved then silently changed" |
-| Require review from Code Owners | On (if `CODEOWNERS` present) | Domain experts own their areas |
-| Require status checks to pass before merging | On | Enforces §19.3 |
-| Require branches to be up to date before merging | On | Enforces §19.4 |
-| Require conversation resolution before merging | On | No dangling discussions |
-| Require signed commits | On (recommended) | Auditability |
-| Include administrators | On | Even maintainers follow the process |
-| Allow force pushes | **No** | Protects history + tags (§8) |
-| Allow deletions | **No** | Protects `main` |
+| Rule                                                   | Setting                      | Why                                       |
+| ------------------------------------------------------ | ---------------------------- | ----------------------------------------- |
+| Require a pull request before merging                  | On                           | Enforces §19.1                            |
+| Require approving reviews                              | ≥ 1                          | Enforces §19.2                            |
+| Dismiss stale PR approvals when new commits are pushed | On                           | Prevents "approved then silently changed" |
+| Require review from Code Owners                        | On (if `CODEOWNERS` present) | Domain experts own their areas            |
+| Require status checks to pass before merging           | On                           | Enforces §19.3                            |
+| Require branches to be up to date before merging       | On                           | Enforces §19.4                            |
+| Require conversation resolution before merging         | On                           | No dangling discussions                   |
+| Require signed commits                                 | On (recommended)             | Auditability                              |
+| Include administrators                                 | On                           | Even maintainers follow the process       |
+| Allow force pushes                                     | **No**                       | Protects history + tags (§8)              |
+| Allow deletions                                        | **No**                       | Protects `main`                           |
 
 **Why apply to admins:** Rules that exempt administrators create a two-tier culture. Applying them to everyone makes the process credible.
 
@@ -380,13 +385,13 @@ Configured in GitHub → Settings → Branches → `main`:
 
 From the CI workflow (`.github/workflows/ci.yml`). These five gates run on every PR and block merge on failure:
 
-| Check | Command | What it gates |
-|-------|---------|---------------|
-| `lint` | `pnpm lint` | Code style + correctness (ESLint) |
-| `typecheck` | `pnpm typecheck` | Type safety (TypeScript strict) |
-| `test` | `pnpm test` | Behavior (Vitest unit tests) |
-| `build` | `pnpm build` | Production build succeeds (Turborepo) |
-| `format` | `pnpm format:check` | Formatting conformance (Prettier) |
+| Check       | Command             | What it gates                         |
+| ----------- | ------------------- | ------------------------------------- |
+| `lint`      | `pnpm lint`         | Code style + correctness (ESLint)     |
+| `typecheck` | `pnpm typecheck`    | Type safety (TypeScript strict)       |
+| `test`      | `pnpm test`         | Behavior (Vitest unit tests)          |
+| `build`     | `pnpm build`        | Production build succeeds (Turborepo) |
+| `format`    | `pnpm format:check` | Formatting conformance (Prettier)     |
 
 **Why these five:** They cover the standard quality dimensions — style, types, behavior, buildability, and formatting — without being so slow that PRs stall. They map directly to the scripts already defined in the root `package.json`.
 
@@ -396,11 +401,11 @@ From the CI workflow (`.github/workflows/ci.yml`). These five gates run on every
 
 **Squash and merge** as the default.
 
-| Strategy | When to use |
-|----------|-------------|
-| **Squash and merge** (default) | Most PRs — produces one clean commit on `main` per PR |
-| Create a merge commit | Multi-commit PRs that tell a coherent, reviewable story |
-| Rebase and merge | **Disabled** — avoids rewriting shared history |
+| Strategy                       | When to use                                             |
+| ------------------------------ | ------------------------------------------------------- |
+| **Squash and merge** (default) | Most PRs — produces one clean commit on `main` per PR   |
+| Create a merge commit          | Multi-commit PRs that tell a coherent, reviewable story |
+| Rebase and merge               | **Disabled** — avoids rewriting shared history          |
 
 **Why squash by default:** It produces a linear, readable history on `main` where each commit is one complete, titled change. This pairs with Conventional Commits (§19.5) and semantic versioning (§9) — the squash commit's title becomes the changelog entry.
 
@@ -435,13 +440,13 @@ From the CI workflow (`.github/workflows/ci.yml`). These five gates run on every
 
 Defined declaratively in `.github/labels.yml` and synced via workflow. Categorized set:
 
-| Category | Labels |
-|----------|--------|
-| **Type** | `bug`, `feature`, `docs`, `chore`, `refactor`, `question` |
-| **Priority** | `priority:critical`, `priority:high`, `priority:medium`, `priority:low` |
-| **Status** | `blocked`, `in-progress`, `needs-review`, `good-first-issue`, `help-wanted` |
-| **Scope** | `scope:web`, `scope:ui`, `scope:db`, `scope:cache`, `scope:ci`, `scope:docs` |
-| **Milestone** | `m1`, `m2`, ... (one per milestone) |
+| Category      | Labels                                                                       |
+| ------------- | ---------------------------------------------------------------------------- |
+| **Type**      | `bug`, `feature`, `docs`, `chore`, `refactor`, `question`                    |
+| **Priority**  | `priority:critical`, `priority:high`, `priority:medium`, `priority:low`      |
+| **Status**    | `blocked`, `in-progress`, `needs-review`, `good-first-issue`, `help-wanted`  |
+| **Scope**     | `scope:web`, `scope:ui`, `scope:db`, `scope:cache`, `scope:ci`, `scope:docs` |
+| **Milestone** | `m1`, `m2`, ... (one per milestone)                                          |
 
 **Why this shape:** type × priority × status × scope gives enough dimensions to filter and report without label sprawl. Milestone labels tie issues to the roadmap (§26). Declarative labels + a sync workflow keep the set consistent.
 
@@ -451,16 +456,16 @@ Defined declaratively in `.github/labels.yml` and synced via workflow. Categoriz
 
 GitHub Milestones map 1:1 to the roadmap's milestones:
 
-| ID | Milestone | Goal | Status |
-|----|-----------|------|--------|
-| M0 | Repository scaffold | Repo, CI, conventions | ✅ |
-| M1 | Design system in code | `@nexus/ui` primitives, theme tokens | ✅ |
-| M2 | Catalog foundation | DB, cache, API envelope, error boundaries | ✅ |
-| M3 | Auth complete | Auth.js v5, sessions, OAuth | In progress |
-| M4 | User profiles, watchlist, continue-watching | Personalization | Planned |
-| M5 | Payments | Stripe subscriptions | Planned |
-| M6 | Video streaming | Cloudflare Stream | Planned |
-| M7 | Public launch | v1.0.0 | Planned |
+| ID  | Milestone                                   | Goal                                      | Status      |
+| --- | ------------------------------------------- | ----------------------------------------- | ----------- |
+| M0  | Repository scaffold                         | Repo, CI, conventions                     | ✅          |
+| M1  | Design system in code                       | `@nexus/ui` primitives, theme tokens      | ✅          |
+| M2  | Catalog foundation                          | DB, cache, API envelope, error boundaries | ✅          |
+| M3  | Auth complete                               | Auth.js v5, sessions, OAuth               | In progress |
+| M4  | User profiles, watchlist, continue-watching | Personalization                           | Planned     |
+| M5  | Payments                                    | Stripe subscriptions                      | Planned     |
+| M6  | Video streaming                             | Cloudflare Stream                         | Planned     |
+| M7  | Public launch                               | v1.0.0                                    | Planned     |
 
 **Why milestones:** They group issues and PRs into shippable increments and power GitHub's progress/burndown views. Each milestone has a spec in `docs/milestones/`.
 
@@ -470,13 +475,13 @@ GitHub Milestones map 1:1 to the roadmap's milestones:
 
 A single "Nexus Anime" project board (table or board view):
 
-| Column | Meaning |
-|--------|---------|
-| **Backlog** | Un-triaged ideas |
-| **Ready** | Triaged, labeled, no blockers |
-| **In Progress** | Assigned, being worked |
-| **In Review** | PR open, awaiting review |
-| **Done** | Merged / shipped |
+| Column          | Meaning                       |
+| --------------- | ----------------------------- |
+| **Backlog**     | Un-triaged ideas              |
+| **Ready**       | Triaged, labeled, no blockers |
+| **In Progress** | Assigned, being worked        |
+| **In Review**   | PR open, awaiting review      |
+| **Done**        | Merged / shipped              |
 
 **Optional extra columns** (add only if the team actually uses them): **Blocked** (explicit), **Needs Design** (for UI work awaiting design direction).
 
@@ -513,6 +518,7 @@ This is the acceptance test for Step 1. Every item maps to a deliverable above.
 ## How to change this document
 
 This is a living constitution. To change any of the above:
+
 1. Open a PR against `docs/REPOSITORY-DESIGN.md`.
 2. Explain the rationale (context, consequences — same shape as an ADR).
 3. Get ≥ 1 review from a maintainer.

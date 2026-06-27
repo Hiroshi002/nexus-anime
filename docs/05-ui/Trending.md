@@ -6,7 +6,7 @@
 
 ## 1. Purpose
 
-Show anime ranked by recent popularity (7-day or 30-day window). Help users discover what the community is watching *right now*.
+Show anime ranked by recent popularity (7-day or 30-day window). Help users discover what the community is watching _right now_.
 
 ## 2. User Goals
 

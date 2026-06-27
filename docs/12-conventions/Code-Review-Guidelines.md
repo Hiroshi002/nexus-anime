@@ -23,28 +23,33 @@ Every review should weigh these five areas. Not every PR touches all of them —
 Go beyond "looks fine." Verify mechanically where possible.
 
 ### Type Safety
+
 - `pnpm typecheck` passes — no new errors, no `any` leaked in.
 - Zod schemas used at every boundary (request params, query, body, upstream response).
 - No `// @ts-ignore` or silence-with-type-assertion hacks.
 - Discriminated unions stay exhaustive (no unchecked `AuthState` or `VideoStatus` variant).
 
 ### Error Handling
+
 - All promise chains have error handling — no swallowed `catch(async () => {})`.
 - `ApiError` shape preserved when errors cross API boundaries (`{ data }` / `{ error: { message, code, details } }`).
 - Error paths produce **user-friendly** messages; stack traces stay server-side.
 - Loading and empty states are handled, not forgotten.
 
 ### Edge Cases
+
 - Empty arrays, null upstream responses, expired sessions, network failures — tested or called out in PR description.
 - Pagination boundaries (first page, last page, empty result, single item).
 - Rate-limit and timeout paths for upstream API calls (TMDB, AniList, Stripe).
 
 ### API Contract Conformance
+
 - Request validation matches the documented contract.
 - Response validation enforces the envelope shape.
 - Breaking API changes are called out explicitly — no silent contract drift.
 
 ### Test Coverage
+
 - New logic has tests. Bug fixes have a regression test proving the bug.
 - Tests pass locally and on CI before review is assigned.
 
@@ -124,41 +129,49 @@ Authors can paste this into a PR. Reviewers can use it to structure feedback.
 ## Review Checklist
 
 ### Correctness
+
 - [ ] Happy path works as described
 - [ ] Error and empty states handled
 - [ ] No obvious logic bugs
 
 ### Type Safety
+
 - [ ] `pnpm typecheck` passes with no new errors
 - [ ] Zod used for runtime validation at boundaries
 - [ ] No `any` or `// @ts-ignore` introduced
 
 ### Security
+
 - [ ] Inputs validated and sanitized
 - [ ] No secrets in code or logs
 - [ ] Auth checks present where needed
 
 ### Performance
+
 - [ ] No N+1 or unbounded queries
 - [ ] Heavy client components are lazy-loaded
 - [ ] Streaming/playback paths unaffected
 
 ### Architecture
+
 - [ ] Follows applicable ADRs
 - [ ] Respects package boundaries
 - [ ] Layering is correct (ADR-001)
 
 ### Maintainability
+
 - [ ] Files under 300 lines (or justified)
 - [ ] Names are clear and discoverable
 - [ ] Non-obvious logic has a short why-comment
 
 ### Testing
+
 - [ ] New logic covered by tests
 - [ ] Bug fix has a regression test
 - [ ] All tests pass locally and on CI
 
 ### Docs
+
 - [ ] ADR updated or created if architecture changed
 - [ ] Public APIs have TSDoc
 - [ ] README updated for new module or behavior

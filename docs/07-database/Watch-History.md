@@ -22,41 +22,41 @@
 
 ### 2.1 Fields
 
-| Column | Type | Constraint | Description |
-|--------|------|------------|-------------|
-| `id` | `uuid` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key. |
-| `user_id` | `uuid` | `NOT NULL` FK → `users.id` | Watcher. |
-| `anime_id` | `uuid` | `NOT NULL` FK → `anime.id` | Show (denormalized for query simplicity). |
-| `episode_id` | `uuid` | `NOT NULL` FK → `episodes.id` | Specific episode watched. |
-| `watched_at` | `timestamptz` | `NOT NULL DEFAULT now()` | When the watch event occurred. |
-| `watch_duration_seconds` | `integer` | `NOT NULL` | How many seconds the user actually watched. |
-| `completion_pct` | `numeric(5,2)` | `NOT NULL` | Percentage of episode completed (0–100). |
-| `device` | `text` | nullable | Device category: `'mobile'`, `'tablet'`, `'desktop'`, `'tv'`. |
-| `os` | `text` | nullable | Operating system (analytics). |
-| `browser` | `text` | nullable | Browser (analytics). |
-| `country` | `text` | nullable | Geo country (ISO alpha-2) at watch time. |
-| `app_version` | `text` | nullable | Client app version (debugging). |
-| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()` | Insert time (≈ `watched_at`, but explicit). |
+| Column                   | Type           | Constraint                              | Description                                                   |
+| ------------------------ | -------------- | --------------------------------------- | ------------------------------------------------------------- |
+| `id`                     | `uuid`         | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key.                                                |
+| `user_id`                | `uuid`         | `NOT NULL` FK → `users.id`              | Watcher.                                                      |
+| `anime_id`               | `uuid`         | `NOT NULL` FK → `anime.id`              | Show (denormalized for query simplicity).                     |
+| `episode_id`             | `uuid`         | `NOT NULL` FK → `episodes.id`           | Specific episode watched.                                     |
+| `watched_at`             | `timestamptz`  | `NOT NULL DEFAULT now()`                | When the watch event occurred.                                |
+| `watch_duration_seconds` | `integer`      | `NOT NULL`                              | How many seconds the user actually watched.                   |
+| `completion_pct`         | `numeric(5,2)` | `NOT NULL`                              | Percentage of episode completed (0–100).                      |
+| `device`                 | `text`         | nullable                                | Device category: `'mobile'`, `'tablet'`, `'desktop'`, `'tv'`. |
+| `os`                     | `text`         | nullable                                | Operating system (analytics).                                 |
+| `browser`                | `text`         | nullable                                | Browser (analytics).                                          |
+| `country`                | `text`         | nullable                                | Geo country (ISO alpha-2) at watch time.                      |
+| `app_version`            | `text`         | nullable                                | Client app version (debugging).                               |
+| `created_at`             | `timestamptz`  | `NOT NULL DEFAULT now()`                | Insert time (≈ `watched_at`, but explicit).                   |
 
 ### 2.2 Constraints
 
-| Name | Type | Definition |
-|------|------|------------|
-| `chk_watch_history_completion` | check | `completion_pct BETWEEN 0 AND 100` |
-| `chk_watch_history_watch_duration_positive` | check | `watch_duration_seconds >= 0` |
-| `chk_watch_history_device_range` | check | `device IS NULL OR device IN ('mobile','tablet','desktop','tv')` |
-| `chk_watch_history_country_format` | check | `country IS NULL OR country ~ '^[A-Z]{2}$'` |
+| Name                                        | Type  | Definition                                                       |
+| ------------------------------------------- | ----- | ---------------------------------------------------------------- |
+| `chk_watch_history_completion`              | check | `completion_pct BETWEEN 0 AND 100`                               |
+| `chk_watch_history_watch_duration_positive` | check | `watch_duration_seconds >= 0`                                    |
+| `chk_watch_history_device_range`            | check | `device IS NULL OR device IN ('mobile','tablet','desktop','tv')` |
+| `chk_watch_history_country_format`          | check | `country IS NULL OR country ~ '^[A-Z]{2}$'`                      |
 
 ### 2.3 Indexes
 
-| Index | Type | Columns | Purpose |
-|-------|------|---------|---------|
-| `pk_watch_history` | btree (unique) | `id` | PK. |
-| `idx_watch_history_user_watched_at` | btree | `(user_id, watched_at DESC)` | "Recently Watched" feed (cursor-paginated). |
-| `idx_watch_history_user_anime` | btree | `(user_id, anime_id, watched_at DESC)` | "Have I seen this show?" + per-show history. |
-| `idx_watch_history_episode_id` | btree | `episode_id` | Per-episode stats (admin). |
-| `idx_watch_history_anime_id_watched_at` | btree | `(anime_id, watched_at DESC)` | Recent activity on a show (admin). |
-| `idx_watch_history_watched_at` | btree | `watched_at` | Retention/partition pruning scans. |
+| Index                                   | Type           | Columns                                | Purpose                                      |
+| --------------------------------------- | -------------- | -------------------------------------- | -------------------------------------------- |
+| `pk_watch_history`                      | btree (unique) | `id`                                   | PK.                                          |
+| `idx_watch_history_user_watched_at`     | btree          | `(user_id, watched_at DESC)`           | "Recently Watched" feed (cursor-paginated).  |
+| `idx_watch_history_user_anime`          | btree          | `(user_id, anime_id, watched_at DESC)` | "Have I seen this show?" + per-show history. |
+| `idx_watch_history_episode_id`          | btree          | `episode_id`                           | Per-episode stats (admin).                   |
+| `idx_watch_history_anime_id_watched_at` | btree          | `(anime_id, watched_at DESC)`          | Recent activity on a show (admin).           |
+| `idx_watch_history_watched_at`          | btree          | `watched_at`                           | Retention/partition pruning scans.           |
 
 ### 2.4 Decisions & Rationale
 
@@ -88,7 +88,7 @@ This preserves the statistical value of the watch event while severing the link 
 
 ### 2.7 Relationship Recap
 
-- `users` 1 — * `watch_history` (one-to-many; anonymizable).
-- `anime` 1 — * `watch_history` (one-to-many; denormalized).
-- `episodes` 1 — * `watch_history` (one-to-many).
+- `users` 1 — \* `watch_history` (one-to-many; anonymizable).
+- `anime` 1 — \* `watch_history` (one-to-many; denormalized).
+- `episodes` 1 — \* `watch_history` (one-to-many).
 - `watch_history` is the **input** to `continue_watching` (see `Continue-Watching.md`) — a materialized cursor derived from the latest watch event per (user, anime).

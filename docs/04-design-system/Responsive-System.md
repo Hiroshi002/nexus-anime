@@ -18,14 +18,14 @@ The responsive strategy is **mobile-first with progressive enhancement**. Layout
 
 See [Grid-System.md](Grid-System.md) for the full breakpoint definitions. Summary:
 
-| Token | Min-Width | Label | Columns | Gutter |
-|-------|-----------|-------|---------|--------|
-| `bp-xs` | 0px | Mobile (portrait) | 4 | 16px |
-| `bp-sm` | 640px | Mobile (landscape) / small tablet | 4 | 16px |
-| `bp-md` | 768px | Tablet (portrait) | 8 | 20px |
-| `bp-lg` | 1024px | Tablet (landscape) / laptop | 12 | 24px |
-| `bp-xl` | 1280px | Desktop | 12 | 24px |
-| `bp-2xl` | 1536px | Large desktop | 12 | 24px |
+| Token    | Min-Width | Label                             | Columns | Gutter |
+| -------- | --------- | --------------------------------- | ------- | ------ |
+| `bp-xs`  | 0px       | Mobile (portrait)                 | 4       | 16px   |
+| `bp-sm`  | 640px     | Mobile (landscape) / small tablet | 4       | 16px   |
+| `bp-md`  | 768px     | Tablet (portrait)                 | 8       | 20px   |
+| `bp-lg`  | 1024px    | Tablet (landscape) / laptop       | 12      | 24px   |
+| `bp-xl`  | 1280px    | Desktop                           | 12      | 24px   |
+| `bp-2xl` | 1536px    | Large desktop                     | 12      | 24px   |
 
 ---
 
@@ -33,24 +33,24 @@ See [Grid-System.md](Grid-System.md) for the full breakpoint definitions. Summar
 
 ### Primary Targets (Must-test)
 
-| Device | Viewport | Pixel Ratio | Notes |
-|--------|----------|-------------|-------|
-| iPhone SE | 375×667 | 2× | Smallest target — 375 is close to our 380px minimum |
-| iPhone 14/15 | 390×844 | 3× | Standard modern iPhone |
-| iPhone 15 Pro Max | 430×932 | 3× | Largest popular iPhone |
-| iPad Mini | 768×1024 | 2× | Tablet portrait — 2-column grid starts here |
-| iPad Pro 11" | 834×1194 | 2× | Tablet landscape |
-| MacBook 13" | 1440×900 | 1× | Desktop — 4-column grid, sidebar layout |
-| Desktop 1440p | 2560×1440 | 1× | Large desktop — max-width container |
+| Device            | Viewport  | Pixel Ratio | Notes                                               |
+| ----------------- | --------- | ----------- | --------------------------------------------------- |
+| iPhone SE         | 375×667   | 2×          | Smallest target — 375 is close to our 380px minimum |
+| iPhone 14/15      | 390×844   | 3×          | Standard modern iPhone                              |
+| iPhone 15 Pro Max | 430×932   | 3×          | Largest popular iPhone                              |
+| iPad Mini         | 768×1024  | 2×          | Tablet portrait — 2-column grid starts here         |
+| iPad Pro 11"      | 834×1194  | 2×          | Tablet landscape                                    |
+| MacBook 13"       | 1440×900  | 1×          | Desktop — 4-column grid, sidebar layout             |
+| Desktop 1440p     | 2560×1440 | 1×          | Large desktop — max-width container                 |
 
 ### Secondary Targets (Should-test)
 
-| Device | Viewport | Notes |
-|--------|----------|-------|
-| Android (Chrome, 360px) | 360×640 | Narrower than iPhone SE — test edge case |
-| Samsung Galaxy S23 | 360×780 | Common Android viewport |
-| iPad Pro 12.9" | 1024×1366 | Large tablet |
-| Ultrawide 34" | 3440×1440 | Extreme width — max-width handles |
+| Device                  | Viewport  | Notes                                    |
+| ----------------------- | --------- | ---------------------------------------- |
+| Android (Chrome, 360px) | 360×640   | Narrower than iPhone SE — test edge case |
+| Samsung Galaxy S23      | 360×780   | Common Android viewport                  |
+| iPad Pro 12.9"          | 1024×1366 | Large tablet                             |
+| Ultrawide 34"           | 3440×1440 | Extreme width — max-width handles        |
 
 **Decision: 380px minimum, not 320px.** 320px (iPhone SE 1st gen) has <0.5% market share in our target demographic. Designing for 320px constrains the 380–768px range unnecessarily. If 320px users visit, content is usable via horizontal scroll on specific elements (not the page).
 
@@ -62,36 +62,36 @@ See [Grid-System.md](Grid-System.md) for the full breakpoint definitions. Summar
 
 The most common pattern — component layout changes based on viewport width.
 
-| Component | Mobile (<768px) | Tablet (768–1023px) | Desktop (≥1024px) |
-|-----------|-----------------|---------------------|-------------------|
-| Navigation | Bottom tab bar | Side rail (compact) | Side rail (expanded) |
-| Anime grid | 2 columns | 3 columns | 4 columns |
+| Component    | Mobile (<768px)         | Tablet (768–1023px) | Desktop (≥1024px)               |
+| ------------ | ----------------------- | ------------------- | ------------------------------- |
+| Navigation   | Bottom tab bar          | Side rail (compact) | Side rail (expanded)            |
+| Anime grid   | 2 columns               | 3 columns           | 4 columns                       |
 | Anime detail | Stacked (poster → info) | Poster + info (row) | Poster + info + sidebar (3-col) |
-| Episode list | Full-width rows | Full-width rows | Sidebar list |
-| Search | Full-screen overlay | Sidebar panel | Sidebar panel |
-| Filters | Bottom sheet | Collapsible panel | Sidebar panel |
-| Player | Full-screen only | Responsive embed | Side-by-side + episode list |
+| Episode list | Full-width rows         | Full-width rows     | Sidebar list                    |
+| Search       | Full-screen overlay     | Sidebar panel       | Sidebar panel                   |
+| Filters      | Bottom sheet            | Collapsible panel   | Sidebar panel                   |
+| Player       | Full-screen only        | Responsive embed    | Side-by-side + episode list     |
 
 ### Pattern 2: Component Variant Switching
 
 Using CSS Container Queries, a component changes its internal layout based on its container's width (not the viewport).
 
-| Component | Narrow (<200px) | Medium (200–400px) | Wide (>400px) |
-|-----------|-----------------|--------------------|----------------|
-| Anime card | Compact: poster + title only | Default: poster + title + score | Featured: poster + title + score + synopsis |
-| Episode row | Title + duration only | Thumbnail + title + duration | Thumbnail + title + description + duration |
+| Component   | Narrow (<200px)              | Medium (200–400px)              | Wide (>400px)                               |
+| ----------- | ---------------------------- | ------------------------------- | ------------------------------------------- |
+| Anime card  | Compact: poster + title only | Default: poster + title + score | Featured: poster + title + score + synopsis |
+| Episode row | Title + duration only        | Thumbnail + title + duration    | Thumbnail + title + description + duration  |
 
 ### Pattern 3: Content Progressive Disclosure
 
 More content is revealed at wider viewports, not just rearranged.
 
-| Content | Mobile | Tablet | Desktop |
-|---------|--------|--------|---------|
-| Anime metadata on card | Title only | Title + score + genre tags | Title + score + genres + studio |
-| Synopsis lines | 2-line clamp | 3-line clamp | 3-line clamp + "Read more" |
-| Episode thumbnails | Hidden | Small (120px) | Standard (160px) |
-| Related anime count | 4 items | 6 items | 8 items |
-| Trending section | 5 items (horizontal scroll) | 8 items (grid) | 12 items (grid) |
+| Content                | Mobile                      | Tablet                     | Desktop                         |
+| ---------------------- | --------------------------- | -------------------------- | ------------------------------- |
+| Anime metadata on card | Title only                  | Title + score + genre tags | Title + score + genres + studio |
+| Synopsis lines         | 2-line clamp                | 3-line clamp               | 3-line clamp + "Read more"      |
+| Episode thumbnails     | Hidden                      | Small (120px)              | Standard (160px)                |
+| Related anime count    | 4 items                     | 6 items                    | 8 items                         |
+| Trending section       | 5 items (horizontal scroll) | 8 items (grid)             | 12 items (grid)                 |
 
 ---
 
@@ -99,13 +99,13 @@ More content is revealed at wider viewports, not just rearranged.
 
 ### Mobile: Bottom Tab Bar
 
-| Tab | Icon | Label |
-|-----|------|-------|
-| Home | `zap` | "Home" |
-| Browse | `search` | "Browse" |
-| Watchlist | `heart` | "Watchlist" |
-| Continue | `play` | "Continue" |
-| Profile | `user` | "Profile" |
+| Tab       | Icon     | Label       |
+| --------- | -------- | ----------- |
+| Home      | `zap`    | "Home"      |
+| Browse    | `search` | "Browse"    |
+| Watchlist | `heart`  | "Watchlist" |
+| Continue  | `play`   | "Continue"  |
+| Profile   | `user`   | "Profile"   |
 
 - Fixed to bottom of viewport.
 - 56px height (below 44px min touch target per item).
@@ -132,14 +132,14 @@ More content is revealed at wider viewports, not just rearranged.
 
 ## Touch vs Pointer
 
-| Behavior | Touch (Mobile/Tablet) | Pointer (Desktop) |
-|----------|----------------------|-------------------|
-| Card interaction | Tap → navigate to detail | Hover → preview metadata; Click → navigate |
-| Hover reveals | Not available — use tap/long-press | Hover to reveal secondary info |
-| Context menus | Long-press → context menu | Right-click → context menu |
-| Drag to reorder | Touch drag with 44px handles | Click-drag |
-| Scroll | Native momentum scroll | Scroll wheel, trackpad |
-| Video controls | Tap to show/hide chrome | Mouse move to show chrome, idle to hide |
+| Behavior         | Touch (Mobile/Tablet)              | Pointer (Desktop)                          |
+| ---------------- | ---------------------------------- | ------------------------------------------ |
+| Card interaction | Tap → navigate to detail           | Hover → preview metadata; Click → navigate |
+| Hover reveals    | Not available — use tap/long-press | Hover to reveal secondary info             |
+| Context menus    | Long-press → context menu          | Right-click → context menu                 |
+| Drag to reorder  | Touch drag with 44px handles       | Click-drag                                 |
+| Scroll           | Native momentum scroll             | Scroll wheel, trackpad                     |
+| Video controls   | Tap to show/hide chrome            | Mouse move to show chrome, idle to hide    |
 
 **Decision: Never require hover.** Any information shown on hover must be available without hover. Card preview metadata on hover is supplementary — the full metadata is on the detail page accessible by tap/click.
 
@@ -149,12 +149,12 @@ More content is revealed at wider viewports, not just rearranged.
 
 ### Content Safe Zones
 
-| Area | Mobile | Desktop | Rationale |
-|------|--------|---------|-----------|
-| Top (below status bar) | `env(safe-area-inset-top)` | 0 | iPhone notch |
-| Bottom (above home indicator) | `env(safe-area-inset-bottom)` + 8px | 0 | iOS swipe area |
-| Left (default) | 16px | 32px | Page margin |
-| Right (default) | 16px | 32px | Page margin |
+| Area                          | Mobile                              | Desktop | Rationale      |
+| ----------------------------- | ----------------------------------- | ------- | -------------- |
+| Top (below status bar)        | `env(safe-area-inset-top)`          | 0       | iPhone notch   |
+| Bottom (above home indicator) | `env(safe-area-inset-bottom)` + 8px | 0       | iOS swipe area |
+| Left (default)                | 16px                                | 32px    | Page margin    |
+| Right (default)               | 16px                                | 32px    | Page margin    |
 
 ### Scroll Under
 
@@ -164,15 +164,15 @@ Fixed elements (nav bar, bottom tabs) allow content to scroll under them with a 
 
 ## Performance Budgets by Device
 
-| Metric | Mobile | Tablet | Desktop |
-|--------|--------|--------|---------|
-| Max initial JS | 100KB | 150KB | 200KB |
-| Max blur regions | 2 | 3 | 3 |
-| Max shadow elevation | 1 | 2 | 4 |
-| Max card columns | 2 | 3 | 4 |
-| Image quality | 60% | 75% | 90% |
-| Hero image size | 800px wide | 1200px wide | 1920px wide |
-| Poster image size | 300×450px | 400×600px | 500×750px |
+| Metric               | Mobile     | Tablet      | Desktop     |
+| -------------------- | ---------- | ----------- | ----------- |
+| Max initial JS       | 100KB      | 150KB       | 200KB       |
+| Max blur regions     | 2          | 3           | 3           |
+| Max shadow elevation | 1          | 2           | 4           |
+| Max card columns     | 2          | 3           | 4           |
+| Image quality        | 60%        | 75%         | 90%         |
+| Hero image size      | 800px wide | 1200px wide | 1920px wide |
+| Poster image size    | 300×450px  | 400×600px   | 500×750px   |
 
 **Decision: Lower image quality on mobile.** Mobile screens have higher pixel density, making compression artifacts less visible. 60% quality at 2× pixel ratio looks sharper than 90% quality at 1× — and saves ~60% bandwidth.
 

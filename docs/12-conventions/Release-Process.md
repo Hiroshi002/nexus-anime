@@ -20,12 +20,12 @@ There is no fixed schedule. We do not rush a release to hit an arbitrary date, a
 
 Pre-release cadence within a milestone follows a predictable progression:
 
-| Stage | Suffix | Audience | Stability bar |
-|-------|--------|----------|---------------|
-| Early development | `alpha.x` | Internal only | May break, may have gaps |
-| Feature-complete | `beta.x` | Internal + invited testers | Core paths work, known issues |
-| Stabilization | `rc.x` | Staging + early adopters | No critical bugs, polish only |
-| Stable | (none) | Public | Full DoD met |
+| Stage             | Suffix    | Audience                   | Stability bar                 |
+| ----------------- | --------- | -------------------------- | ----------------------------- |
+| Early development | `alpha.x` | Internal only              | May break, may have gaps      |
+| Feature-complete  | `beta.x`  | Internal + invited testers | Core paths work, known issues |
+| Stabilization     | `rc.x`    | Staging + early adopters   | No critical bugs, polish only |
+| Stable            | (none)    | Public                     | Full DoD met                  |
 
 A version does not advance to the next stage until the current stage's bar is met. An `alpha` does not become a `beta` until feature-complete. A `beta` does not become an `rc` until no critical bugs remain. An `rc` does not become stable until the full milestone DoD is satisfied.
 
@@ -33,12 +33,12 @@ A version does not advance to the next stage until the current stage's bar is me
 
 We follow [SemVer 2.0.0](https://semver.org/). Every version is `MAJOR.MINOR.PATCH` with optional pre-release suffix.
 
-| Change type | Commit prefix | Version bump |
-|-------------|---------------|--------------|
-| Bug fix with no breaking change | `fix:` | PATCH (`1.0.0` → `1.0.1`) |
-| New feature, backward-compatible | `feat:` | MINOR (`1.0.0` → `1.1.0`) |
-| Breaking change (API contract, schema, behavior) | `BREAKING CHANGE` in footer, or `!` after type | MAJOR (`1.0.0` → `2.0.0`) |
-| Pre-release advancement | `chore(release):` | Suffix change (`1.0.0-alpha.1` → `1.0.0-beta.1`) |
+| Change type                                      | Commit prefix                                  | Version bump                                     |
+| ------------------------------------------------ | ---------------------------------------------- | ------------------------------------------------ |
+| Bug fix with no breaking change                  | `fix:`                                         | PATCH (`1.0.0` → `1.0.1`)                        |
+| New feature, backward-compatible                 | `feat:`                                        | MINOR (`1.0.0` → `1.1.0`)                        |
+| Breaking change (API contract, schema, behavior) | `BREAKING CHANGE` in footer, or `!` after type | MAJOR (`1.0.0` → `2.0.0`)                        |
+| Pre-release advancement                          | `chore(release):`                              | Suffix change (`1.0.0-alpha.1` → `1.0.0-beta.1`) |
 
 Rules:
 
@@ -234,17 +234,21 @@ Automated changelogs are a starting point, not the final product. Before the rel
 # v1.2.0
 
 ## Breaking Changes
+
 - (none)
 
 ## Features
+
 - feat(auth): add Google OAuth provider
 - feat(catalog): infinite scroll on browse page
 
 ## Bug Fixes
+
 - fix(player): resume playback after network interruption
 - fix(search): correct pagination offset on page 2+
 
 ## Performance
+
 - feat(cache): reduce TMDB API calls by 40% via stale-while-revalidate
 ```
 

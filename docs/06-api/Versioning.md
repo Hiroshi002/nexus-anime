@@ -64,14 +64,14 @@ The current major version is `v1`. It will remain live until all deprecation win
 
 The following changes are **compatible** within the current major version. They do not require a new prefix.
 
-| Change type | Example | Compatible? |
-|-------------|---------|-------------|
-| New optional query parameter | `?includeThemes` added to `/api/v1/anime/{id}` | Yes |
-| New response field | `nextAiringAt` added to anime detail response | Yes |
-| New enum value | `status` field gains new value `HIATUS` | Yes |
-| New endpoint | `POST /api/v1/watchlist/export` added | Yes |
-| Additional `rel` in pagination | `prevCursor` added alongside `nextCursor` | Yes |
-| New webhook event type | `anime.announced` added to outbound events | Yes |
+| Change type                    | Example                                        | Compatible? |
+| ------------------------------ | ---------------------------------------------- | ----------- |
+| New optional query parameter   | `?includeThemes` added to `/api/v1/anime/{id}` | Yes         |
+| New response field             | `nextAiringAt` added to anime detail response  | Yes         |
+| New enum value                 | `status` field gains new value `HIATUS`        | Yes         |
+| New endpoint                   | `POST /api/v1/watchlist/export` added          | Yes         |
+| Additional `rel` in pagination | `prevCursor` added alongside `nextCursor`      | Yes         |
+| New webhook event type         | `anime.announced` added to outbound events     | Yes         |
 
 **Rule of thumb:** if a correctly-behaving client written against the previous spec continues to work without modification, the change is compatible.
 
@@ -81,17 +81,17 @@ The following changes are **compatible** within the current major version. They 
 
 The following changes are **incompatible** and require a new major version.
 
-| Change type | Example | Breaking? |
-|-------------|---------|-----------|
-| Field rename | `username` → `handle` | Yes |
-| Field removal | `malId` dropped from anime response | Yes |
-| New required query parameter | `?locale` becomes mandatory | Yes |
-| Type change | `score: number` → `score: string` | Yes |
-| Enum value removal | `DROPPED` removed from `WatchStatus` | Yes |
-| Semantics change | `rating: 0` meant "unrated" → now means "1-star" | Yes |
-| Envelope shape change | `{ data }` → `{ result }` | Yes |
-| Pagination contract change | cursor becomes opaque token with different encoding | Yes |
-| Authentication scheme change | bearer token → custom header | Yes |
+| Change type                  | Example                                             | Breaking? |
+| ---------------------------- | --------------------------------------------------- | --------- |
+| Field rename                 | `username` → `handle`                               | Yes       |
+| Field removal                | `malId` dropped from anime response                 | Yes       |
+| New required query parameter | `?locale` becomes mandatory                         | Yes       |
+| Type change                  | `score: number` → `score: string`                   | Yes       |
+| Enum value removal           | `DROPPED` removed from `WatchStatus`                | Yes       |
+| Semantics change             | `rating: 0` meant "unrated" → now means "1-star"    | Yes       |
+| Envelope shape change        | `{ data }` → `{ result }`                           | Yes       |
+| Pagination contract change   | cursor becomes opaque token with different encoding | Yes       |
+| Authentication scheme change | bearer token → custom header                        | Yes       |
 
 **Rule of thumb:** if a client written against the previous spec would silently misinterpret the response or receive a 4xx it did not expect, the change is breaking.
 
@@ -160,11 +160,11 @@ GET /api → { "versions": ["v1"], "current": "v1" }
 
 The following surfaces carry **no version prefix** and are not subject to the deprecation process above:
 
-| Surface | Path pattern | Reason |
-|---------|---------------|--------|
-| Server Actions | N/A (RSC function calls) | Tied to the Next.js deployment; versioned with the app |
-| Health checks | `/api/health`, `/api/ready` | Infrastructure tooling; must not break on version rotation |
-| Internal RPC | `packages/services/**/src/rpc/**` | Server-to-server; coordinated deployment |
+| Surface           | Path pattern                                    | Reason                                                                       |
+| ----------------- | ----------------------------------------------- | ---------------------------------------------------------------------------- |
+| Server Actions    | N/A (RSC function calls)                        | Tied to the Next.js deployment; versioned with the app                       |
+| Health checks     | `/api/health`, `/api/ready`                     | Infrastructure tooling; must not break on version rotation                   |
+| Internal RPC      | `packages/services/**/src/rpc/**`               | Server-to-server; coordinated deployment                                     |
 | Webhook receivers | `/api/webhooks/stripe`, `/api/webhooks/partner` | External caller controls the URL; versioned via signing key rotation instead |
 
 **Why:** these surfaces are either invisible to external consumers (Server Actions, internal RPC) or controlled by an external caller (webhooks). Versioning them in the URL would add friction without benefit.
@@ -313,11 +313,11 @@ These markers are required on every public endpoint. They are the first thing up
 
 ## 14. Changelog
 
-| Date       | Change                   | Ticket / PR |
-|------------|--------------------------|-------------|
-| 2026-06-26 | Initial versioning spec  | —           |
-|            |                          |             |
-|            |                          |             |
+| Date       | Change                  | Ticket / PR |
+| ---------- | ----------------------- | ----------- |
+| 2026-06-26 | Initial versioning spec | —           |
+|            |                         |             |
+|            |                         |             |
 
 > Each entry is added when a version policy changes — not on every deprecation announcement. Deprecations are tracked in the endpoint's JSDoc and in `CHANGELOG.md`.
 

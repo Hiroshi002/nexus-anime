@@ -64,82 +64,82 @@ User ──< Watchlist (one user has many watchlist entries)
 
 ### Catalog content (public, ISR)
 
-| Content type | Source | Update cadence | Cache |
-|--------------|--------|----------------|-------|
-| Anime metadata | TMDB + AniList | Daily sync | 1hr ISR |
-| Episode list | TMDB + AniList | Daily sync | 24hr ISR |
-| Trending rankings | Internal (watch + rating) | Hourly | 5min ISR |
-| Popular rankings | Internal (all-time) | Daily | 1hr ISR |
-| Latest releases | TMDB + AniList | Daily | 15min ISR |
-| Genre list | Static TMDB list | Weekly | 24hr ISR |
-| Schedule | TMDB + AniList | Daily | 1hr ISR |
+| Content type      | Source                    | Update cadence | Cache     |
+| ----------------- | ------------------------- | -------------- | --------- |
+| Anime metadata    | TMDB + AniList            | Daily sync     | 1hr ISR   |
+| Episode list      | TMDB + AniList            | Daily sync     | 24hr ISR  |
+| Trending rankings | Internal (watch + rating) | Hourly         | 5min ISR  |
+| Popular rankings  | Internal (all-time)       | Daily          | 1hr ISR   |
+| Latest releases   | TMDB + AniList            | Daily          | 15min ISR |
+| Genre list        | Static TMDB list          | Weekly         | 24hr ISR  |
+| Schedule          | TMDB + AniList            | Daily          | 1hr ISR   |
 
 ### Personal content (private, SSR)
 
-| Content type | Source | Update cadence | Cache |
-|--------------|--------|----------------|-------|
-| Watchlist | Internal DB | Real-time | No cache |
-| Watch history | Internal DB | Real-time | No cache |
-| Continue watching | Internal DB | Real-time | No cache |
-| Profile | Internal DB | Real-time | No cache |
-| Settings | Internal DB | Real-time | No cache |
-| Notifications | Internal DB | Real-time | No cache |
+| Content type      | Source      | Update cadence | Cache    |
+| ----------------- | ----------- | -------------- | -------- |
+| Watchlist         | Internal DB | Real-time      | No cache |
+| Watch history     | Internal DB | Real-time      | No cache |
+| Continue watching | Internal DB | Real-time      | No cache |
+| Profile           | Internal DB | Real-time      | No cache |
+| Settings          | Internal DB | Real-time      | No cache |
+| Notifications     | Internal DB | Real-time      | No cache |
 
 ### Marketing content (static, SSG)
 
-| Content type | Source | Update cadence | Cache |
-|--------------|--------|----------------|-------|
-| Landing page | CMS / static | On deploy | SSG |
-| Pricing | Static | On deploy | SSG |
-| About | Static | On deploy | SSG |
-| Terms | Static | On deploy | SSG |
+| Content type | Source       | Update cadence | Cache |
+| ------------ | ------------ | -------------- | ----- |
+| Landing page | CMS / static | On deploy      | SSG   |
+| Pricing      | Static       | On deploy      | SSG   |
+| About        | Static       | On deploy      | SSG   |
+| Terms        | Static       | On deploy      | SSG   |
 
 ---
 
 ## 4. Page-to-Entity Mapping
 
-| Page | Primary entity | Secondary entities | Content tier |
-|------|---------------|-------------------|--------------|
-| Landing | — | — | Marketing |
-| Home | Anime (ranked) | Genre | Discovery |
-| Trending | Anime (ranked) | — | Discovery |
-| Popular | Anime (ranked) | — | Discovery |
-| Latest | Anime (ranked) | — | Discovery |
-| Genres | Genre | Anime | Discovery |
-| Schedule | Episode (by day) | Anime | Discovery |
-| Search | Anime (filtered) | — | Discovery |
-| Anime Detail | Anime | Episode, Season, Genre | Catalog |
-| Episode Player | Episode | Anime, WatchProgress | Catalog + Personal |
-| Watch History | WatchProgress | Anime | Personal |
-| Bookmarks | WatchlistEntry | Anime | Personal |
-| Continue Watching | WatchProgress | Anime | Personal |
-| Profile | User | — | Personal |
-| Settings | User | Subscription | Personal |
-| Notifications | Notification | — | Personal |
+| Page              | Primary entity   | Secondary entities     | Content tier       |
+| ----------------- | ---------------- | ---------------------- | ------------------ |
+| Landing           | —                | —                      | Marketing          |
+| Home              | Anime (ranked)   | Genre                  | Discovery          |
+| Trending          | Anime (ranked)   | —                      | Discovery          |
+| Popular           | Anime (ranked)   | —                      | Discovery          |
+| Latest            | Anime (ranked)   | —                      | Discovery          |
+| Genres            | Genre            | Anime                  | Discovery          |
+| Schedule          | Episode (by day) | Anime                  | Discovery          |
+| Search            | Anime (filtered) | —                      | Discovery          |
+| Anime Detail      | Anime            | Episode, Season, Genre | Catalog            |
+| Episode Player    | Episode          | Anime, WatchProgress   | Catalog + Personal |
+| Watch History     | WatchProgress    | Anime                  | Personal           |
+| Bookmarks         | WatchlistEntry   | Anime                  | Personal           |
+| Continue Watching | WatchProgress    | Anime                  | Personal           |
+| Profile           | User             | —                      | Personal           |
+| Settings          | User             | Subscription           | Personal           |
+| Notifications     | Notification     | —                      | Personal           |
 
 ---
 
 ## 5. URL-to-Entity Mapping
 
-| URL pattern | Entity | Lookup |
-|-------------|--------|--------|
-| `/` | Home feed | Trending + genres |
-| `/trending` | Anime list | Trending ranking |
-| `/popular` | Anime list | Popular ranking |
-| `/latest` | Anime list | Latest releases |
-| `/genres` | Genre list | Static genre list |
-| `/genres/:slug` | Genre + Anime[] | Genre filter |
-| `/schedule` | Episode[] by day | Weekly schedule |
-| `/search?q=` | Anime[] | Search query |
-| `/anime/:slug` | Anime | Slug lookup |
-| `/anime/:slug/season/:n` | Season + Episode[] | Season lookup |
-| `/anime/:slug/episode/:n` | Episode | Episode lookup |
-| `/watchlist` | WatchlistEntry[] | User filter |
-| `/history` | WatchProgress[] | User filter |
-| `/continue` | WatchProgress[] | User filter, non-completed |
-| `/profile` | User | Session user |
-| `/settings` | User + Subscription | Session user |
-| `/notifications` | Notification[] | User filter |
+| URL pattern               | Entity              | Lookup                     |
+| ------------------------- | ------------------- | -------------------------- |
+| `/`                       | Home feed           | Trending + genres          |
+| `/trending`               | Anime list          | Trending ranking           |
+| `/popular`                | Anime list          | Popular ranking            |
+| `/latest`                 | Anime list          | Latest releases            |
+| `/genres`                 | Genre list          | Static genre list          |
+| `/genres/:slug`           | Genre + Anime[]     | Genre filter               |
+| `/schedule`               | Episode[] by day    | Weekly schedule            |
+| `/search?q=`              | Anime[]             | Search query               |
+| `/anime/:slug`            | Anime               | Slug lookup                |
+| `/anime/:slug/season/:n`  | Season + Episode[]  | Season lookup              |
+| `/anime/:slug/episode/:n` | Episode             | Episode lookup             |
+| `/watchlist`              | WatchlistEntry[]    | User filter                |
+| `/history`                | WatchProgress[]     | User filter                |
+| `/continue`               | WatchProgress[]     | User filter, non-completed |
+| `/profile`                | User                | Session user               |
+| `/settings`               | User + Subscription | Session user               |
+| `/notifications`          | Notification[]      | User filter                |
 
 **Why slugs, not UUIDs in public URLs:** Slugs are human-readable, SEO-friendly, and stable. UUIDs are used internally for joins. Both lookups are supported — slug for public routes, UUID for internal references.
 
@@ -215,18 +215,18 @@ unread → read
 
 ## 8. Content Operations
 
-| Operation | Entity | Auth required | Optimistic? |
-|-----------|--------|---------------|-------------|
-| View catalog | Anime | No | — |
-| View detail | Anime | No | — |
-| Search | Anime | No | — |
-| Add to watchlist | WatchlistEntry | Yes | Yes |
-| Remove from watchlist | WatchlistEntry | Yes | Yes |
-| Reorder watchlist | WatchlistEntry | Yes | Yes |
-| Update watch progress | WatchProgress | Yes | No (server-authoritative) |
-| Update profile | User | Yes | No |
-| Upload avatar | User | Yes | No |
-| Mark notification read | Notification | Yes | Yes |
+| Operation              | Entity         | Auth required | Optimistic?               |
+| ---------------------- | -------------- | ------------- | ------------------------- |
+| View catalog           | Anime          | No            | —                         |
+| View detail            | Anime          | No            | —                         |
+| Search                 | Anime          | No            | —                         |
+| Add to watchlist       | WatchlistEntry | Yes           | Yes                       |
+| Remove from watchlist  | WatchlistEntry | Yes           | Yes                       |
+| Reorder watchlist      | WatchlistEntry | Yes           | Yes                       |
+| Update watch progress  | WatchProgress  | Yes           | No (server-authoritative) |
+| Update profile         | User           | Yes           | No                        |
+| Upload avatar          | User           | Yes           | No                        |
+| Mark notification read | Notification   | Yes           | Yes                       |
 
 ---
 

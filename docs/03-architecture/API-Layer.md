@@ -8,11 +8,11 @@
 
 Nexus Anime has three API surfaces:
 
-| Surface | Protocol | Consumers | When to use |
-|---------|----------|-----------|-------------|
-| **Server Actions** | Form submission (RPC-like) | Browser (Next.js client) | All user-facing mutations and form submissions |
-| **Route Handlers** | HTTP REST | External services (Stripe, Cloudflare), future mobile | Webhooks, health checks, API-for-mobile |
-| **Server-to-server** | Direct function calls | Internal services | Service → Repository, Service → Cache (no HTTP overhead) |
+| Surface              | Protocol                   | Consumers                                             | When to use                                              |
+| -------------------- | -------------------------- | ----------------------------------------------------- | -------------------------------------------------------- |
+| **Server Actions**   | Form submission (RPC-like) | Browser (Next.js client)                              | All user-facing mutations and form submissions           |
+| **Route Handlers**   | HTTP REST                  | External services (Stripe, Cloudflare), future mobile | Webhooks, health checks, API-for-mobile                  |
+| **Server-to-server** | Direct function calls      | Internal services                                     | Service → Repository, Service → Cache (no HTTP overhead) |
 
 ---
 
@@ -61,12 +61,12 @@ All API responses follow a consistent envelope format. This is **non-negotiable*
 
 ### Why a consistent envelope
 
-| Without envelope | With envelope |
-|------------------|---------------|
-| Response shape varies per endpoint | Every response has the same top-level shape |
-| Client must know if response is data or error by shape | Client checks `data` or `error` — single dispatch |
-| Errors are ad-hoc (`{ message: "..." }` or `{ err: "..." }`) | Errors are typed (`code`, `message`, `details`) |
-| No machine-readable error codes | `code` enables generic error handling per category |
+| Without envelope                                             | With envelope                                      |
+| ------------------------------------------------------------ | -------------------------------------------------- |
+| Response shape varies per endpoint                           | Every response has the same top-level shape        |
+| Client must know if response is data or error by shape       | Client checks `data` or `error` — single dispatch  |
+| Errors are ad-hoc (`{ message: "..." }` or `{ err: "..." }`) | Errors are typed (`code`, `message`, `details`)    |
+| No machine-readable error codes                              | `code` enables generic error handling per category |
 
 ---
 
@@ -74,17 +74,17 @@ All API responses follow a consistent envelope format. This is **non-negotiable*
 
 Machine-readable codes that the client can switch on for localized, context-appropriate error messages.
 
-| Code | HTTP status | When |
-|------|-------------|------|
-| `VALIDATION_ERROR` | 400 | Input fails Zod validation |
-| `UNAUTHORIZED` | 401 | No session or expired session |
-| `FORBIDDEN` | 403 | Session exists but lacks permission |
-| `NOT_FOUND` | 404 | Resource doesn't exist |
-| `CONFLICT` | 409 | Duplicate resource (email already registered) |
-| `RATE_LIMITED` | 429 | Too many requests |
-| `PAYMENT_REQUIRED` | 402 | Subscription required for action |
-| `UPSTREAM_ERROR` | 502 | External API (TMDB, Stripe, Stream) failure |
-| `INTERNAL_ERROR` | 500 | Unexpected server error |
+| Code               | HTTP status | When                                          |
+| ------------------ | ----------- | --------------------------------------------- |
+| `VALIDATION_ERROR` | 400         | Input fails Zod validation                    |
+| `UNAUTHORIZED`     | 401         | No session or expired session                 |
+| `FORBIDDEN`        | 403         | Session exists but lacks permission           |
+| `NOT_FOUND`        | 404         | Resource doesn't exist                        |
+| `CONFLICT`         | 409         | Duplicate resource (email already registered) |
+| `RATE_LIMITED`     | 429         | Too many requests                             |
+| `PAYMENT_REQUIRED` | 402         | Subscription required for action              |
+| `UPSTREAM_ERROR`   | 502         | External API (TMDB, Stripe, Stream) failure   |
+| `INTERNAL_ERROR`   | 500         | Unexpected server error                       |
 
 ### Why machine-readable codes
 
@@ -103,14 +103,20 @@ Server Actions are Next.js's native mechanism for mutations. They are `"use serv
 
 export async function toggleWatchlistAction(
   _prev: ActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionState> {
   // 1. Parse and validate input
   const input = watchlistToggleSchema.safeParse({
     animeId: formData.get("animeId"),
   });
   if (!input.success) {
-    return { error: { message: "Validation failed", code: "VALIDATION_ERROR", details: input.error.flatten().fieldErrors } };
+    return {
+      error: {
+        message: "Validation failed",
+        code: "VALIDATION_ERROR",
+        details: input.error.flatten().fieldErrors,
+      },
+    };
   }
 
   // 2. Get session (server-only)
@@ -150,13 +156,13 @@ type ActionState<T = unknown> =
 
 ### Why Server Actions over fetch-based mutations
 
-| Criterion | Server Actions | fetch() to Route Handler |
-|-----------|---------------|------------------------|
-| Type safety | End-to-end (same TypeScript process) | Broken at HTTP boundary |
-| Progressive enhancement | Works without JS (form) | Requires JS |
-| Boilerplate | Less (no request/response shaping) | More (parse request, shape response) |
-| CSRF protection | Built-in (Next.js origin check) | Must implement manually |
-| Cache revalidation | Built-in `revalidatePath/Tag` | Manual cache control headers |
+| Criterion               | Server Actions                       | fetch() to Route Handler             |
+| ----------------------- | ------------------------------------ | ------------------------------------ |
+| Type safety             | End-to-end (same TypeScript process) | Broken at HTTP boundary              |
+| Progressive enhancement | Works without JS (form)              | Requires JS                          |
+| Boilerplate             | Less (no request/response shaping)   | More (parse request, shape response) |
+| CSRF protection         | Built-in (Next.js origin check)      | Must implement manually              |
+| Cache revalidation      | Built-in `revalidatePath/Tag`        | Manual cache control headers         |
 
 ---
 
@@ -174,7 +180,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   const event = stripe.webhooks.constructEvent(
     await request.text(),
     signature,
-    process.env.STRIPE_WEBHOOK_SECRET!
+    process.env.STRIPE_WEBHOOK_SECRET!,
   );
 
   // 2. Process event (idempotent)
@@ -191,14 +197,14 @@ export async function POST(request: Request): Promise<NextResponse> {
 // app/api/v1/anime/[id]/route.ts
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ): Promise<NextResponse> {
   // 1. Validate auth (Bearer token, not cookie)
   const session = await authenticateApiRequest(request);
   if (!session) {
     return NextResponse.json(
       { error: { message: "Unauthorized", code: "UNAUTHORIZED" } },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -233,19 +239,23 @@ External APIs (TMDB, AniList, Stripe, Cloudflare Stream) are wrapped in typed cl
 // lib/clients/tmdb.client.ts
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
-async function tmdbFetch<T>(path: string, params: Record<string, string>, schema: ZodSchema<T>): Promise<T> {
+async function tmdbFetch<T>(
+  path: string,
+  params: Record<string, string>,
+  schema: ZodSchema<T>,
+): Promise<T> {
   const url = new URL(path, TMDB_BASE_URL);
   url.searchParams.set("api_key", process.env.TMDB_API_KEY!);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
 
   const res = await fetch(url.toString(), {
-    next: { revalidate: 3600, tags: ["tmdb"] },  // ISR cache
+    next: { revalidate: 3600, tags: ["tmdb"] }, // ISR cache
   });
 
   if (!res.ok) throw new UpstreamError("TMDB", res.status);
 
   const data = await res.json();
-  return schema.parse(data);  // Validate response shape with Zod
+  return schema.parse(data); // Validate response shape with Zod
 }
 
 export const tmdb = {
@@ -272,10 +282,10 @@ An upstream API change (e.g., TMDB renames `vote_average` to `rating`) would cra
 
 Rate limiting is enforced at two levels:
 
-| Level | Mechanism | Scope |
-|-------|-----------|-------|
-| Edge | Vercel Edge Middleware + `@nexus/cache` rate limiter | Per-IP, per-route |
-| Application | `@nexus/cache` sliding-window limiter | Per-user, per-action |
+| Level       | Mechanism                                            | Scope                |
+| ----------- | ---------------------------------------------------- | -------------------- |
+| Edge        | Vercel Edge Middleware + `@nexus/cache` rate limiter | Per-IP, per-route    |
+| Application | `@nexus/cache` sliding-window limiter                | Per-user, per-action |
 
 ### Implementation
 
@@ -291,12 +301,12 @@ export async function checkRateLimit(key: string, limit: number, window: number)
 
 ### Rate limits by endpoint
 
-| Endpoint | Limit | Window | Why |
-|----------|-------|--------|-----|
-| Search | 20 requests | 60s | Search is expensive (TMDB API calls) |
-| Watchlist toggle | 10 mutations | 60s | Prevent accidental double-toggles |
-| Auth login | 5 attempts | 300s | Brute-force protection |
-| Stripe webhook | 100 requests | 60s | Stripe may send rapid events |
+| Endpoint         | Limit        | Window | Why                                  |
+| ---------------- | ------------ | ------ | ------------------------------------ |
+| Search           | 20 requests  | 60s    | Search is expensive (TMDB API calls) |
+| Watchlist toggle | 10 mutations | 60s    | Prevent accidental double-toggles    |
+| Auth login       | 5 attempts   | 300s   | Brute-force protection               |
+| Stripe webhook   | 100 requests | 60s    | Stripe may send rapid events         |
 
 ### Why fail-open for reads, fail-closed for writes
 
@@ -316,10 +326,10 @@ Route Handler endpoints under `/api/v1/` are versioned for mobile/future consume
 
 ### Why prefix versioning over header-based
 
-| Approach | Pros | Cons |
-|----------|------|------|
-| **URL prefix** (`/v1/`) | Explicit, cacheable, discoverable | URL changes between versions |
-| Header-based (`Accept: application/vnd.nexus.v1+json`) | URL stays clean | Hidden from logs, not cacheable by CDN |
+| Approach                                               | Pros                              | Cons                                   |
+| ------------------------------------------------------ | --------------------------------- | -------------------------------------- |
+| **URL prefix** (`/v1/`)                                | Explicit, cacheable, discoverable | URL changes between versions           |
+| Header-based (`Accept: application/vnd.nexus.v1+json`) | URL stays clean                   | Hidden from logs, not cacheable by CDN |
 
 URL prefix is more visible in logs, easier to debug, and more cacheable on CDN edges. For an internal API consumed by our own mobile app, the URL change cost is negligible — we control both sides.
 

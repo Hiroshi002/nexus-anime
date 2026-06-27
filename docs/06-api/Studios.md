@@ -78,13 +78,13 @@ List active studios with pagination and optional filters.
 
 **Query parameters:**
 
-| Param            | Type    | Required | Default | Notes                                                                |
-| :--------------- | :------ | :------- | :------ | :------------------------------------------------------------------- |
-| `page`           | number  | no       | `1`     | Offset page number.                                                  |
-| `page_size`      | number  | no       | `50`    | Results per page. Max 100.                                           |
-| `country`        | string  | no       | —       | Filter by ISO 3166-1 alpha-2 code (e.g. `JP`).                       |
-| `is_active`      | boolean | no       | `true`  | Admin only. When `false`, returns only inactive rows. Omit for all.  |
-| `include_inactive` | boolean | no       | `false` | Admin only. When `true`, returns both active and inactive rows.    |
+| Param              | Type    | Required | Default | Notes                                                               |
+| :----------------- | :------ | :------- | :------ | :------------------------------------------------------------------ |
+| `page`             | number  | no       | `1`     | Offset page number.                                                 |
+| `page_size`        | number  | no       | `50`    | Results per page. Max 100.                                          |
+| `country`          | string  | no       | —       | Filter by ISO 3166-1 alpha-2 code (e.g. `JP`).                      |
+| `is_active`        | boolean | no       | `true`  | Admin only. When `false`, returns only inactive rows. Omit for all. |
+| `include_inactive` | boolean | no       | `false` | Admin only. When `true`, returns both active and inactive rows.     |
 
 **Sorting:** `sort_order ASC`, then `name ASC`.
 
@@ -101,10 +101,10 @@ List active studios with pagination and optional filters.
 
 **Status codes:**
 
-| Code | Condition                                    |
-| :--- | :------------------------------------------- |
-| 200  | Success                                      |
-| 400  | Invalid query parameter                      |
+| Code | Condition                                                 |
+| :--- | :-------------------------------------------------------- |
+| 200  | Success                                                   |
+| 400  | Invalid query parameter                                   |
 | 401  | `include_inactive=true` / `is_active=false` without admin |
 
 > The pagination contract is defined in [Pagination.md](./Pagination.md).
@@ -117,18 +117,18 @@ Fetch a single studio by slug.
 
 **Path parameters:**
 
-| Param  | Type   | Required | Notes                           |
-| :----- | :----- | :------- | :------------------------------ |
-| `slug` | string | yes      | URL-safe studio identifier      |
+| Param  | Type   | Required | Notes                      |
+| :----- | :----- | :------- | :------------------------- |
+| `slug` | string | yes      | URL-safe studio identifier |
 
 **Response `data`:** `Studio`
 
 **Status codes:**
 
-| Code | Condition                                |
-| :--- | :--------------------------------------- |
-| 200  | Success                                  |
-| 404  | Studio not found or not active           |
+| Code | Condition                      |
+| :--- | :----------------------------- |
+| 200  | Success                        |
+| 404  | Studio not found or not active |
 
 > Inactive studios return 404 to public callers. Admin callers may pass `?include_inactive=true` to fetch any row.
 
@@ -176,9 +176,9 @@ Fetch a single studio by slug.
 
 **Path parameters:**
 
-| Param  | Type   | Required | Notes                        |
-| :----- | :----- | :------- | :--------------------------- |
-| `slug` | string | yes      | Slug of the studio to patch  |
+| Param  | Type   | Required | Notes                       |
+| :----- | :----- | :------- | :-------------------------- |
+| `slug` | string | yes      | Slug of the studio to patch |
 
 **Request body (all fields optional):**
 
@@ -202,13 +202,13 @@ Fetch a single studio by slug.
 
 **Status codes:**
 
-| Code | Condition                                  |
-| :--- | :----------------------------------------- |
-| 200  | Updated                                    |
-| 400  | Validation error (Zod)                     |
-| 401  | Unauthenticated                            |
-| 403  | Not admin                                  |
-| 404  | Studio not found                           |
+| Code | Condition                                   |
+| :--- | :------------------------------------------ |
+| 200  | Updated                                     |
+| 400  | Validation error (Zod)                      |
+| 401  | Unauthenticated                             |
+| 403  | Not admin                                   |
+| 404  | Studio not found                            |
 | 409  | New `name` collides with another active row |
 
 **Side effects:** Cache keys `nexus:studios:list` and `nexus:studios:{slug}` invalidated on success.
@@ -223,20 +223,20 @@ Fetch a single studio by slug.
 
 **Path parameters:**
 
-| Param  | Type   | Required | Notes                           |
-| :----- | :----- | :------- | :------------------------------ |
+| Param  | Type   | Required | Notes                             |
+| :----- | :----- | :------- | :-------------------------------- |
 | `slug` | string | yes      | Slug of the studio to soft-delete |
 
 **Response:** `204 No Content` on success (no body).
 
 **Status codes:**
 
-| Code | Condition                |
-| :--- | :----------------------- |
-| 204  | Soft-deleted             |
-| 401  | Unauthenticated          |
-| 403  | Not admin                |
-| 404  | Studio not found         |
+| Code | Condition        |
+| :--- | :--------------- |
+| 204  | Soft-deleted     |
+| 401  | Unauthenticated  |
+| 403  | Not admin        |
+| 404  | Studio not found |
 
 **Side effects:** Cache keys `nexus:studios:list` and `nexus:studios:{slug}` invalidated on success.
 
@@ -429,23 +429,23 @@ HTTP/1.1 204 No Content
 
 All endpoints in this document use the standard error envelope defined in [Error-Codes.md](./Error-Codes.md). Common codes for this resource:
 
-| HTTP | `code`                   | Condition                                  |
-| :--- | :----------------------- | :----------------------------------------- |
-| 400  | `VALIDATION_ERROR`       | Zod rejected the request body              |
-| 401  | `UNAUTHENTICATED`        | Missing or expired session                 |
-| 403  | `FORBIDDEN`              | Non-admin attempted a mutation             |
-| 404  | `RESOURCE_NOT_FOUND`     | Slug does not match an active studio       |
-| 409  | `DUPLICATE_RESOURCE`     | Slug or name collides with an active row   |
+| HTTP | `code`               | Condition                                |
+| :--- | :------------------- | :--------------------------------------- |
+| 400  | `VALIDATION_ERROR`   | Zod rejected the request body            |
+| 401  | `UNAUTHENTICATED`    | Missing or expired session               |
+| 403  | `FORBIDDEN`          | Non-admin attempted a mutation           |
+| 404  | `RESOURCE_NOT_FOUND` | Slug does not match an active studio     |
+| 409  | `DUPLICATE_RESOURCE` | Slug or name collides with an active row |
 
 ---
 
 ## 7. Cross-references
 
-| Concern                   | Document                                             |
-| :------------------------ | :--------------------------------------------------- |
-| Authoritative schema      | [Studio.md](../07-database/Studio.md)                |
-| Cache key schema          | [API-Standards.md](./API-Standards.md)               |
-| Error code registry       | [Error-Codes.md](./Error-Codes.md)                   |
-| Pagination contract       | [Pagination.md](./Pagination.md)                     |
-| Rate-limit quotas         | [Rate-Limiting.md](./Rate-Limiting.md)              |
-| Anime ↔ Studio join       | [Anime.md](./Anime.md) section on sub-resources      |
+| Concern              | Document                                        |
+| :------------------- | :---------------------------------------------- |
+| Authoritative schema | [Studio.md](../07-database/Studio.md)           |
+| Cache key schema     | [API-Standards.md](./API-Standards.md)          |
+| Error code registry  | [Error-Codes.md](./Error-Codes.md)              |
+| Pagination contract  | [Pagination.md](./Pagination.md)                |
+| Rate-limit quotas    | [Rate-Limiting.md](./Rate-Limiting.md)          |
+| Anime ↔ Studio join  | [Anime.md](./Anime.md) section on sub-resources |

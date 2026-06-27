@@ -21,6 +21,7 @@ The Anime Detail page is the primary catalog surface where users decide whether 
 ## 3. Functional Requirements
 
 ### 3.1 Happy Path
+
 1. User navigates to `/anime/{slug}` from a search result, genre page, or recommendation card.
 2. System renders hero banner with backdrop image, title (romaji/English/Japanese), metadata row, and genre pills.
 3. User clicks "Watch S01 E01" primary button (or "Continue Watching S01 E05" if resumed) to navigate to the Episode Player.
@@ -31,12 +32,14 @@ The Anime Detail page is the primary catalog surface where users decide whether 
 8. User scrolls to recommendations and similar carousels, clicks an anime card to navigate to another detail page.
 
 ### 3.2 Alternate Flows
+
 1. User arrives via a shared deep link (`/anime/attack-on-titan`); page renders at the correct scroll position (top).
 2. User is logged in and has prior watch history; the "Watch" button shows "Continue Watching S01 E05" with progress indicator.
 3. User is not logged in; the watchlist toggle shows a sign-in prompt instead.
 4. User clicks a genre pill on the hero section; navigates to `/genres/{genre-slug}`.
 
 ### 3.3 Edge Cases
+
 1. Anime with 0 episodes — episode panel shows empty state with "No episodes available yet."
 2. Anime with 50+ seasons (e.g. long-running series like One Piece) — season selector is scrollable with search/filter.
 3. Deleted anime (soft-deleted) — returns 404 with generic message.
@@ -75,30 +78,30 @@ The Anime Detail page is the primary catalog surface where users decide whether 
 
 ## 7. UI Components
 
-| Component | Responsibility | Reusable? | Package |
-|-----------|---------------|-----------|---------|
-| `AnimeDetailPage` | Page shell with Suspense boundaries per section | No | `apps/web` |
-| `HeroBanner` | Full-width backdrop + title block + metadata + genre pills | Yes | `@nexus/ui` |
-| `ActionBar` | Watch, Watchlist, Trailer, Share buttons | Yes | `@nexus/ui` |
-| `WatchlistToggle` | Bookmark toggle with `aria-pressed` | Yes | `@nexus/ui` |
-| `SynopsisPanel` | Synopsis text + detailed metadata grid | Yes | `@nexus/ui` |
-| `EpisodePanel` | Season selector tabs + episode table | Yes | `@nexus/ui` |
-| `SeasonSelector` | Tab bar for season switching | Yes | `@nexus/ui` |
-| `EpisodeTable` | Scrollable list of episode rows | Yes | `@nexus/ui` |
-| `EpisodeRow` | Single episode: number, title, thumbnail, duration, progress | Yes | `@nexus/ui` |
-| `AnimeCard` | Poster + title + rating — reused from catalog in carousels | Yes | `@nexus/ui` |
-| `RelatedCarousel` | Horizontally scrollable anime card row with header | Yes | `@nexus/ui` |
-| `TrailerOverlay` | Inline video player overlay for trailer playback | No | `apps/web` |
+| Component         | Responsibility                                               | Reusable? | Package     |
+| ----------------- | ------------------------------------------------------------ | --------- | ----------- |
+| `AnimeDetailPage` | Page shell with Suspense boundaries per section              | No        | `apps/web`  |
+| `HeroBanner`      | Full-width backdrop + title block + metadata + genre pills   | Yes       | `@nexus/ui` |
+| `ActionBar`       | Watch, Watchlist, Trailer, Share buttons                     | Yes       | `@nexus/ui` |
+| `WatchlistToggle` | Bookmark toggle with `aria-pressed`                          | Yes       | `@nexus/ui` |
+| `SynopsisPanel`   | Synopsis text + detailed metadata grid                       | Yes       | `@nexus/ui` |
+| `EpisodePanel`    | Season selector tabs + episode table                         | Yes       | `@nexus/ui` |
+| `SeasonSelector`  | Tab bar for season switching                                 | Yes       | `@nexus/ui` |
+| `EpisodeTable`    | Scrollable list of episode rows                              | Yes       | `@nexus/ui` |
+| `EpisodeRow`      | Single episode: number, title, thumbnail, duration, progress | Yes       | `@nexus/ui` |
+| `AnimeCard`       | Poster + title + rating — reused from catalog in carousels   | Yes       | `@nexus/ui` |
+| `RelatedCarousel` | Horizontally scrollable anime card row with header           | Yes       | `@nexus/ui` |
+| `TrailerOverlay`  | Inline video player overlay for trailer playback             | No        | `apps/web`  |
 
 ## 8. API Dependencies
 
-| Endpoint | Method | Auth Required | Rate Limit | Cache |
-|----------|--------|---------------|------------|-------|
-| `/api/v1/anime/{slug}` | GET | No | 60/min per IP | 15 min ISR |
-| `/api/v1/anime/{slug}/episodes?season=1` | GET | No | 60/min per IP | 15 min ISR |
-| `/api/v1/anime/{slug}/recommendations` | GET | No | 60/min per IP | 15 min ISR |
-| `/api/v1/bookmarks` | POST | Yes | 30/min per user | No |
-| `/api/v1/watch-history` | GET | Yes | 30/min per user | No |
+| Endpoint                                 | Method | Auth Required | Rate Limit      | Cache      |
+| ---------------------------------------- | ------ | ------------- | --------------- | ---------- |
+| `/api/v1/anime/{slug}`                   | GET    | No            | 60/min per IP   | 15 min ISR |
+| `/api/v1/anime/{slug}/episodes?season=1` | GET    | No            | 60/min per IP   | 15 min ISR |
+| `/api/v1/anime/{slug}/recommendations`   | GET    | No            | 60/min per IP   | 15 min ISR |
+| `/api/v1/bookmarks`                      | POST   | Yes           | 30/min per user | No         |
+| `/api/v1/watch-history`                  | GET    | Yes           | 30/min per user | No         |
 
 `/api/v1/anime/{slug}` returns full anime metadata including hero data, synopsis, and genre list.
 
@@ -108,16 +111,16 @@ The Anime Detail page is the primary catalog surface where users decide whether 
 
 ## 9. Database Dependencies
 
-| Table / View | Operation | Index / Query Notes |
-|--------------|-----------|---------------------|
-| `anime` | SELECT | Lookup by `slug`; index on `slug` (unique); filtered by `deleted_at IS NULL` |
-| `anime_genres` | SELECT (join) | Genre list for the anime; index on `anime_id` |
-| `genres` | SELECT (join) | Genre names and slugs for pill display; index on `id` |
-| `seasons` | SELECT | Season list for the anime; index on `anime_id`, ordered by `number` |
-| `episodes` | SELECT | Episodes per season; index on `(season_id, number)`; filtered by `deleted_at IS NULL` |
-| `bookmarks` | SELECT / INSERT | Watchlist state; index on `(user_id, anime_id)` |
-| `watch_history` | SELECT | Resume position for "Continue Watching"; index on `(user_id, anime_id)` |
-| `recommendations` | SELECT | Pre-computed recommendation pairs; index on `source_anime_id` |
+| Table / View      | Operation       | Index / Query Notes                                                                   |
+| ----------------- | --------------- | ------------------------------------------------------------------------------------- |
+| `anime`           | SELECT          | Lookup by `slug`; index on `slug` (unique); filtered by `deleted_at IS NULL`          |
+| `anime_genres`    | SELECT (join)   | Genre list for the anime; index on `anime_id`                                         |
+| `genres`          | SELECT (join)   | Genre names and slugs for pill display; index on `id`                                 |
+| `seasons`         | SELECT          | Season list for the anime; index on `anime_id`, ordered by `number`                   |
+| `episodes`        | SELECT          | Episodes per season; index on `(season_id, number)`; filtered by `deleted_at IS NULL` |
+| `bookmarks`       | SELECT / INSERT | Watchlist state; index on `(user_id, anime_id)`                                       |
+| `watch_history`   | SELECT          | Resume position for "Continue Watching"; index on `(user_id, anime_id)`               |
+| `recommendations` | SELECT          | Pre-computed recommendation pairs; index on `source_anime_id`                         |
 
 ## 10. Edge Cases
 
@@ -133,27 +136,27 @@ The Anime Detail page is the primary catalog surface where users decide whether 
 
 ## 11. Error Handling
 
-| Error Condition | User-Facing Message | Recovery Action | Log Level |
-|-----------------|---------------------|-----------------|-----------|
-| Anime API 404 | "This anime doesn't exist or has been removed." | CTA "Browse catalog" | info |
-| Anime API 500 | "Something went wrong loading this page." | Retry button (primary) | error |
-| Episodes API fails | Episode panel shows: "Could not load episodes." with inline retry | Inline "Retry" button | error |
-| Recommendations API fails | Carousel omitted from page | No user-facing message; log for monitoring | warn |
-| Watchlist toggle fails | Revert optimistic update; toast "Could not update watchlist." | User can retry | error |
-| Trailer overlay playback error | "Trailer could not be loaded." with close button | Close overlay; episode list remains accessible | warn |
+| Error Condition                | User-Facing Message                                               | Recovery Action                                | Log Level |
+| ------------------------------ | ----------------------------------------------------------------- | ---------------------------------------------- | --------- |
+| Anime API 404                  | "This anime doesn't exist or has been removed."                   | CTA "Browse catalog"                           | info      |
+| Anime API 500                  | "Something went wrong loading this page."                         | Retry button (primary)                         | error     |
+| Episodes API fails             | Episode panel shows: "Could not load episodes." with inline retry | Inline "Retry" button                          | error     |
+| Recommendations API fails      | Carousel omitted from page                                        | No user-facing message; log for monitoring     | warn      |
+| Watchlist toggle fails         | Revert optimistic update; toast "Could not update watchlist."     | User can retry                                 | error     |
+| Trailer overlay playback error | "Trailer could not be loaded." with close button                  | Close overlay; episode list remains accessible | warn      |
 
 ## 12. Analytics Events
 
-| Event Name | Trigger | Properties | Surface |
-|------------|---------|------------|---------|
-| `anime_detail_view` | Page mount | `{ anime_id, slug, referrer: "search" | "genre" | "recommendation" | "direct" }` | Client |
-| `anime_watch_click` | "Watch" or "Continue Watching" button clicked | `{ anime_id, episode_id, is_resume }` | Client |
-| `anime_watchlist_toggle` | Watchlist icon clicked | `{ anime_id, action: "add" | "remove" }` | Client |
-| `anime_trailer_click` | Trailer button clicked | `{ anime_id }` | Client |
-| `anime_episode_click` | Episode row clicked | `{ anime_id, episode_id, season_number, episode_number }` | Client |
-| `anime_season_change` | Season tab switched | `{ anime_id, season_number }` | Client |
-| `anime_recommendation_click` | Recommendation card clicked | `{ source_anime_id, target_anime_id, position }` | Client |
-| `anime_similar_click` | Similar title card clicked | `{ source_anime_id, target_anime_id, position }` | Client |
+| Event Name                   | Trigger                                       | Properties                                                | Surface     |
+| ---------------------------- | --------------------------------------------- | --------------------------------------------------------- | ----------- | ---------------- | ----------- | ------ |
+| `anime_detail_view`          | Page mount                                    | `{ anime_id, slug, referrer: "search"                     | "genre"     | "recommendation" | "direct" }` | Client |
+| `anime_watch_click`          | "Watch" or "Continue Watching" button clicked | `{ anime_id, episode_id, is_resume }`                     | Client      |
+| `anime_watchlist_toggle`     | Watchlist icon clicked                        | `{ anime_id, action: "add"                                | "remove" }` | Client           |
+| `anime_trailer_click`        | Trailer button clicked                        | `{ anime_id }`                                            | Client      |
+| `anime_episode_click`        | Episode row clicked                           | `{ anime_id, episode_id, season_number, episode_number }` | Client      |
+| `anime_season_change`        | Season tab switched                           | `{ anime_id, season_number }`                             | Client      |
+| `anime_recommendation_click` | Recommendation card clicked                   | `{ source_anime_id, target_anime_id, position }`          | Client      |
+| `anime_similar_click`        | Similar title card clicked                    | `{ source_anime_id, target_anime_id, position }`          | Client      |
 
 ## 13. Security Considerations
 

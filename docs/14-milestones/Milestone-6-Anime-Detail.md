@@ -47,29 +47,29 @@ This milestone covers the **UI layer and data wiring only**. The underlying REST
 
 ## 3. Deliverables
 
-| # | Deliverable | Location | Acceptance |
-| :-- | :-- | :-- | :-- |
-| D1 | ID-based detail route with redirect to slug | `apps/web/src/app/anime/[id]/page.tsx` | Fetches anime by ID, redirects to `/anime/slug/{slug}` with 301 |
-| D2 | Slug-based detail route | `apps/web/src/app/anime/slug/[slug]/page.tsx` | Fetches anime by slug; renders `AnimeDetailPage`; ISR with `revalidate: 3600` |
-| D3 | `AnimeDetailPage` orchestrator | `apps/web/src/components/anime-detail/AnimeDetailPage.tsx` | Composes hero, action bar, content grid, related section, reviews placeholder; manages shared state |
-| D4 | `HeroBanner` with parallax backdrop | `src/components/anime-detail/HeroBanner.tsx` | Full-width hero (80vh desktop / 50vh mobile); banner backdrop image; parallax scroll effect; title block (romaji/english/japanese); meta row; genre pills |
-| D5 | `PlayTrailerButton` | `src/components/anime-detail/PlayTrailerButton.tsx` | Opens trailer embed; muted autoplay; pause button; expandable to full-screen modal |
-| D6 | `ActionBar` | `src/components/anime-detail/ActionBar.tsx` | Primary "Watch S01 E01" button (lg); `WatchlistToggle`; outline "Trailer" button; ghost "Share" button |
-| D7 | `WatchlistToggle` | `src/components/anime-detail/WatchlistToggle.tsx` | Toggle button with filled/outline heart icon; Server Action mutation; optimistic update; requires auth (hidden for anonymous) |
-| D8 | `ContentGrid` (2/3 + 1/3) | `src/components/anime-detail/ContentGrid.tsx` | Responsive grid: 2/3 synopsis + 1/3 episodes on desktop; single stack on tablet/mobile |
-| D9 | `SynopsisPanel` | `src/components/anime-detail/SynopsisPanel.tsx` | Synopsis text; details grid (studio, source, episode count, duration, age rating, season, status) |
-| D10 | `EpisodePanel` + `SeasonSelector` + `EpisodeTable` + `EpisodeRow` | `src/components/anime-detail/EpisodePanel.tsx` | Season tabs (URL-driven); episode table with number/title/thumbnail/duration/air date/progress bar; scroll-independent on desktop |
-| D11 | `RelatedSection` (Recommendations + Similar) | `src/components/anime-detail/RelatedSection.tsx` | Two carousels: recommendations + similar; horizontal scroll; `AnimeCard` components |
-| D12 | `ReviewsPlaceholder` | `src/components/anime-detail/ReviewsPlaceholder.tsx` | Reserved space with "Reviews coming soon" message; non-interactive |
-| D13 | Breadcrumb component | `src/components/anime-detail/Breadcrumb.tsx` | `Home > Catalog > {Title}` or genre-based path; structured data `ItemList` |
-| D14 | `useAnimeDetail` / `useAnimeBySlug` hooks | `apps/web/src/hooks/` | Fetch anime detail; typed response; error state |
-| D15 | `useRelatedAnime` hook | `apps/web/src/hooks/` | Fetch recommendations + similar; cursor pagination |
-| D16 | `useFranchiseEntries` hook | `apps/web/src/hooks/` | Fetch franchise relations (prequel/sequel/spinoff) |
-| D17 | JSON-LD `TVSeries` schema | `src/components/anime-detail/JsonLd.tsx` | Includes title, description, genre, episode count, rating, duration; validates via Google Rich Results Test |
-| D18 | OG metadata + canonical | `src/app/anime/slug/[slug]/page.tsx` | Title `{Romaji Title} — Nexus Anime`; OG from banner; canonical URL; ISR |
-| D19 | Season tab URL state | `src/components/anime-detail/SeasonSelector.tsx` | Reads `?season={name}` from URL; updates URL on tab change via `router.replace()`; defaults to current/recent season |
-| D20 | Skeleton loaders | `src/components/anime-detail/skeletons/` | Hero skeleton (80vh shimmer); episode row skeleton; dimension-matched; no layout shift |
-| D21 | Responsive layout | All components | Desktop: 2/3+1/3 grid; Tablet: single stack; Mobile: single column, stacked action bar |
+| #   | Deliverable                                                       | Location                                                   | Acceptance                                                                                                                                                |
+| :-- | :---------------------------------------------------------------- | :--------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | ID-based detail route with redirect to slug                       | `apps/web/src/app/anime/[id]/page.tsx`                     | Fetches anime by ID, redirects to `/anime/slug/{slug}` with 301                                                                                           |
+| D2  | Slug-based detail route                                           | `apps/web/src/app/anime/slug/[slug]/page.tsx`              | Fetches anime by slug; renders `AnimeDetailPage`; ISR with `revalidate: 3600`                                                                             |
+| D3  | `AnimeDetailPage` orchestrator                                    | `apps/web/src/components/anime-detail/AnimeDetailPage.tsx` | Composes hero, action bar, content grid, related section, reviews placeholder; manages shared state                                                       |
+| D4  | `HeroBanner` with parallax backdrop                               | `src/components/anime-detail/HeroBanner.tsx`               | Full-width hero (80vh desktop / 50vh mobile); banner backdrop image; parallax scroll effect; title block (romaji/english/japanese); meta row; genre pills |
+| D5  | `PlayTrailerButton`                                               | `src/components/anime-detail/PlayTrailerButton.tsx`        | Opens trailer embed; muted autoplay; pause button; expandable to full-screen modal                                                                        |
+| D6  | `ActionBar`                                                       | `src/components/anime-detail/ActionBar.tsx`                | Primary "Watch S01 E01" button (lg); `WatchlistToggle`; outline "Trailer" button; ghost "Share" button                                                    |
+| D7  | `WatchlistToggle`                                                 | `src/components/anime-detail/WatchlistToggle.tsx`          | Toggle button with filled/outline heart icon; Server Action mutation; optimistic update; requires auth (hidden for anonymous)                             |
+| D8  | `ContentGrid` (2/3 + 1/3)                                         | `src/components/anime-detail/ContentGrid.tsx`              | Responsive grid: 2/3 synopsis + 1/3 episodes on desktop; single stack on tablet/mobile                                                                    |
+| D9  | `SynopsisPanel`                                                   | `src/components/anime-detail/SynopsisPanel.tsx`            | Synopsis text; details grid (studio, source, episode count, duration, age rating, season, status)                                                         |
+| D10 | `EpisodePanel` + `SeasonSelector` + `EpisodeTable` + `EpisodeRow` | `src/components/anime-detail/EpisodePanel.tsx`             | Season tabs (URL-driven); episode table with number/title/thumbnail/duration/air date/progress bar; scroll-independent on desktop                         |
+| D11 | `RelatedSection` (Recommendations + Similar)                      | `src/components/anime-detail/RelatedSection.tsx`           | Two carousels: recommendations + similar; horizontal scroll; `AnimeCard` components                                                                       |
+| D12 | `ReviewsPlaceholder`                                              | `src/components/anime-detail/ReviewsPlaceholder.tsx`       | Reserved space with "Reviews coming soon" message; non-interactive                                                                                        |
+| D13 | Breadcrumb component                                              | `src/components/anime-detail/Breadcrumb.tsx`               | `Home > Catalog > {Title}` or genre-based path; structured data `ItemList`                                                                                |
+| D14 | `useAnimeDetail` / `useAnimeBySlug` hooks                         | `apps/web/src/hooks/`                                      | Fetch anime detail; typed response; error state                                                                                                           |
+| D15 | `useRelatedAnime` hook                                            | `apps/web/src/hooks/`                                      | Fetch recommendations + similar; cursor pagination                                                                                                        |
+| D16 | `useFranchiseEntries` hook                                        | `apps/web/src/hooks/`                                      | Fetch franchise relations (prequel/sequel/spinoff)                                                                                                        |
+| D17 | JSON-LD `TVSeries` schema                                         | `src/components/anime-detail/JsonLd.tsx`                   | Includes title, description, genre, episode count, rating, duration; validates via Google Rich Results Test                                               |
+| D18 | OG metadata + canonical                                           | `src/app/anime/slug/[slug]/page.tsx`                       | Title `{Romaji Title} — Nexus Anime`; OG from banner; canonical URL; ISR                                                                                  |
+| D19 | Season tab URL state                                              | `src/components/anime-detail/SeasonSelector.tsx`           | Reads `?season={name}` from URL; updates URL on tab change via `router.replace()`; defaults to current/recent season                                      |
+| D20 | Skeleton loaders                                                  | `src/components/anime-detail/skeletons/`                   | Hero skeleton (80vh shimmer); episode row skeleton; dimension-matched; no layout shift                                                                    |
+| D21 | Responsive layout                                                 | All components                                             | Desktop: 2/3+1/3 grid; Tablet: single stack; Mobile: single column, stacked action bar                                                                    |
 
 ---
 
@@ -88,33 +88,33 @@ Before M6 begins, the following must be complete:
 
 ### Upstream (must exist before M6 starts)
 
-| Dependency | Type | Source | Contract |
-| :-- | :-- | :-- | :-- |
-| `GET /api/v1/anime/{id}` | REST endpoint | M2 | Returns full `Anime` record with all metadata fields |
-| `GET /api/v1/anime/slug/{slug}` | REST endpoint | M2 | Returns full `Anime` record; 404 on missing slug |
-| `GET /api/v1/anime/{id}/recommendations?cursor=&limit=10` | REST endpoint | M2 | Returns `AnimeSummary[]` with cursor pagination |
-| `GET /api/v1/anime/{id}/franchise` | REST endpoint | M2 | Returns franchise relations (prequel/sequel/spinoff/side_story/parent) |
-| `GET /api/v1/anime/{id}/genres` | REST endpoint | M2 | Returns genre list for the anime |
-| `GET /api/v1/anime/{id}/studios` | REST endpoint | M2 | Returns studio list with role (production/licensing/music/animation) |
-| `GET /api/v1/watchlist/status?animeId={id}` | REST endpoint | M4 companion | Returns watchlist entry status for authenticated user |
-| `POST/DELETE /api/v1/watchlist` | Server Action | M4 companion | Toggle watchlist entry; Zod validation; requireUser |
-| `AnimeCard` component | Package | M1 | Reused for related carousels |
-| Auth.js session helpers | Library | M3 | `getSession()` for watchlist toggle visibility |
+| Dependency                                                | Type          | Source       | Contract                                                               |
+| :-------------------------------------------------------- | :------------ | :----------- | :--------------------------------------------------------------------- |
+| `GET /api/v1/anime/{id}`                                  | REST endpoint | M2           | Returns full `Anime` record with all metadata fields                   |
+| `GET /api/v1/anime/slug/{slug}`                           | REST endpoint | M2           | Returns full `Anime` record; 404 on missing slug                       |
+| `GET /api/v1/anime/{id}/recommendations?cursor=&limit=10` | REST endpoint | M2           | Returns `AnimeSummary[]` with cursor pagination                        |
+| `GET /api/v1/anime/{id}/franchise`                        | REST endpoint | M2           | Returns franchise relations (prequel/sequel/spinoff/side_story/parent) |
+| `GET /api/v1/anime/{id}/genres`                           | REST endpoint | M2           | Returns genre list for the anime                                       |
+| `GET /api/v1/anime/{id}/studios`                          | REST endpoint | M2           | Returns studio list with role (production/licensing/music/animation)   |
+| `GET /api/v1/watchlist/status?animeId={id}`               | REST endpoint | M4 companion | Returns watchlist entry status for authenticated user                  |
+| `POST/DELETE /api/v1/watchlist`                           | Server Action | M4 companion | Toggle watchlist entry; Zod validation; requireUser                    |
+| `AnimeCard` component                                     | Package       | M1           | Reused for related carousels                                           |
+| Auth.js session helpers                                   | Library       | M3           | `getSession()` for watchlist toggle visibility                         |
 
 ### Downstream (will consume M6)
 
-| Consumer | What they need | Milestone |
-| :-- | :-- | :-- |
-| M7 — Public Launch | Anime detail must be production-ready | M7 |
+| Consumer           | What they need                        | Milestone |
+| :----------------- | :------------------------------------ | :-------- |
+| M7 — Public Launch | Anime detail must be production-ready | M7        |
 
 ### External services
 
-| Service | Purpose | Failure mode |
-| :-- | :-- | :-- |
-| Upstash Redis | Cache anime detail (TTL 3600s), recommendations (TTL 3600s) | Fallback to direct DB query; serve stale if available |
-| TMDB / AniList | Source of anime metadata, banner images, trailer URLs | Pre-seeded data must be available; no live dependency at runtime |
-| Vercel Edge | ISR caching (revalidate: 3600s) | First request triggers revalidation; subsequent requests serve cached |
-| Cloudflare R2 / Image CDN | Serve banner backdrop and poster images | Fallback to gradient placeholder on image load failure |
+| Service                   | Purpose                                                     | Failure mode                                                          |
+| :------------------------ | :---------------------------------------------------------- | :-------------------------------------------------------------------- |
+| Upstash Redis             | Cache anime detail (TTL 3600s), recommendations (TTL 3600s) | Fallback to direct DB query; serve stale if available                 |
+| TMDB / AniList            | Source of anime metadata, banner images, trailer URLs       | Pre-seeded data must be available; no live dependency at runtime      |
+| Vercel Edge               | ISR caching (revalidate: 3600s)                             | First request triggers revalidation; subsequent requests serve cached |
+| Cloudflare R2 / Image CDN | Serve banner backdrop and poster images                     | Fallback to gradient placeholder on image load failure                |
 
 ---
 
@@ -127,6 +127,7 @@ Before M6 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Medium (stale progress indication)
 
 **Mitigation:**
+
 - Episode progress is fetched separately via a short-TTL (60s) request or a Server Action, not part of the ISR cache.
 - The main anime metadata (title, synopsis, episodes list) is ISR-cached; the progress overlay is a client-side fetch on mount.
 - Alternatively, use `revalidateTag` on the anime detail cache when a progress mutation occurs.
@@ -139,6 +140,7 @@ Before M6 begins, the following must be complete:
 **Likelihood:** Low · **Impact:** High (wrong anime displayed)
 
 **Mitigation:**
+
 - Slug generation in the importer appends a year suffix for ambiguous titles (e.g., `death-note-2006`).
 - The `GET /api/v1/anime/slug/{slug}` endpoint returns 404 with a `ANIME_NOT_FOUND` error code; the page renders a not-found UI.
 - The ID-to-slug redirect (D1) always uses the canonical slug from the database.
@@ -151,6 +153,7 @@ Before M6 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Medium (visual degradation)
 
 **Mitigation:**
+
 - `next/image` with a fallback gradient built from `surface-base` to `surface-overlay`.
 - The `HeroBanner` component renders the gradient as a background layer beneath the image; if the image fails, the gradient remains visible.
 - Set explicit dimensions (80vh desktop / 50vh mobile) so the container does not collapse to 0.
@@ -163,6 +166,7 @@ Before M6 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Low (user must click play manually)
 
 **Mitigation:**
+
 - Trailer embed is explicitly muted (`muted` attribute) and has `playsinline` for mobile.
 - If autoplay fails (detected via `onPlay` event not firing within 2s), fall back to showing the play button overlay — this is the expected behavior.
 - Never attempt to unmute programmatically; that violates browser autoplay policies.
@@ -174,6 +178,7 @@ Before M6 begins, the following must be complete:
 **Likelihood:** Low · **Impact:** Medium (incorrect default tab)
 
 **Mitigation:**
+
 - The slug route uses `generateStaticParams` with a `dynamic` segment; ISR caches per-slug, not per-query-string.
 - Season tab state is read client-side from `useSearchParams()` after hydration, not during SSR/ISR.
 - The server renders the page without season context; the client hydrates and reads the URL to set the active tab.
@@ -186,6 +191,7 @@ Before M6 begins, the following must be complete:
 **Likelihood:** Low · **Impact:** Low (visual flicker)
 
 **Mitigation:**
+
 - Disable the toggle while a mutation is in flight (optimistic update + loading state).
 - Server Action is idempotent: calling `POST /api/v1/watchlist` twice with the same anime ID toggles twice, but the UI state is locked during the first request.
 - Use `useTransition` or a local `isPending` state to prevent double-clicks.
@@ -284,35 +290,35 @@ Each criterion is binary pass/fail. All must pass for the milestone to be consid
 
 ## 9. Estimated Tasks
 
-| # | Task | Estimate | Dependencies | Notes |
-| :-- | :-- | :-- | :-- | :-- |
-| T1 | Scaffold `apps/web/src/components/anime-detail/` directory structure and barrel exports | 0.5d | M1 | |
-| T2 | Implement `useAnimeDetail` / `useAnimeBySlug` hooks | 1d | M2 anime endpoints | Typed responses; error state |
-| T3 | Implement `useRelatedAnime` hook | 0.5d | M2 recommendations endpoint | Cursor pagination |
-| T4 | Implement `useFranchiseEntries` hook | 0.5d | M2 franchise endpoint | |
-| T5 | Implement `HeroBanner` with parallax backdrop | 2d | M1 `next/image` | Responsive heights; gradient fallback |
-| T6 | Implement `PlayTrailerButton` with muted autoplay + expand | 1.5d | M1 `Button`, `Modal` | Browser autoplay policy handling |
-| T7 | Implement `ActionBar` with all buttons | 1d | M1 `Button`, T6 | Responsive stacking on mobile |
-| T8 | Implement `WatchlistToggle` with optimistic update | 1d | M4 companion Server Action | Disable during mutation |
-| T9 | Implement `ContentGrid` (responsive 2/3 + 1/3) | 0.5d | M1 grid utilities | |
-| T10 | Implement `SynopsisPanel` with details grid | 1d | T2 | Studio, source, episode count, etc. |
-| T11 | Implement `EpisodePanel` + `SeasonSelector` + `EpisodeTable` + `EpisodeRow` | 2d | T2, M2 episode data | URL-driven season state; independent scroll on desktop |
-| T12 | Implement `RelatedSection` with two carousels | 1d | T3, `AnimeCard` | Horizontal scroll; hide on empty |
-| T13 | Implement `ReviewsPlaceholder` | 0.25d | — | Static message only |
-| T14 | Implement `Breadcrumb` component | 0.5d | — | Home > Catalog > {Title} |
-| T15 | Implement skeleton loaders (hero, episode rows) | 1d | M1 `Skeleton` | Dimension-matched; shimmer |
-| T16 | Implement `AnimeDetailPage` orchestrator | 1d | T5-T14 | Suspense boundaries per section |
-| T17 | Implement ID route with redirect to slug | 0.5d | T2 | 301 redirect |
-| T18 | Implement slug route with ISR | 1d | T16, T19 | `revalidate: 3600`; `generateMetadata` |
-| T19 | Implement `generateMetadata` + OG + canonical | 0.5d | T2 | Dynamic title, OG image |
-| T20 | Implement JSON-LD `TVSeries` schema | 0.5d | T2 | Google Rich Results validated |
-| T21 | Implement `JsonLd` component (structured data injection) | 0.25d | — | Reusable pattern |
-| T22 | Responsive testing + fixes across 4 breakpoints | 1.5d | T18 | |
-| T23 | Accessibility audit + fixes | 1d | T18 | Keyboard nav, ARIA, reduced-motion |
-| T24 | Performance audit + fixes (LCP, CLS, TTFB) | 1d | T18 | |
-| T25 | Integration tests (ID redirect, 404, watchlist toggle, season tabs) | 1.5d | T18 | |
-| T26 | E2E tests (detail page load, trailer, episode navigation) | 1d | T18 | Playwright |
-| **Total** | | **~23.5d** | | ~4.5-5 weeks with 1 engineer |
+| #         | Task                                                                                    | Estimate   | Dependencies                | Notes                                                  |
+| :-------- | :-------------------------------------------------------------------------------------- | :--------- | :-------------------------- | :----------------------------------------------------- |
+| T1        | Scaffold `apps/web/src/components/anime-detail/` directory structure and barrel exports | 0.5d       | M1                          |                                                        |
+| T2        | Implement `useAnimeDetail` / `useAnimeBySlug` hooks                                     | 1d         | M2 anime endpoints          | Typed responses; error state                           |
+| T3        | Implement `useRelatedAnime` hook                                                        | 0.5d       | M2 recommendations endpoint | Cursor pagination                                      |
+| T4        | Implement `useFranchiseEntries` hook                                                    | 0.5d       | M2 franchise endpoint       |                                                        |
+| T5        | Implement `HeroBanner` with parallax backdrop                                           | 2d         | M1 `next/image`             | Responsive heights; gradient fallback                  |
+| T6        | Implement `PlayTrailerButton` with muted autoplay + expand                              | 1.5d       | M1 `Button`, `Modal`        | Browser autoplay policy handling                       |
+| T7        | Implement `ActionBar` with all buttons                                                  | 1d         | M1 `Button`, T6             | Responsive stacking on mobile                          |
+| T8        | Implement `WatchlistToggle` with optimistic update                                      | 1d         | M4 companion Server Action  | Disable during mutation                                |
+| T9        | Implement `ContentGrid` (responsive 2/3 + 1/3)                                          | 0.5d       | M1 grid utilities           |                                                        |
+| T10       | Implement `SynopsisPanel` with details grid                                             | 1d         | T2                          | Studio, source, episode count, etc.                    |
+| T11       | Implement `EpisodePanel` + `SeasonSelector` + `EpisodeTable` + `EpisodeRow`             | 2d         | T2, M2 episode data         | URL-driven season state; independent scroll on desktop |
+| T12       | Implement `RelatedSection` with two carousels                                           | 1d         | T3, `AnimeCard`             | Horizontal scroll; hide on empty                       |
+| T13       | Implement `ReviewsPlaceholder`                                                          | 0.25d      | —                           | Static message only                                    |
+| T14       | Implement `Breadcrumb` component                                                        | 0.5d       | —                           | Home > Catalog > {Title}                               |
+| T15       | Implement skeleton loaders (hero, episode rows)                                         | 1d         | M1 `Skeleton`               | Dimension-matched; shimmer                             |
+| T16       | Implement `AnimeDetailPage` orchestrator                                                | 1d         | T5-T14                      | Suspense boundaries per section                        |
+| T17       | Implement ID route with redirect to slug                                                | 0.5d       | T2                          | 301 redirect                                           |
+| T18       | Implement slug route with ISR                                                           | 1d         | T16, T19                    | `revalidate: 3600`; `generateMetadata`                 |
+| T19       | Implement `generateMetadata` + OG + canonical                                           | 0.5d       | T2                          | Dynamic title, OG image                                |
+| T20       | Implement JSON-LD `TVSeries` schema                                                     | 0.5d       | T2                          | Google Rich Results validated                          |
+| T21       | Implement `JsonLd` component (structured data injection)                                | 0.25d      | —                           | Reusable pattern                                       |
+| T22       | Responsive testing + fixes across 4 breakpoints                                         | 1.5d       | T18                         |                                                        |
+| T23       | Accessibility audit + fixes                                                             | 1d         | T18                         | Keyboard nav, ARIA, reduced-motion                     |
+| T24       | Performance audit + fixes (LCP, CLS, TTFB)                                              | 1d         | T18                         |                                                        |
+| T25       | Integration tests (ID redirect, 404, watchlist toggle, season tabs)                     | 1.5d       | T18                         |                                                        |
+| T26       | E2E tests (detail page load, trailer, episode navigation)                               | 1d         | T18                         | Playwright                                             |
+| **Total** |                                                                                         | **~23.5d** |                             | ~4.5-5 weeks with 1 engineer                           |
 
 ---
 

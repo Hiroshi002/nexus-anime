@@ -27,8 +27,8 @@ concurrency:
 
 permissions:
   contents: read
-  deployments: write  # For `gh` CLI deployment status updates.
-  pull-requests: write  # To post the preview URL as a PR comment.
+  deployments: write # For `gh` CLI deployment status updates.
+  pull-requests: write # To post the preview URL as a PR comment.
 
 jobs:
   deploy-preview:
@@ -53,7 +53,7 @@ jobs:
       # The Vercel bot handles preview deployments automatically.
       # If you use the app, this workflow becomes a no-op deploy step.
       - name: Trigger Vercel preview deployment
-        if: false  # <-- remove this `if: false` once the Vercel app is connected
+        if: false # <-- remove this `if: false` once the Vercel app is connected
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}

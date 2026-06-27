@@ -3,21 +3,25 @@
 > **Audience:** Browsing users exploring the catalog by category; no authentication required.
 
 ## 1. Purpose
+
 A two-part page that lets users browse the full genre index as glass cards, then drill into a genre detail view showing a filtered anime grid.
 
 ## 2. User Goals
+
 - Discover anime by browsing genre categories visually.
 - See sample titles inside a genre before committing to the drill-down.
 - Filter the catalog by one or more genres simultaneously.
 - Navigate cleanly between the index and detail states.
 
 ## 3. Entry Points
+
 - **Primary navigation link** — "Genres" tab in the top nav (`/genres`).
 - **Genre chip** on anime detail pages (clicking `Action` chip navigates to `/genres?genre=action`).
 - **Search empty-state CTA** — "Browse by Genre" button when search returns zero results.
 - **Footer link** — Genre index link in the sitemap section.
 
 ## 4. Layout Structure
+
 ```
 ┌────────────────────────────────────────────────────┐
 │  Header (transparent → solid on scroll)             │
@@ -54,6 +58,7 @@ A two-part page that lets users browse the full genre index as glass cards, then
 ```
 
 ## 5. Component Hierarchy
+
 - `GenresPage` (route: `/genres`)
   - `GenreHeader` — page title + subtitle + breadcrumb
   - `GenreGrid` (index state)
@@ -72,7 +77,9 @@ A two-part page that lets users browse the full genre index as glass cards, then
   - `PaginationTrigger` — infinite-scroll sentinel
 
 ## 6. Desktop Layout
+
 **Breakpoint:** ≥1024px.
+
 - Header: transparent over `surface-base`, transitions to `surface-raised` with backdrop-blur on scroll.
 - Page title: Space Grotesk 28px, `text-primary`.
 - Subtitle: Inter 14px, `text-secondary`.
@@ -88,7 +95,9 @@ A two-part page that lets users browse the full genre index as glass cards, then
 - Hover thumbnail reveal: 2 thumbnails float 8px below card, fade-in 200ms.
 
 ## 7. Tablet Layout
+
 **Breakpoint:** 768–1023px.
+
 - Genre grid: 3–4 columns.
 - Anime grid: 3 columns.
 - Filter bar: stacks vertically (chips row + sort/view row) if width < 900px.
@@ -96,7 +105,9 @@ A two-part page that lets users browse the full genre index as glass cards, then
 - Card padding remains 16px.
 
 ## 8. Mobile Layout
+
 **Breakpoint:** <768px.
+
 - Genre cards: single-column full-width in a vertical stack; icon left, name + count right, horizontal layout.
 - Thumbnail reveal: disabled on touch devices; tapping the card navigates directly to detail.
 - Anime grid: 2 columns (380px min-safe for readability).
@@ -105,6 +116,7 @@ A two-part page that lets users browse the full genre index as glass cards, then
 - If a **Bottom Tab Bar** is configured globally, "Genres" tab is the second icon and receives an active highlight dot in `action-primary-bg`.
 
 ## 9. Navigation Behavior
+
 - **Index → Detail:** clicking a genre card updates query param (e.g. `?genre=action`) and transitions the view client-side (no full page reload).
 - **Active state:** Active genre chip in filter bar is `action-primary-bg` filled, white label, `✕` remove icon.
 - **Breadcrumb:** `Home > Genres > Action` rendered between header and content. Each crumb is a link except the last. Separator: `>` in `text-secondary`.
@@ -113,11 +125,13 @@ A two-part page that lets users browse the full genre index as glass cards, then
 - **URL-driven:** Direct navigation to `/genres?genre=action` renders the detail state on mount without an intermediate index flash.
 
 ## 10. Scroll Behavior
+
 - **Genre index:** Standard page scroll. Sticky header (0 → `surface-raised` with `backdrop-blur`) activates after 24px scroll. No virtualization needed; 30 cards render eagerly.
 - **Genre detail (anime grid):** Infinite scroll using `IntersectionObserver` sentinel at the bottom of the list. Cursor-based pagination; each batch adds 24 cards. Scroll-to-top behavior preserves filter state.
 - **Scroll restoration:** `scrollRestoration: true` so returning via browser back restores previous position within the grid.
 
 ## 11. Motion & Animation
+
 - **Genre card entry:** Fade-in + translateY(8px→0); stagger 30ms per card on initial load.
 - **Card hover:** Subtle scale 1.02, `surface-overlay` border glow using a 1px `action-primary-bg` 40% opacity ring. Transition: 200ms `cubic-bezier(0.22, 1, 0.36, 1)`.
 - **Thumbnail reveal:** On hover, two thumbnails slide up 6px and fade in (opacity 0→1, 250ms, spring easing). The second thumbnail delays 80ms.
@@ -126,6 +140,7 @@ A two-part page that lets users browse the full genre index as glass cards, then
 - **Duration scale:** micro-interactions 50–100ms, structural transitions 200–400ms, reveal animations up to 1000ms for hero elements.
 
 ## 12. Loading Experience
+
 - **Genre index:** Low payload (30 genre cards with counts) — renders within first paint. Skeleton fallback: 12 placeholder rectangles in genre-column layout showing shimmer animation.
 - **Genre detail anime grid:**
   - Streaming SSR for first 12 `AnimeCard`s.
@@ -135,6 +150,7 @@ A two-part page that lets users browse the full genre index as glass cards, then
 - **Hydration:** Use `use()` with `React.cache()` for request deduplication; no duplicate fetches for identical genre queries.
 
 ## 13. Empty States
+
 - **Filter yields zero results:**
   - Illustration: empty grid icon in `action-accent-bg` tint (80px).
   - Message: `text-primary` — "No anime match these filters."
@@ -145,6 +161,7 @@ A two-part page that lets users browse the full genre index as glass cards, then
 - **Empty genre detail:** If genre exists but has 0 anime, show soft note "No titles in this genre yet" with `primary` button linking back to genre index.
 
 ## 14. Error Handling
+
 - **Partial failure (genre count fails, icons succeed):**
   - Show genre cards without count badges; display "—" placeholder in badge spot.
   - Console log; no blocking UI.
@@ -158,6 +175,7 @@ A two-part page that lets users browse the full genre index as glass cards, then
 - **Image load fail on AnimeCard:** Fall back to a gradient placeholder with genre-mapped color and overlayed title text.
 
 ## 15. SEO Metadata Requirements
+
 - **Title:** `Browse Anime by Genre — Nexus Anime`
 - **Description:** "Explore 30+ anime genres from Action to Slice of Life. Browse, filter, and find your next watch on Nexus Anime, the premium dark-mode anime streaming portal."
 - **Open Graph:** Shared with canonical catalog card — 1200×630px, `surface-base` background, genre icon grid Nexus mark, title in Space Grotesk.
@@ -166,6 +184,7 @@ A two-part page that lets users browse the full genre index as glass cards, then
 - **JSON-LD:** `ItemList` schema listing top 10 genres with URL, name, and numberOfItems.
 
 ## 16. Accessibility Requirements
+
 - **WCAG 2.2 AA** compliance on dark theme.
 - **Color contrast:**
   - `text-primary` (#ecedf5) on `surface-base` (#0a0e1a): ratio 15.4:1 — exceeds AA.
@@ -183,6 +202,7 @@ A two-part page that lets users browse the full genre index as glass cards, then
 - **Reduced motion:** `prefers-reduced-motion: reduce` disables thumbnail reveal animation and grid crossfade; content instant swap.
 
 ## 17. Future Enhancements
+
 - **Genre detail landing pages:** Persistent per-genre landing with curated hero banner, editorial description, and "Staff Picks" row.
 - **Genre-based recommendations:** "Because you watched Action" horizontal rail at the bottom of the genre detail.
 - **Genre map visualization:** Force-directed node graph showing genre overlap (e.g. Action ↔ Thriller) as an alternate view mode.

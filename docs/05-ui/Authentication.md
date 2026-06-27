@@ -5,15 +5,18 @@
 ---
 
 ## 1. Purpose
+
 Provide secure, low-friction account access and recovery flows for unauthenticated users, with consistent UX across all auth surfaces.
 
 ## 2. User Goals
+
 - Sign in quickly with email/password or a trusted OAuth provider.
 - Create an account with clear feedback on password strength and field requirements.
 - Verify email ownership without leaving the platform.
 - Recover access when a password is forgotten.
 
 ## 3. Entry Points
+
 - Header avatar button (unauthenticated state) → `/login`
 - "Sign up" link inside the sign-in card → `/signup`
 - "Forgot password?" link inside the sign-in card → `/forgot-password`
@@ -22,6 +25,7 @@ Provide secure, low-friction account access and recovery flows for unauthenticat
 - Email verification link (external) → `/verify?token=...`
 
 ## 4. Layout Structure
+
 ```
 ┌────────────────────────────────────────────┐
 │                                            │
@@ -47,6 +51,7 @@ Provide secure, low-friction account access and recovery flows for unauthenticat
 Background: `surface-base (#0a0e1a)` with 2–3 large, softly blurred gradient orbs (`action-primary-bg` to `action-accent-bg`, ~640px diameter, `opacity-20`, drifting slowly). No header, no sidebar, no footer.
 
 ## 5. Component Hierarchy
+
 - CenteredAuthLayout (full-screen, vertical + horizontal centering, orb backdrop)
   - LogoLink (top of card, links to `/`, focus ring on tab)
   - AuthCard (max-width 440px, surface-raised, rounded-2xl, glassmorphism border)
@@ -67,6 +72,7 @@ Background: `surface-base (#0a0e1a)` with 2–3 large, softly blurred gradient o
   - FooterLinks (terms, privacy — small text, bottom edge, centered)
 
 ## 6. Desktop Layout (≥1024px)
+
 - Card centered vertically and horizontally with 32px safe padding on all sides.
 - Card padding: 40px.
 - Max card width: 440px; fills fluidly down to 360px.
@@ -77,6 +83,7 @@ Background: `surface-base (#0a0e1a)` with 2–3 large, softly blurred gradient o
 - OAuth buttons are stacked vertically (not side by side).
 
 ## 7. Tablet Layout (768–1023px)
+
 - Card padding: 32px.
 - Card width still capped at 440px; left/right safe margin 24px.
 - Orbs compressed to 480px diameter, opacity reduced to 0.15 to reduce visual noise.
@@ -84,6 +91,7 @@ Background: `surface-base (#0a0e1a)` with 2–3 large, softly blurred gradient o
 - No other layout changes.
 
 ## 8. Mobile Layout (<768px)
+
 - Card edge margins: 16px each side.
 - Card padding: 24px.
 - Logo height: 28px.
@@ -94,6 +102,7 @@ Background: `surface-base (#0a0e1a)` with 2–3 large, softly blurred gradient o
 - Orb backdrop reduced to static, single-orb variant (no animation on devices that disable motion).
 
 ## 9. Navigation Behavior
+
 - Logo click → `/`.
 - "Sign up" link in the sign-in card → `/signup`.
 - "Already have an account? Sign in" in signup card → `/login`.
@@ -104,11 +113,13 @@ Background: `surface-base (#0a0e1a)` with 2–3 large, softly blurred gradient o
 - Terms and Privacy links open in a new tab (`target="_blank"`, `rel="noopener noreferrer"`).
 
 ## 10. Scroll Behavior
+
 - Scroll is generally unnecessary; card is viewport-fit with internal overflow only when content exceeds 90vh.
 - When overflow triggers (small viewport + password strength + OAuth buttons), the card itself scrolls internally — background remains fixed.
 - No parallax. No sticky header.
 
 ## 11. Motion & Animation
+
 - Orb drift: 24000ms linear infinite, translates ±30px X / ±20px Y; uses `prefers-reduced-motion` media query to disable.
 - Card entrance: 200ms spring, 0→1 opacity, translateY 12px→0.
 - Button press: scale 0.985 on `:active`, 150ms ease-out.
@@ -118,15 +129,18 @@ Background: `surface-base (#0a0e1a)` with 2–3 large, softly blurred gradient o
 - OAuth loading state: spinner replaces icon, label remains, button becomes aria-disabled.
 
 ## 12. Loading Experience
+
 - Initial page render (unauthenticated, SSR): form is interactive immediately.
 - Submit: button enters loading state (spinner, disabled) until server response resolves.
 - OAuth click: button enters loading state, redirect initiated client-side (no visible spinner delay; navigate on click).
 - Verify token page: auto-submit via `use()` + Server Action on mount; show 2-second skeleton pulse before result, then present success or redirect.
 
 ## 13. Empty States
+
 - Not applicable — all auth forms have a defined, always-present field set.
 
 ## 14. Error Handling
+
 - Client-side validation (Zod) fires on blur and on submit attempt; inline error below each field, linked via `aria-describedby`.
 - Server errors:
   - Invalid credentials — generic inline form error: **"Invalid email or password."** Never reveal whether email exists.
@@ -141,6 +155,7 @@ Background: `surface-base (#0a0e1a)` with 2–3 large, softly blurred gradient o
 - Password hash failure on reset: redirect to `/verify/expired` with resend option, never surface raw token status.
 
 ## 15. SEO Metadata Requirements
+
 - **Login page:**
   - `<title>Sign In — Nexus Anime</title>`
   - `<meta name="description" content="Sign in to Nexus Anime to continue your watchlist and pick up where you left off.">`
@@ -161,6 +176,7 @@ Background: `surface-base (#0a0e1a)` with 2–3 large, softly blurred gradient o
 - No JSON-LD on auth pages (no structured data for auth surfaces).
 
 ## 16. Accessibility Requirements
+
 - Every field has a visible `<label>` associated via `for`/`id`.
 - Errors linked to their field via `aria-describedby`; the form-level error region uses `aria-live="polite"` so screen readers announce after submit.
 - Password toggle uses `aria-pressed="true|false"` and `aria-label="Show password"` / `"Hide password"`.
@@ -173,6 +189,7 @@ Background: `surface-base (#0a0e1a)` with 2–3 large, softly blurred gradient o
 - Color contrast: text-secondary on surface-base must meet WCAG AA 4.5:1 minimum; text on OAuth button meets AA at 4.5:1.
 
 ## 17. Future Enhancements
+
 - Passkey / WebAuthn login as an alternative to password.
 - Two-factor authentication (TOTP) — separate flow, reuse the centered card layout.
 - "Continue with Discord" and "Continue with Apple" OAuth providers (expand OAuth row in the card).

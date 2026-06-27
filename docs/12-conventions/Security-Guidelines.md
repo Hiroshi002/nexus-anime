@@ -10,22 +10,22 @@
 
 Every external input must be validated with Zod before processing. Client-side validation is for UX only; server-side validation is the security boundary.
 
-| Boundary | What to validate |
-|----------|-----------------|
-| Server Actions | FormData fields, composed inputs |
-| Route Handlers | Request body, query string, path params |
+| Boundary               | What to validate                                |
+| ---------------------- | ----------------------------------------------- |
+| Server Actions         | FormData fields, composed inputs                |
+| Route Handlers         | Request body, query string, path params         |
 | External API responses | Third-party data shapes (TMDB, AniList, Stripe) |
-| Dynamic route segments | URL params (`z.uuid().parse(params.id)`) |
+| Dynamic route segments | URL params (`z.uuid().parse(params.id)`)        |
 
 Define Zod schemas adjacent to their consumer or in a shared `schemas/` directory if reused. Derive TypeScript types with `z.infer` — never hand-write a parallel interface.
 
 ### Sanitize user-generated content
 
-| Content type | Sanitizer | Rationale |
-|-------------|-----------|-----------|
-| Plain text (comments, bios) | `DOMPurify.sanitize(text, { ALLOWED_TAGS: [] })` | Strip all HTML |
-| Rich text (future: reviews) | `DOMPurify.sanitize(html, { ALLOWED_TAGS: ['b', 'i', 'a'] })` | Allow limited tags only |
-| URLs (profile links) | `z.url()` + protocol check (`https:` only) | Prevent `javascript:` URL XSS |
+| Content type                | Sanitizer                                                     | Rationale                     |
+| --------------------------- | ------------------------------------------------------------- | ----------------------------- |
+| Plain text (comments, bios) | `DOMPurify.sanitize(text, { ALLOWED_TAGS: [] })`              | Strip all HTML                |
+| Rich text (future: reviews) | `DOMPurify.sanitize(html, { ALLOWED_TAGS: ['b', 'i', 'a'] })` | Allow limited tags only       |
+| URLs (profile links)        | `z.url()` + protocol check (`https:` only)                    | Prevent `javascript:` URL XSS |
 
 Do not use regex-based sanitizers. Infinite XSS bypasses exist for regex patterns. DOMPurify parses HTML into a DOM tree and filters at the AST level, which is sound.
 
@@ -80,11 +80,11 @@ Auth.js uses the Double Submit Cookie pattern combined with `sameSite=lax`. Do n
 
 ### Role-based access control (RBAC)
 
-| Role | Capabilities |
-|------|-------------|
-| `viewer` | Browse catalog, watch free content, manage own watchlist |
-| `subscriber` | All viewer + premium content, HD streams |
-| `admin` | All subscriber + catalog management, user management |
+| Role         | Capabilities                                             |
+| ------------ | -------------------------------------------------------- |
+| `viewer`     | Browse catalog, watch free content, manage own watchlist |
+| `subscriber` | All viewer + premium content, HD streams                 |
+| `admin`      | All subscriber + catalog management, user management     |
 
 ### Middleware auth guards
 
@@ -129,12 +129,12 @@ Secrets live in Vercel environment variables, never in source code. All API keys
 
 ### Rate limiting
 
-| Endpoint | Limit | Window | Enforcement |
-|----------|-------|--------|-------------|
-| Login attempts | 5 attempts | 5 minutes | Per IP + per email |
-| Password reset | 3 attempts | 15 minutes | Per email |
-| Server Actions (mutations) | 30 requests | 1 minute | Per session |
-| Public API reads | 100 requests | 1 minute | Per IP |
+| Endpoint                   | Limit        | Window     | Enforcement        |
+| -------------------------- | ------------ | ---------- | ------------------ |
+| Login attempts             | 5 attempts   | 5 minutes  | Per IP + per email |
+| Password reset             | 3 attempts   | 15 minutes | Per email          |
+| Server Actions (mutations) | 30 requests  | 1 minute   | Per session        |
+| Public API reads           | 100 requests | 1 minute   | Per IP             |
 
 Use Upstash Redis for counters. When Redis is unavailable: fail open for reads, fail closed for security-critical writes (login, password reset).
 
@@ -151,7 +151,7 @@ Every webhook handler must verify the signature before processing. Without verif
 const event = stripe.webhooks.constructEvent(
   await request.text(),
   request.headers.get("stripe-signature"),
-  process.env.STRIPE_WEBHOOK_SECRET!
+  process.env.STRIPE_WEBHOOK_SECRET!,
 );
 ```
 
@@ -180,12 +180,12 @@ Neon serverless provides HTTP-based connection pooling — enforced by `@nexus/d
 
 ## 8. Dependency Security
 
-| Tool | Frequency | What it checks |
-|------|-----------|---------------|
-| Dependabot | Daily | Known vulnerabilities in npm dependencies |
-| CodeQL | Weekly + on PR | Security vulnerability patterns in our code |
-| `pnpm audit` | In CI | Known CVEs in lockfile |
-| Socket.dev | On install | Supply chain attacks (typosquatting, maintainer changes) |
+| Tool         | Frequency      | What it checks                                           |
+| ------------ | -------------- | -------------------------------------------------------- |
+| Dependabot   | Daily          | Known vulnerabilities in npm dependencies                |
+| CodeQL       | Weekly + on PR | Security vulnerability patterns in our code              |
+| `pnpm audit` | In CI          | Known CVEs in lockfile                                   |
+| Socket.dev   | On install     | Supply chain attacks (typosquatting, maintainer changes) |
 
 ### Lockfile integrity
 
@@ -201,14 +201,14 @@ Before adding a package: check npm downloads (> 10K/week), recent commits (withi
 
 Set in `next.config.ts` `headers()` and middleware. Do not override or weaken.
 
-| Header | Value | Why |
-|--------|-------|-----|
-| `Content-Security-Policy` | Dynamic nonce-based | Prevent XSS, control resource origins |
-| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | Force HTTPS for 2 years |
-| `X-Frame-Options` | `DENY` | Prevent clickjacking |
-| `X-Content-Type-Options` | `nosniff` | Browser respects declared MIME type |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Don't leak full URL to third parties |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Deny sensitive browser APIs |
+| Header                      | Value                                          | Why                                   |
+| --------------------------- | ---------------------------------------------- | ------------------------------------- |
+| `Content-Security-Policy`   | Dynamic nonce-based                            | Prevent XSS, control resource origins |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | Force HTTPS for 2 years               |
+| `X-Frame-Options`           | `DENY`                                         | Prevent clickjacking                  |
+| `X-Content-Type-Options`    | `nosniff`                                      | Browser respects declared MIME type   |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`              | Don't leak full URL to third parties  |
+| `Permissions-Policy`        | `camera=(), microphone=(), geolocation=()`     | Deny sensitive browser APIs           |
 
 ### CSP
 
@@ -235,12 +235,12 @@ Video playback URLs are signed server-side with a 5-minute expiry. The signing k
 
 ### Severity levels
 
-| Level | Definition | Response time |
-|-------|-----------|---------------|
-| **P0 — Critical** | Active data breach or auth bypass | < 15 minutes |
-| **P1 — High** | Vulnerability with known exploit path | < 1 hour |
-| **P2 — Medium** | Vulnerability without current exploit | < 24 hours |
-| **P3 — Low** | Minor misconfiguration or hardening gap | Next sprint |
+| Level             | Definition                              | Response time |
+| ----------------- | --------------------------------------- | ------------- |
+| **P0 — Critical** | Active data breach or auth bypass       | < 15 minutes  |
+| **P1 — High**     | Vulnerability with known exploit path   | < 1 hour      |
+| **P2 — Medium**   | Vulnerability without current exploit   | < 24 hours    |
+| **P3 — Low**      | Minor misconfiguration or hardening gap | Next sprint   |
 
 ### Key rotation
 
@@ -303,18 +303,18 @@ Mandatory for PRs touching auth, payments, or user data; recommended for all oth
 
 ## 13. OWASP Top 10 Mitigations
 
-| # | OWASP Category | Our Mitigation |
-|---|---------------|----------------|
-| A01 | Broken Access Control | RBAC, middleware guards, Server Action auth checks, Zod output validation |
-| A02 | Cryptographic Failures | bcrypt (wf 12), HTTPS everywhere (HSTS), TLS 1.3, no secrets in code |
-| A03 | Injection | Drizzle parameterized queries, Zod input validation, DOMPurify, React auto-escaping |
-| A04 | Insecure Design | Defense-in-depth, threat modeling, security checklist, ADRs |
-| A05 | Security Misconfiguration | Strict CSP, HSTS, X-Frame-Options DENY, `--frozen-lockfile`, least-privilege DB |
-| A06 | Vulnerable Components | Dependabot daily, CodeQL weekly, `pnpm audit` in CI, Socket.dev, lockfile committed |
-| A07 | Auth Failures | bcrypt wf 12, rate limiting (5/5min), httpOnly+secure+sameSite cookies, session revocation |
-| A08 | Software/Data Integrity | Webhook verification, SRI, `--frozen-lockfile`, signed Stream URLs |
-| A09 | Logging/Monitoring Failures | Pino structured logging, Vercel Analytics, p95 metrics, alerts, no PII in logs |
-| A10 | SSRF | Server-only API calls, allowlist for external API domains, no user-provided fetch URLs |
+| #   | OWASP Category              | Our Mitigation                                                                             |
+| --- | --------------------------- | ------------------------------------------------------------------------------------------ |
+| A01 | Broken Access Control       | RBAC, middleware guards, Server Action auth checks, Zod output validation                  |
+| A02 | Cryptographic Failures      | bcrypt (wf 12), HTTPS everywhere (HSTS), TLS 1.3, no secrets in code                       |
+| A03 | Injection                   | Drizzle parameterized queries, Zod input validation, DOMPurify, React auto-escaping        |
+| A04 | Insecure Design             | Defense-in-depth, threat modeling, security checklist, ADRs                                |
+| A05 | Security Misconfiguration   | Strict CSP, HSTS, X-Frame-Options DENY, `--frozen-lockfile`, least-privilege DB            |
+| A06 | Vulnerable Components       | Dependabot daily, CodeQL weekly, `pnpm audit` in CI, Socket.dev, lockfile committed        |
+| A07 | Auth Failures               | bcrypt wf 12, rate limiting (5/5min), httpOnly+secure+sameSite cookies, session revocation |
+| A08 | Software/Data Integrity     | Webhook verification, SRI, `--frozen-lockfile`, signed Stream URLs                         |
+| A09 | Logging/Monitoring Failures | Pino structured logging, Vercel Analytics, p95 metrics, alerts, no PII in logs             |
+| A10 | SSRF                        | Server-only API calls, allowlist for external API domains, no user-provided fetch URLs     |
 
 ---
 

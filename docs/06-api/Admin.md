@@ -22,19 +22,19 @@ Responsibilities covered here:
 
 All admin endpoints share the error envelope and code registry defined in [`Error-Codes.md`](./Error-Codes.md). The codes you will see here:
 
-| Code                 | HTTP | Trigger in this resource                  |
-| :------------------- | :--- | :---------------------------------------- |
-| `VALIDATION_ERROR`   | 400  | Query/body failed Zod schema             |
-| `FIELD_REQUIRED`     | 400  | Nested in `VALIDATION_ERROR.details`      |
-| `FIELD_INVALID`      | 400  | Nested in `VALIDATION_ERROR.details`      |
-| `UNAUTHORIZED`       | 401  | Missing or invalid bearer token           |
-| `FORBIDDEN`          | 403  | Authenticated caller lacks admin role     |
-| `USER_NOT_FOUND`     | 404  | User `id` lookup miss (excludes soft-deleted unless noted) |
-| `ANIME_NOT_FOUND`    | 404  | Anime `id` lookup miss                    |
-| `IMPORT_JOB_NOT_FOUND` | 404 | Import job `id` lookup miss             |
-| `CONFLICT`           | 409  | Version mismatch on PATCH, or duplicate import job |
-| `RATE_LIMITED`       | 429  | Quota exhausted (120/60s)                 |
-| `INTERNAL_ERROR`     | 500  | Unhandled failure                         |
+| Code                   | HTTP | Trigger in this resource                                   |
+| :--------------------- | :--- | :--------------------------------------------------------- |
+| `VALIDATION_ERROR`     | 400  | Query/body failed Zod schema                               |
+| `FIELD_REQUIRED`       | 400  | Nested in `VALIDATION_ERROR.details`                       |
+| `FIELD_INVALID`        | 400  | Nested in `VALIDATION_ERROR.details`                       |
+| `UNAUTHORIZED`         | 401  | Missing or invalid bearer token                            |
+| `FORBIDDEN`            | 403  | Authenticated caller lacks admin role                      |
+| `USER_NOT_FOUND`       | 404  | User `id` lookup miss (excludes soft-deleted unless noted) |
+| `ANIME_NOT_FOUND`      | 404  | Anime `id` lookup miss                                     |
+| `IMPORT_JOB_NOT_FOUND` | 404  | Import job `id` lookup miss                                |
+| `CONFLICT`             | 409  | Version mismatch on PATCH, or duplicate import job         |
+| `RATE_LIMITED`         | 429  | Quota exhausted (120/60s)                                  |
+| `INTERNAL_ERROR`       | 500  | Unhandled failure                                          |
 
 ---
 
@@ -69,10 +69,10 @@ The 7-year retention is enforced by a database-level TTL or partition-rotation m
 
 Admin endpoints use a **higher quota** than the default public bucket:
 
-| Parameter | Value |
-| :-------- | :---- |
-| `limit`   | 120   |
-| `window`  | 60s   |
+| Parameter | Value                            |
+| :-------- | :------------------------------- |
+| `limit`   | 120                              |
+| `window`  | 60s                              |
 | `key`     | `nexus:ratelimit:admin:{userId}` |
 
 The bucket is keyed per admin user, not per IP, because admin sessions are assumed to originate from a small set of known operators. A `429 RATE_LIMITED` reply includes the standard `Retry-After` header.
@@ -117,15 +117,15 @@ Admin role required.
 
 All optional. Combining filters is an AND operation; list params are OR-within-facet.
 
-| Parameter      | Type | Default | Description |
-| :------------- | :--- | :------ | :---------- |
-| `role?`        | `"viewer" \| "moderator" \| "admin"` | — | Filter by role. Exact match. |
-| `is_banned?`   | `boolean` | — | Filter by ban status. |
-| `created_from?` | `string` (ISO-8601) | — | Inclusive lower bound on `created_at`. |
-| `created_to?`  | `string` (ISO-8601) | — | Inclusive upper bound on `created_at`. |
-| `q?`           | `string` | — | Free-text search across `username`, `display_name`, `email`. Trigram match. |
-| `cursor?`      | `string` | — | Opaque cursor from `meta.pagination.nextCursor`. |
-| `limit?`       | `integer` (1–100) | `25` | Page size. Hard cap 100. |
+| Parameter       | Type                                 | Default | Description                                                                 |
+| :-------------- | :----------------------------------- | :------ | :-------------------------------------------------------------------------- |
+| `role?`         | `"viewer" \| "moderator" \| "admin"` | —       | Filter by role. Exact match.                                                |
+| `is_banned?`    | `boolean`                            | —       | Filter by ban status.                                                       |
+| `created_from?` | `string` (ISO-8601)                  | —       | Inclusive lower bound on `created_at`.                                      |
+| `created_to?`   | `string` (ISO-8601)                  | —       | Inclusive upper bound on `created_at`.                                      |
+| `q?`            | `string`                             | —       | Free-text search across `username`, `display_name`, `email`. Trigram match. |
+| `cursor?`       | `string`                             | —       | Opaque cursor from `meta.pagination.nextCursor`.                            |
+| `limit?`        | `integer` (1–100)                    | `25`    | Page size. Hard cap 100.                                                    |
 
 #### Response schema
 
@@ -180,9 +180,9 @@ Admin role required.
 
 #### Path parameters
 
-| Parameter | Type | Description |
-| :-------- | :--- | :---------- |
-| `id`      | `string` (uuid) | User ID. |
+| Parameter | Type            | Description |
+| :-------- | :-------------- | :---------- |
+| `id`      | `string` (uuid) | User ID.    |
 
 #### Response schema
 
@@ -226,9 +226,9 @@ Admin role required.
 
 #### Path parameters
 
-| Parameter | Type | Description |
-| :-------- | :--- | :---------- |
-| `id`      | `string` (uuid) | User ID. |
+| Parameter | Type            | Description |
+| :-------- | :-------------- | :---------- |
+| `id`      | `string` (uuid) | User ID.    |
 
 #### Request body
 
@@ -281,14 +281,14 @@ Admin role required.
 
 #### Path parameters
 
-| Parameter | Type | Description |
-| :-------- | :--- | :---------- |
-| `id`      | `string` (uuid) | User ID. |
+| Parameter | Type            | Description |
+| :-------- | :-------------- | :---------- |
+| `id`      | `string` (uuid) | User ID.    |
 
 #### Query parameters
 
-| Parameter | Type | Default | Description |
-| :-------- | :--- | :------ | :---------- |
+| Parameter | Type      | Default | Description                                                                                                                                                                      |
+| :-------- | :-------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `hard?`   | `boolean` | `false` | When `true`, performs a hard delete. Requires a separate `admin:hard-delete` permission flag (see `docs/07-database`). Default soft delete is the only option without that flag. |
 
 #### Response
@@ -323,16 +323,16 @@ Admin role required.
 
 #### Query parameters
 
-| Parameter        | Type | Default | Description |
-| :--------------- | :--- | :------ | :---------- |
-| `includeDeleted?` | `boolean` | `true` | When `false`, excludes soft-deleted rows. When `true` (default), includes them. |
-| `q?`             | `string` | — | Free-text search across `title`, `title_jp`, `title_synonyms`, `slug`. |
-| `status?`        | `AnimeStatus` | — | Filter by lifecycle status. |
-| `type?`          | `AnimeType` | — | Filter by type. |
-| `sort?`          | `"title" \| "created_at" \| "updated_at" \| "popularity"` | `"created_at"` | Sort field. |
-| `order?`         | `"asc" \| "desc"` | `"desc"` | Sort direction. |
-| `cursor?`        | `string` | — | Opaque cursor. |
-| `limit?`         | `integer` (1–100) | `25` | Page size. |
+| Parameter         | Type                                                      | Default        | Description                                                                     |
+| :---------------- | :-------------------------------------------------------- | :------------- | :------------------------------------------------------------------------------ |
+| `includeDeleted?` | `boolean`                                                 | `true`         | When `false`, excludes soft-deleted rows. When `true` (default), includes them. |
+| `q?`              | `string`                                                  | —              | Free-text search across `title`, `title_jp`, `title_synonyms`, `slug`.          |
+| `status?`         | `AnimeStatus`                                             | —              | Filter by lifecycle status.                                                     |
+| `type?`           | `AnimeType`                                               | —              | Filter by type.                                                                 |
+| `sort?`           | `"title" \| "created_at" \| "updated_at" \| "popularity"` | `"created_at"` | Sort field.                                                                     |
+| `order?`          | `"asc" \| "desc"`                                         | `"desc"`       | Sort direction.                                                                 |
+| `cursor?`         | `string`                                                  | —              | Opaque cursor.                                                                  |
+| `limit?`          | `integer` (1–100)                                         | `25`           | Page size.                                                                      |
 
 #### Response schema
 
@@ -433,8 +433,8 @@ Admin role required.
 
 #### Path parameters
 
-| Parameter | Type | Description |
-| :-------- | :--- | :---------- |
+| Parameter | Type            | Description                             |
+| :-------- | :-------------- | :-------------------------------------- |
 | `id`      | `string` (uuid) | Job ID returned by the import endpoint. |
 
 #### Response schema
@@ -487,14 +487,14 @@ Admin role required.
 
 #### Query parameters
 
-| Parameter     | Type | Default | Description |
-| :------------ | :--- | :------ | :---------- |
-| `is_hidden?`  | `boolean` | — | Filter by hidden status. When omitted, returns all regardless of hidden state. |
-| `is_flagged?` | `boolean` | — | Filter by flagged status. When omitted, returns all. |
-| `sort?`       | `"created_at" \| "flag_count"` | `"created_at"` | Sort field. |
-| `order?`      | `"asc" \| "desc"` | `"desc"` | Sort direction. |
-| `cursor?`     | `string` | — | Opaque cursor. |
-| `limit?`      | `integer` (1–100) | `25` | Page size. |
+| Parameter     | Type                           | Default        | Description                                                                    |
+| :------------ | :----------------------------- | :------------- | :----------------------------------------------------------------------------- |
+| `is_hidden?`  | `boolean`                      | —              | Filter by hidden status. When omitted, returns all regardless of hidden state. |
+| `is_flagged?` | `boolean`                      | —              | Filter by flagged status. When omitted, returns all.                           |
+| `sort?`       | `"created_at" \| "flag_count"` | `"created_at"` | Sort field.                                                                    |
+| `order?`      | `"asc" \| "desc"`              | `"desc"`       | Sort direction.                                                                |
+| `cursor?`     | `string`                       | —              | Opaque cursor.                                                                 |
+| `limit?`      | `integer` (1–100)              | `25`           | Page size.                                                                     |
 
 #### Response schema
 
@@ -520,7 +520,7 @@ Admin role required.
   username: string;
   anime_id: string;
   anime_title: string;
-  body: string;              // Raw text as stored
+  body: string; // Raw text as stored
   is_hidden: boolean;
   is_flagged: boolean;
   flag_count: number;
@@ -549,8 +549,8 @@ Admin role required.
 
 #### Path parameters
 
-| Parameter | Type | Description |
-| :-------- | :--- | :---------- |
+| Parameter | Type            | Description |
+| :-------- | :-------------- | :---------- |
 | `id`      | `string` (uuid) | Comment ID. |
 
 #### Request body
@@ -564,10 +564,10 @@ Admin role required.
 
 Action semantics:
 
-| Action   | Effect |
-| :------- | :----- |
-| `approve` | Clears `is_flagged` and `is_hidden`. Resets `flag_count` to 0. |
-| `hide`    | Sets `is_hidden = true`. The comment is hidden from public view but preserved. |
+| Action    | Effect                                                                                                    |
+| :-------- | :-------------------------------------------------------------------------------------------------------- |
+| `approve` | Clears `is_flagged` and `is_hidden`. Resets `flag_count` to 0.                                            |
+| `hide`    | Sets `is_hidden = true`. The comment is hidden from public view but preserved.                            |
 | `remove`  | Soft-deletes the comment (sets `deleted_at`). The row is excluded from all public and moderation queries. |
 
 #### Response schema
@@ -605,11 +605,11 @@ Admin role required.
 
 #### Query parameters
 
-| Parameter     | Type | Default | Description |
-| :------------ | :--- | :------ | :---------- |
-| `is_flagged?` | `boolean` | — | Filter by flagged status. |
-| `cursor?`     | `string` | — | Opaque cursor. |
-| `limit?`      | `integer` (1–100) | `25` | Page size. |
+| Parameter     | Type              | Default | Description               |
+| :------------ | :---------------- | :------ | :------------------------ |
+| `is_flagged?` | `boolean`         | —       | Filter by flagged status. |
+| `cursor?`     | `string`          | —       | Opaque cursor.            |
+| `limit?`      | `integer` (1–100) | `25`    | Page size.                |
 
 #### Response schema
 
@@ -635,7 +635,7 @@ Admin role required.
   username: string;
   anime_id: string;
   anime_title: string;
-  score: number;             // 1–10
+  score: number; // 1–10
   is_flagged: boolean;
   created_at: string;
 }
@@ -663,15 +663,15 @@ Admin role required.
 
 #### Query parameters
 
-| Parameter       | Type | Default | Description |
-| :-------------- | :--- | :------ | :---------- |
-| `actor_id?`     | `string` (uuid) | — | Filter by the admin user who performed the action. |
-| `resource_type?` | `string` | — | Filter by resource type (e.g. `user`, `comment`, `anime`). |
-| `action?`       | `string` | — | Filter by action name (e.g. `user.update`, `comment.moderate`). |
-| `created_from?` | `string` (ISO-8601) | — | Inclusive lower bound on `created_at`. |
-| `created_to?`   | `string` (ISO-8601) | — | Inclusive upper bound on `created_at`. |
-| `cursor?`       | `string` | — | Opaque cursor. |
-| `limit?`        | `integer` (1–100) | `50` | Page size. |
+| Parameter        | Type                | Default | Description                                                     |
+| :--------------- | :------------------ | :------ | :-------------------------------------------------------------- |
+| `actor_id?`      | `string` (uuid)     | —       | Filter by the admin user who performed the action.              |
+| `resource_type?` | `string`            | —       | Filter by resource type (e.g. `user`, `comment`, `anime`).      |
+| `action?`        | `string`            | —       | Filter by action name (e.g. `user.update`, `comment.moderate`). |
+| `created_from?`  | `string` (ISO-8601) | —       | Inclusive lower bound on `created_at`.                          |
+| `created_to?`    | `string` (ISO-8601) | —       | Inclusive upper bound on `created_at`.                          |
+| `cursor?`        | `string`            | —       | Opaque cursor.                                                  |
+| `limit?`         | `integer` (1–100)   | `50`    | Page size.                                                      |
 
 #### Response schema
 
@@ -725,13 +725,13 @@ Admin role required.
 
 #### Query parameters
 
-| Parameter       | Type | Default | Description |
-| :-------------- | :--- | :------ | :---------- |
-| `status?`       | `"draft" \| "scheduled" \| "sent" \| "cancelled"` | — | Filter by campaign status. |
-| `created_from?` | `string` (ISO-8601) | — | Inclusive lower bound on `created_at`. |
-| `created_to?`   | `string` (ISO-8601) | — | Inclusive upper bound on `created_at`. |
-| `cursor?`       | `string` | — | Opaque cursor. |
-| `limit?`        | `integer` (1–100) | `25` | Page size. |
+| Parameter       | Type                                              | Default | Description                            |
+| :-------------- | :------------------------------------------------ | :------ | :------------------------------------- |
+| `status?`       | `"draft" \| "scheduled" \| "sent" \| "cancelled"` | —       | Filter by campaign status.             |
+| `created_from?` | `string` (ISO-8601)                               | —       | Inclusive lower bound on `created_at`. |
+| `created_to?`   | `string` (ISO-8601)                               | —       | Inclusive upper bound on `created_at`. |
+| `cursor?`       | `string`                                          | —       | Opaque cursor.                         |
+| `limit?`        | `integer` (1–100)                                 | `25`    | Page size.                             |
 
 #### Response schema
 
@@ -759,7 +759,7 @@ Admin role required.
   scheduled_at: string | null;
   sent_at: string | null;
   status: "draft" | "scheduled" | "sent" | "cancelled";
-  created_by: string;          // actor_id
+  created_by: string; // actor_id
   created_at: string;
   updated_at: string;
 }
@@ -785,11 +785,11 @@ Admin role required.
 
 #### Query parameters
 
-| Parameter | Type | Default | Description |
-| :-------- | :--- | :------ | :---------- |
-| `from?`   | `string` (ISO-8601) | 30 days before `to` | Start of the time range. |
-| `to?`     | `string` (ISO-8601) | now | End of the time range. |
-| `metrics?` | `string[]` (CSV or repeated) | all | One or more of: `users`, `anime`, `views`, `ratings`, `signups`. |
+| Parameter  | Type                         | Default             | Description                                                      |
+| :--------- | :--------------------------- | :------------------ | :--------------------------------------------------------------- |
+| `from?`    | `string` (ISO-8601)          | 30 days before `to` | Start of the time range.                                         |
+| `to?`      | `string` (ISO-8601)          | now                 | End of the time range.                                           |
+| `metrics?` | `string[]` (CSV or repeated) | all                 | One or more of: `users`, `anime`, `views`, `ratings`, `signups`. |
 
 #### Response schema
 
@@ -865,12 +865,12 @@ Admin role required. This endpoint must **not** be exposed to unauthenticated ca
 }
 ```
 
-| Check         | Probes |
-| :------------ | :----- |
-| `database`    | `SELECT 1` against the primary Neon connection. |
-| `redis`       | `PING` against the Upstash Redis endpoint. |
-| `tmdb_api`    | HTTP `GET` to TMDB `/configuration` with the server-side API key. |
-| `anilist_api` | HTTP `POST` to AniList GraphQL with a trivial `{ ping { status } }` query. |
+| Check         | Probes                                                                             |
+| :------------ | :--------------------------------------------------------------------------------- |
+| `database`    | `SELECT 1` against the primary Neon connection.                                    |
+| `redis`       | `PING` against the Upstash Redis endpoint.                                         |
+| `tmdb_api`    | HTTP `GET` to TMDB `/configuration` with the server-side API key.                  |
+| `anilist_api` | HTTP `POST` to AniList GraphQL with a trivial `{ ping { status } }` query.         |
 | `storage`     | HEAD request to the Cloudflare R2 bucket root (or the configured storage backend). |
 
 The overall `status` is the worst status across all checks. A `degraded` Redis connection (fail-open) does not degrade the overall status below `degraded`; a `down` database returns `down` immediately.
@@ -1069,7 +1069,12 @@ Authorization: Bearer <admin-token>
     "status": "degraded",
     "checks": [
       { "name": "database", "status": "ok", "latency_ms": 12 },
-      { "name": "redis", "status": "degraded", "latency_ms": 380, "message": "Elevated latency; fail-open active" },
+      {
+        "name": "redis",
+        "status": "degraded",
+        "latency_ms": 380,
+        "message": "Elevated latency; fail-open active"
+      },
       { "name": "tmdb_api", "status": "ok", "latency_ms": 95 },
       { "name": "anilist_api", "status": "ok", "latency_ms": 210 },
       { "name": "storage", "status": "ok", "latency_ms": 45 }

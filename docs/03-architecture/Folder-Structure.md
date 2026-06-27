@@ -220,7 +220,7 @@ packages/db/
 
 ### Why schema/ and repositories/ separation
 
-Schema files define *what the data looks like* (table structure, column types, relations). Repository files define *how to query it* (find, create, update, delete). Separating them means a schema change (adding a column) doesn't require touching query logic, and a query optimization doesn't risk altering the schema definition.
+Schema files define _what the data looks like_ (table structure, column types, relations). Repository files define _how to query it_ (find, create, update, delete). Separating them means a schema change (adding a column) doesn't require touching query logic, and a query optimization doesn't risk altering the schema definition.
 
 ---
 
@@ -305,17 +305,17 @@ Numbered prefixes ensure the directory sorts in step order, making the documenta
 
 ## 8. File naming conventions
 
-| Artifact | Convention | Example |
-|----------|-----------|---------|
-| Components | PascalCase | `AnimeCard.tsx`, `PlayerControls.tsx` |
-| Hooks | camelCase with `use` prefix | `useWatchlist.ts`, `useIntersectionObserver.ts` |
-| Actions | camelCase with `Action` suffix | `toggleWatchlistAction.ts` |
-| Services | camelCase with `.service` suffix | `catalog.service.ts` |
-| Repositories | camelCase with `.repository` suffix | `anime.repository.ts` |
-| Types | `types.ts` (one per feature) | `features/catalog/types.ts` |
-| Zod schemas | camelCase with `Schema` suffix | `searchInputSchema` |
-| Test files | Colocated with `.test.ts(x)` | `AnimeCard.test.tsx` |
-| Route files | Next.js convention | `page.tsx`, `layout.tsx`, `error.tsx`, `loading.tsx` |
+| Artifact     | Convention                          | Example                                              |
+| ------------ | ----------------------------------- | ---------------------------------------------------- |
+| Components   | PascalCase                          | `AnimeCard.tsx`, `PlayerControls.tsx`                |
+| Hooks        | camelCase with `use` prefix         | `useWatchlist.ts`, `useIntersectionObserver.ts`      |
+| Actions      | camelCase with `Action` suffix      | `toggleWatchlistAction.ts`                           |
+| Services     | camelCase with `.service` suffix    | `catalog.service.ts`                                 |
+| Repositories | camelCase with `.repository` suffix | `anime.repository.ts`                                |
+| Types        | `types.ts` (one per feature)        | `features/catalog/types.ts`                          |
+| Zod schemas  | camelCase with `Schema` suffix      | `searchInputSchema`                                  |
+| Test files   | Colocated with `.test.ts(x)`        | `AnimeCard.test.tsx`                                 |
+| Route files  | Next.js convention                  | `page.tsx`, `layout.tsx`, `error.tsx`, `loading.tsx` |
 
 ### Why these conventions
 

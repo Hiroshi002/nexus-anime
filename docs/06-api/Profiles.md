@@ -12,14 +12,14 @@ The trade-off: a profile update is a PATCH on the users row, not an insert on a 
 
 All profile-related columns live on `users`.
 
-| Field             | Type      | Nullable | Notes                                                        |
-| ----------------- | --------- | -------- | ------------------------------------------------------------ |
-| `username`        | text      | no       | Unique slug, 3-30 chars, `[a-z0-9_-]`. Used in public URLs.  |
-| `display_name`    | text      | yes      | 3-50 chars. Shown in UI; falls back to `username` if null.  |
-| `avatar_url`      | text      | yes      | HTTPS only, max 1024 chars. Allowed: PNG, WebP, JPEG.       |
-| `bio`             | text      | yes      | Max 500 chars. Plain text — no HTML, no mentions.           |
-| `preferences`     | jsonb     | yes      | User settings. Schema below.                                |
-| `role`            | text      | no       | One of `viewer`, `moderator`, `admin`. Defaults to `viewer`.  |
+| Field          | Type  | Nullable | Notes                                                        |
+| -------------- | ----- | -------- | ------------------------------------------------------------ |
+| `username`     | text  | no       | Unique slug, 3-30 chars, `[a-z0-9_-]`. Used in public URLs.  |
+| `display_name` | text  | yes      | 3-50 chars. Shown in UI; falls back to `username` if null.   |
+| `avatar_url`   | text  | yes      | HTTPS only, max 1024 chars. Allowed: PNG, WebP, JPEG.        |
+| `bio`          | text  | yes      | Max 500 chars. Plain text — no HTML, no mentions.            |
+| `preferences`  | jsonb | yes      | User settings. Schema below.                                 |
+| `role`         | text  | no       | One of `viewer`, `moderator`, `admin`. Defaults to `viewer`. |
 
 Not listed here but also on the row: `id`, `email`, `email_verified`, `created_at`, `updated_at`, `deleted_at`. See [`Users.md`](./Users.md).
 
@@ -31,13 +31,13 @@ Strict — adding a new key requires a migration. Existing keys are never rename
 
 ```ts
 type UserPreferences = {
-  theme: "dark" | "light" | "system";        // default: "dark"
-  language: "en-US" | "ja-JP";               // default: "en-US"
+  theme: "dark" | "light" | "system"; // default: "dark"
+  language: "en-US" | "ja-JP"; // default: "en-US"
   playback_quality: "auto" | "sd" | "hd" | "uhd"; // default: "auto"
-  autoplay: boolean;                         // default: true
-  subtitles: "off" | "en" | "ja";            // default: "off"
-  notifications: boolean;                    // default: true
-  mature_content: boolean;                   // default: false
+  autoplay: boolean; // default: true
+  subtitles: "off" | "en" | "ja"; // default: "off"
+  notifications: boolean; // default: true
+  mature_content: boolean; // default: false
 };
 ```
 

@@ -48,12 +48,12 @@ It does **not** cover:
 
 **Related documents:**
 
-| Concern | Document |
-|---------|----------|
-| Identity schema (`users`, `user_accounts`, `user_sessions`, `verification_tokens`) | [`07-database/User.md`](../07-database/User.md) |
-| Audit log (who changed whose role) | [`07-database/Audit-Log.md`](../07-database/Audit-Log.md) |
-| API envelope, error codes | [`API-Standards.md`](./API-Standards.md), [`Error-Codes.md`](./Error-Codes.md) |
-| Rate limiting (login/signup throttling) | [`Rate-Limiting.md`](./Rate-Limiting.md) |
+| Concern                                                                            | Document                                                                       |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Identity schema (`users`, `user_accounts`, `user_sessions`, `verification_tokens`) | [`07-database/User.md`](../07-database/User.md)                                |
+| Audit log (who changed whose role)                                                 | [`07-database/Audit-Log.md`](../07-database/Audit-Log.md)                      |
+| API envelope, error codes                                                          | [`API-Standards.md`](./API-Standards.md), [`Error-Codes.md`](./Error-Codes.md) |
+| Rate limiting (login/signup throttling)                                            | [`Rate-Limiting.md`](./Rate-Limiting.md)                                       |
 
 ---
 
@@ -74,13 +74,13 @@ We own:
 
 **Why Auth.js v5 instead of rolling our own?**
 
-| Consideration | Roll our own | Auth.js v5 |
-|---------------|-------------|------------|
-| OAuth provider maintenance | We track Google/GitHub API changes ourselves | Library maintains provider configs |
-| Security bugs | Our responsibility to audit | Widely reviewed, CVE-tracked |
-| Credential hashing | We choose and implement | Pluggable (we use bcrypt) |
-| Session management | We design token format, rotation, expiry | Built-in, well-tested |
-| Ecosystem | Custom | Next.js-native, Drizzle adapter official |
+| Consideration              | Roll our own                                 | Auth.js v5                               |
+| -------------------------- | -------------------------------------------- | ---------------------------------------- |
+| OAuth provider maintenance | We track Google/GitHub API changes ourselves | Library maintains provider configs       |
+| Security bugs              | Our responsibility to audit                  | Widely reviewed, CVE-tracked             |
+| Credential hashing         | We choose and implement                      | Pluggable (we use bcrypt)                |
+| Session management         | We design token format, rotation, expiry     | Built-in, well-tested                    |
+| Ecosystem                  | Custom                                       | Next.js-native, Drizzle adapter official |
 
 **Why the Drizzle adapter instead of the Prisma adapter?**
 
@@ -88,11 +88,11 @@ Our access layer is Drizzle (`@nexus/db` — see `05-database/Database-Overview.
 
 **Adapter mapping:**
 
-| Auth.js concept | Our table | Notes |
-|-----------------|-----------|-------|
-| `User` | `users` | Profile fields; `emailVerified` maps to `email_verified_at`. |
-| `Account` | `user_accounts` | Provider + provider account id; credential rows carry `password_hash`. |
-| `Session` | `user_sessions` | We store `session_token_hash` (SHA-256 of the raw token). Auth.js' default adapter stores the raw token; we hash it so a table dump does not yield live credentials. |
+| Auth.js concept | Our table       | Notes                                                                                                                                                                |
+| --------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `User`          | `users`         | Profile fields; `emailVerified` maps to `email_verified_at`.                                                                                                         |
+| `Account`       | `user_accounts` | Provider + provider account id; credential rows carry `password_hash`.                                                                                               |
+| `Session`       | `user_sessions` | We store `session_token_hash` (SHA-256 of the raw token). Auth.js' default adapter stores the raw token; we hash it so a table dump does not yield live credentials. |
 
 **Configuration location:** `apps/web/src/lib/auth/auth.ts` (to be created in M3). The config object is the single source of truth for providers, callbacks, and session policy.
 
@@ -106,13 +106,13 @@ Nexus Anime supports three providers. Each provider row in `user_accounts` links
 
 The default provider for users who sign up with email.
 
-| Property | Value |
-|----------|-------|
-| Provider id | `"credentials"` |
-| Identifier | `email` (case-insensitive via `citext`) |
-| Secret | `password_hash` (bcrypt, cost 12) in `user_accounts` |
-| Flow | `Credentials` provider with `authorize()` callback |
-| MFA | Not in M3; earmarked for M5+ (TOTP) |
+| Property    | Value                                                |
+| ----------- | ---------------------------------------------------- |
+| Provider id | `"credentials"`                                      |
+| Identifier  | `email` (case-insensitive via `citext`)              |
+| Secret      | `password_hash` (bcrypt, cost 12) in `user_accounts` |
+| Flow        | `Credentials` provider with `authorize()` callback   |
+| MFA         | Not in M3; earmarked for M5+ (TOTP)                  |
 
 **Signup flow:**
 
@@ -136,12 +136,12 @@ The default provider for users who sign up with email.
 
 ### 3.2 Google OAuth
 
-| Property | Value |
-|----------|-------|
-| Provider id | `"google"` |
-| Scopes | `openid email profile` |
-| Client id / secret | From `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` env vars |
-| Callback | `/api/auth/callback/google` |
+| Property              | Value                                                                        |
+| --------------------- | ---------------------------------------------------------------------------- |
+| Provider id           | `"google"`                                                                   |
+| Scopes                | `openid email profile`                                                       |
+| Client id / secret    | From `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` env vars                    |
+| Callback              | `/api/auth/callback/google`                                                  |
 | Profile normalization | Use `sub` as `provider_account_id`; fall back to email only if `sub` missing |
 
 **Profile handling:**
@@ -151,12 +151,12 @@ The default provider for users who sign up with email.
 
 ### 3.3 GitHub OAuth
 
-| Property | Value |
-|----------|-------|
-| Provider id | `"github"` |
-| Scopes | `read:user user:email` |
-| Client id / secret | From `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` env vars |
-| Callback | `/api/auth/callback/github` |
+| Property              | Value                                                                            |
+| --------------------- | -------------------------------------------------------------------------------- |
+| Provider id           | `"github"`                                                                       |
+| Scopes                | `read:user user:email`                                                           |
+| Client id / secret    | From `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` env vars                        |
+| Callback              | `/api/auth/callback/github`                                                      |
 | Profile normalization | Use `id` as `provider_account_id`; fetch emails separately if primary is private |
 
 **Profile handling:**
@@ -167,13 +167,13 @@ The default provider for users who sign up with email.
 
 ### 3.4 Provider comparison
 
-| Aspect | Credentials | Google | GitHub |
-|--------|-------------|--------|--------|
-| Email verification required | Yes (via §6) | No (Google verifies) | Yes (must be publicly verified) |
-| MFA possible | Yes (M5+ TOTP) | Yes (Google's) | Yes (GitHub's) |
-| Linking behavior | Auto-link if same email + verified | Auto-link | Auto-link |
-| Token storage | `password_hash` | `access_token_encrypted` + `refresh_token_encrypted` | Same |
-| Depends on | bcrypt | Google API | GitHub API + `/user/emails` |
+| Aspect                      | Credentials                        | Google                                               | GitHub                          |
+| --------------------------- | ---------------------------------- | ---------------------------------------------------- | ------------------------------- |
+| Email verification required | Yes (via §6)                       | No (Google verifies)                                 | Yes (must be publicly verified) |
+| MFA possible                | Yes (M5+ TOTP)                     | Yes (Google's)                                       | Yes (GitHub's)                  |
+| Linking behavior            | Auto-link if same email + verified | Auto-link                                            | Auto-link                       |
+| Token storage               | `password_hash`                    | `access_token_encrypted` + `refresh_token_encrypted` | Same                            |
+| Depends on                  | bcrypt                             | Google API                                           | GitHub API + `/user/emails`     |
 
 ---
 
@@ -185,13 +185,13 @@ We use **database-backed sessions** as the primary strategy. Auth.js issues an o
 
 **Why database sessions instead of stateless JWTs?**
 
-| Consideration | Stateless JWT | Database session |
-|---------------|---------------|------------------|
-| Revocation | Requires a blocklist (effectively stateful) | `DELETE FROM user_sessions` — instant |
-| Session listing | Not possible without a server-side store | `SELECT * FROM user_sessions WHERE user_id = :me` |
-| Token size | Large (carries claims) | Tiny (opaque 32 bytes) |
-| Rotation complexity | Custom implementation | Built into Auth.js |
-| Leaked token impact | Attacker gets full claims | Attacker gets opaque id; DB lookup required |
+| Consideration       | Stateless JWT                               | Database session                                  |
+| ------------------- | ------------------------------------------- | ------------------------------------------------- |
+| Revocation          | Requires a blocklist (effectively stateful) | `DELETE FROM user_sessions` — instant             |
+| Session listing     | Not possible without a server-side store    | `SELECT * FROM user_sessions WHERE user_id = :me` |
+| Token size          | Large (carries claims)                      | Tiny (opaque 32 bytes)                            |
+| Rotation complexity | Custom implementation                       | Built into Auth.js                                |
+| Leaked token impact | Attacker gets full claims                   | Attacker gets opaque id; DB lookup required       |
 
 **Why not JWT + database hybrid?** Auth.js v5 supports JWT sessions as an option, but we do not need the extra complexity. Database sessions give us instant revocation and session listing — both are requirements for the M5+ session management UI. If we later need stateless validation for a high-traffic read API, we can add a short-lived JWT at that boundary without changing the primary session model.
 
@@ -199,24 +199,24 @@ We use **database-backed sessions** as the primary strategy. Auth.js issues an o
 
 Defined in detail in `07-database/User.md` §4. Summary of the contract:
 
-| Column | Type | Purpose |
-|--------|------|---------|
-| `id` | `uuid` PK | Surrogate key |
-| `user_id` | `uuid` FK → `users.id` | Owner |
-| `session_token_hash` | `text` UNIQUE | SHA-256 of the raw token. Raw token never touches the DB. |
-| `expires_at` | `timestamptz` NOT NULL | Absolute expiry (30 days from creation). |
-| `ip_address` | `inet` nullable | Source IP at creation (anti-abuse). |
-| `user_agent` | `text` nullable | Client UA at creation (display in session management UI). |
-| `created_at` | `timestamptz` | — |
-| `updated_at` | `timestamptz` | — |
+| Column               | Type                   | Purpose                                                   |
+| -------------------- | ---------------------- | --------------------------------------------------------- |
+| `id`                 | `uuid` PK              | Surrogate key                                             |
+| `user_id`            | `uuid` FK → `users.id` | Owner                                                     |
+| `session_token_hash` | `text` UNIQUE          | SHA-256 of the raw token. Raw token never touches the DB. |
+| `expires_at`         | `timestamptz` NOT NULL | Absolute expiry (30 days from creation).                  |
+| `ip_address`         | `inet` nullable        | Source IP at creation (anti-abuse).                       |
+| `user_agent`         | `text` nullable        | Client UA at creation (display in session management UI). |
+| `created_at`         | `timestamptz`          | —                                                         |
+| `updated_at`         | `timestamptz`          | —                                                         |
 
 **Indexes:**
 
-| Index | Purpose |
-|-------|---------|
-| `idx_user_sessions_token_lookup` (UNIQUE) | Validate a session cookie on every request. |
-| `idx_user_sessions_user_id` | List a user's active sessions (M5+ session management UI). |
-| `idx_user_sessions_expires_at` | Background purge job range-scans for expired sessions. |
+| Index                                     | Purpose                                                    |
+| ----------------------------------------- | ---------------------------------------------------------- |
+| `idx_user_sessions_token_lookup` (UNIQUE) | Validate a session cookie on every request.                |
+| `idx_user_sessions_user_id`               | List a user's active sessions (M5+ session management UI). |
+| `idx_user_sessions_expires_at`            | Background purge job range-scans for expired sessions.     |
 
 ### 4.3 30-day absolute expiry
 
@@ -236,14 +236,14 @@ Sessions have a **single fixed expiry** — 30 days from issuance. There is no i
 
 ### 4.4 Cookie name and attributes
 
-| Property | Value | Why |
-|----------|-------|-----|
-| Name | `__Host-authjs.session-token` | `__Host-` prefix enforces Path=/, Secure, no Domain attribute — cookie cannot be set by a subdomain. |
-| Path | `/` | Available to all routes. |
-| Secure | `true` | Only sent over HTTPS. |
-| HttpOnly | `true` | Not readable by JavaScript — mitigates XSS cookie theft. |
-| SameSite | `lax` | Allows top-level navigation GET requests to carry the cookie; blocks cross-origin POST (CSRF covered separately in §9). |
-| Max-Age | `2592000` (30 days) | Matches `expires_at`. |
+| Property | Value                         | Why                                                                                                                     |
+| -------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Name     | `__Host-authjs.session-token` | `__Host-` prefix enforces Path=/, Secure, no Domain attribute — cookie cannot be set by a subdomain.                    |
+| Path     | `/`                           | Available to all routes.                                                                                                |
+| Secure   | `true`                        | Only sent over HTTPS.                                                                                                   |
+| HttpOnly | `true`                        | Not readable by JavaScript — mitigates XSS cookie theft.                                                                |
+| SameSite | `lax`                         | Allows top-level navigation GET requests to carry the cookie; blocks cross-origin POST (CSRF covered separately in §9). |
+| Max-Age  | `2592000` (30 days)           | Matches `expires_at`.                                                                                                   |
 
 **Why `__Host-` prefix instead of a plain cookie name?**
 
@@ -255,15 +255,15 @@ The `__Host-` prefix is a browser-enforced contract: cookies with this prefix ar
 
 Applies only to the **credentials** provider. OAuth users do not have a password.
 
-| Rule | Value | Why |
-|------|-------|-----|
-| Algorithm | bcrypt | Resistant to GPU cracking; widely supported; built into Auth.js. |
-| Cost factor | 12 | ~250ms per hash on modern hardware. Balances user experience (login latency) with attacker cost. NIST SP 800-63B recommends work factor ≥ 10 for memorized secrets. |
-| Minimum length | 8 characters | NIST SP 800-63B minimum. |
-| Maximum length | 128 characters | Prevents DoS via extremely long passwords (bcrypt truncates at 72 bytes anyway, but we enforce 128 at the Zod layer to avoid ambiguity). |
-| Complexity requirements | **None** | NIST SP 800-63B §5.1.1.2 explicitly recommends against forced complexity rules (uppercase, digit, symbol). Length is the primary entropy driver. Composition rules lead to `Password1!` patterns. |
-| Breach database check | Planned for M5+ | HaveIBeenPwned k-anonymity API. Not in M3 scope. |
-| Hash storage | `user_accounts.password_hash` | Separated from `users` table to limit blast radius of a `users` table leak. |
+| Rule                    | Value                         | Why                                                                                                                                                                                               |
+| ----------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Algorithm               | bcrypt                        | Resistant to GPU cracking; widely supported; built into Auth.js.                                                                                                                                  |
+| Cost factor             | 12                            | ~250ms per hash on modern hardware. Balances user experience (login latency) with attacker cost. NIST SP 800-63B recommends work factor ≥ 10 for memorized secrets.                               |
+| Minimum length          | 8 characters                  | NIST SP 800-63B minimum.                                                                                                                                                                          |
+| Maximum length          | 128 characters                | Prevents DoS via extremely long passwords (bcrypt truncates at 72 bytes anyway, but we enforce 128 at the Zod layer to avoid ambiguity).                                                          |
+| Complexity requirements | **None**                      | NIST SP 800-63B §5.1.1.2 explicitly recommends against forced complexity rules (uppercase, digit, symbol). Length is the primary entropy driver. Composition rules lead to `Password1!` patterns. |
+| Breach database check   | Planned for M5+               | HaveIBeenPwned k-anonymity API. Not in M3 scope.                                                                                                                                                  |
+| Hash storage            | `user_accounts.password_hash` | Separated from `users` table to limit blast radius of a `users` table leak.                                                                                                                       |
 
 **Zod validation schema (reference):**
 
@@ -295,13 +295,13 @@ Email verification is **required before a credentials user can access the platfo
 
 ### 6.1 `verification_tokens` table
 
-| Column | Type | Purpose |
-|--------|------|---------|
-| `id` | `uuid` PK | Surrogate key. |
-| `user_id` | `uuid` FK → `users.id` | Owner. |
-| `token_hash` | `text` UNIQUE | SHA-256 of the raw token (same pattern as sessions — raw token never stored). |
-| `expires_at` | `timestamptz` NOT NULL | Token valid for 24 hours. |
-| `created_at` | `timestamptz` | — |
+| Column       | Type                   | Purpose                                                                       |
+| ------------ | ---------------------- | ----------------------------------------------------------------------------- |
+| `id`         | `uuid` PK              | Surrogate key.                                                                |
+| `user_id`    | `uuid` FK → `users.id` | Owner.                                                                        |
+| `token_hash` | `text` UNIQUE          | SHA-256 of the raw token (same pattern as sessions — raw token never stored). |
+| `expires_at` | `timestamptz` NOT NULL | Token valid for 24 hours.                                                     |
+| `created_at` | `timestamptz`          | —                                                                             |
 
 ### 6.2 Flow
 
@@ -439,32 +439,32 @@ Nexus Anime uses a **three-tier role system**. Roles are application-enforced (n
 
 ### 10.1 Roles
 
-| Role | Meaning | Granted by |
-|------|---------|------------|
-| `viewer` | Default consumer. Can browse, watch, bookmark, comment, rate. | Signup. |
-| `moderator` | Can hide/delete comments, mute users, view reported content. | Admin action. |
-| `admin` | Full platform management. User management, role assignment, audit log access, system configuration. | Admin action + MFA. |
+| Role        | Meaning                                                                                             | Granted by          |
+| ----------- | --------------------------------------------------------------------------------------------------- | ------------------- |
+| `viewer`    | Default consumer. Can browse, watch, bookmark, comment, rate.                                       | Signup.             |
+| `moderator` | Can hide/delete comments, mute users, view reported content.                                        | Admin action.       |
+| `admin`     | Full platform management. User management, role assignment, audit log access, system configuration. | Admin action + MFA. |
 
 ### 10.2 Permissions matrix
 
-| Permission | viewer | moderator | admin |
-|------------|:------:|:---------:|:-----:|
-| Browse catalog | yes | yes | yes |
-| Watch video (own region) | yes | yes | yes |
-| Add bookmark | yes | yes | yes |
-| Post comment | yes | yes | yes |
-| Edit own comment | yes | yes | yes |
-| Delete own comment | yes | yes | yes |
-| Rate anime/episode | yes | yes | yes |
-| Hide any comment | no | yes | yes |
-| Delete any comment | no | yes | yes |
-| Mute user (comments) | no | yes | yes |
-| View reported content | no | yes | yes |
-| View audit log | no | no | yes |
-| Change user roles | no | no | yes |
-| Administer users | no | no | yes |
-| Access billing settings | no | no | yes |
-| Impersonate user | no | no | yes (M5+) |
+| Permission               | viewer | moderator |   admin   |
+| ------------------------ | :----: | :-------: | :-------: |
+| Browse catalog           |  yes   |    yes    |    yes    |
+| Watch video (own region) |  yes   |    yes    |    yes    |
+| Add bookmark             |  yes   |    yes    |    yes    |
+| Post comment             |  yes   |    yes    |    yes    |
+| Edit own comment         |  yes   |    yes    |    yes    |
+| Delete own comment       |  yes   |    yes    |    yes    |
+| Rate anime/episode       |  yes   |    yes    |    yes    |
+| Hide any comment         |   no   |    yes    |    yes    |
+| Delete any comment       |   no   |    yes    |    yes    |
+| Mute user (comments)     |   no   |    yes    |    yes    |
+| View reported content    |   no   |    yes    |    yes    |
+| View audit log           |   no   |    no     |    yes    |
+| Change user roles        |   no   |    no     |    yes    |
+| Administer users         |   no   |    no     |    yes    |
+| Access billing settings  |   no   |    no     |    yes    |
+| Impersonate user         |   no   |    no     | yes (M5+) |
 
 ### 10.3 Enforcement points
 
@@ -546,11 +546,11 @@ There is no `roles` lookup table or `user_roles` join table in the M3 schema. Th
 ### 12.3 Why denormalize?
 
 | Consideration | Normalized (`roles` + `user_roles`) | Denormalized (`users.role`) |
-|---------------|-------------------------------------|-----------------------------|
-| Role changes | UPDATE `user_roles` row | UPDATE `users` row |
-| Role lookup | JOIN required | Direct column read |
-| Flexibility | Unlimited roles | Fixed set |
-| Audit | Same (audit_log captures change) | Same |
+| ------------- | ----------------------------------- | --------------------------- |
+| Role changes  | UPDATE `user_roles` row             | UPDATE `users` row          |
+| Role lookup   | JOIN required                       | Direct column read          |
+| Flexibility   | Unlimited roles                     | Fixed set                   |
+| Audit         | Same (audit_log captures change)    | Same                        |
 
 For a three-role closed set, normalization adds JOINs for no benefit. The role is read on every authenticated request; a direct column read is faster and simpler.
 
@@ -576,23 +576,23 @@ Nexus Anime presents three API surfaces. Each authenticates differently.
 
 ### 13.1 Session cookie (Server Actions)
 
-| Property | Value |
-|----------|-------|
-| Mechanism | `Cookie: __Host-authjs.session-token=<token>` |
-| Used by | Server Actions invoked from the React tree |
+| Property   | Value                                                                             |
+| ---------- | --------------------------------------------------------------------------------- |
+| Mechanism  | `Cookie: __Host-authjs.session-token=<token>`                                     |
+| Used by    | Server Actions invoked from the React tree                                        |
 | Validation | `await auth()` reads the cookie, looks up `user_sessions` by `session_token_hash` |
-| Helper | `requireUser()` / `requireRole()` in `apps/web/src/lib/auth/session.ts` |
+| Helper     | `requireUser()` / `requireRole()` in `apps/web/src/lib/auth/session.ts`           |
 
 Server Actions do not need to manually validate the cookie — Auth.js' `auth()` function does it for them. The helper functions add role checks on top.
 
 ### 13.2 Bearer token (Route Handlers)
 
-| Property | Value |
-|----------|-------|
-| Mechanism | `Authorization: Bearer <session-token>` |
-| Used by | Route Handlers (`/api/v1/*`) called by mobile apps, third-party consumers, or cross-origin clients |
-| Validation | Middleware extracts the header, SHA-256s the token, looks up `user_sessions` |
-| Helper | `requireApiSession()` in middleware |
+| Property   | Value                                                                                              |
+| ---------- | -------------------------------------------------------------------------------------------------- |
+| Mechanism  | `Authorization: Bearer <session-token>`                                                            |
+| Used by    | Route Handlers (`/api/v1/*`) called by mobile apps, third-party consumers, or cross-origin clients |
+| Validation | Middleware extracts the header, SHA-256s the token, looks up `user_sessions`                       |
+| Helper     | `requireApiSession()` in middleware                                                                |
 
 **Why Bearer for Route Handlers?**
 
@@ -602,21 +602,21 @@ Server Actions do not need to manually validate the cookie — Auth.js' `auth()`
 
 ### 13.3 mTLS + service token (Server-to-server)
 
-| Property | Value |
-|----------|-------|
-| Mechanism | mTLS client certificate + `X-Service-Token` header |
-| Used by | Internal workers, cron jobs, sidecars |
+| Property   | Value                                                              |
+| ---------- | ------------------------------------------------------------------ |
+| Mechanism  | mTLS client certificate + `X-Service-Token` header                 |
+| Used by    | Internal workers, cron jobs, sidecars                              |
 | Validation | Service mesh validates mTLS; service token validated by middleware |
 
 Server-to-server calls do not carry user identity. They are authenticated as services, not users. See `API-Overview.md` §3.3.
 
 ### 13.4 Method comparison
 
-| Method | Caller | Token source | Validation |
-|--------|--------|--------------|------------|
-| Session cookie | Browser (same-origin) | `__Host-authjs.session-token` cookie | `await auth()` |
-| Bearer header | Mobile / third-party | `Authorization: Bearer <token>` | Middleware |
-| mTLS + service token | Internal worker | `X-Service-Token` header + client cert | Service mesh |
+| Method               | Caller                | Token source                           | Validation     |
+| -------------------- | --------------------- | -------------------------------------- | -------------- |
+| Session cookie       | Browser (same-origin) | `__Host-authjs.session-token` cookie   | `await auth()` |
+| Bearer header        | Mobile / third-party  | `Authorization: Bearer <token>`        | Middleware     |
+| mTLS + service token | Internal worker       | `X-Service-Token` header + client cert | Service mesh   |
 
 ---
 
@@ -626,13 +626,13 @@ Server-to-server calls do not carry user identity. They are authenticated as ser
 
 ### 14.1 Redirect behavior
 
-| Condition | Action |
-|-----------|--------|
-| No session cookie + path matches protected routes | Redirect to `/auth/signin?returnTo=<current-url>` |
-| Session cookie present but expired (`expires_at < now()` | Redirect to `/auth/signin?reason=expired` |
-| Session cookie present and valid | Pass through |
-| Path is public (signin, signup, verify, static assets) | Pass through (no redirect) |
-| Path is an API route (`/api/v1/*`) | Do not redirect; return 401 JSON instead clients cannot follow redirects meaningfully) |
+| Condition                                                | Action                                                                                 |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| No session cookie + path matches protected routes        | Redirect to `/auth/signin?returnTo=<current-url>`                                      |
+| Session cookie present but expired (`expires_at < now()` | Redirect to `/auth/signin?reason=expired`                                              |
+| Session cookie present and valid                         | Pass through                                                                           |
+| Path is public (signin, signup, verify, static assets)   | Pass through (no redirect)                                                             |
+| Path is an API route (`/api/v1/*`)                       | Do not redirect; return 401 JSON instead clients cannot follow redirects meaningfully) |
 
 ### 14.2 Matcher
 
@@ -659,14 +659,14 @@ export const config = {
 
 Every response that passes through middleware carries these headers:
 
-| Header | Value | Why |
-|--------|-------|-----|
-| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | HSTS — forces HTTPS for 2 years. |
-| `X-Content-Type-Options` | `nosniff` | Prevents MIME-type sniffing. |
-| `X-Frame-Options` | `DENY` | Prevents clickjacking. |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Limits referrer leakage. |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Disables sensitive browser features. |
-| `Content-Security-Policy` | See §14.4 | Mitigates XSS. |
+| Header                      | Value                                          | Why                                  |
+| --------------------------- | ---------------------------------------------- | ------------------------------------ |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | HSTS — forces HTTPS for 2 years.     |
+| `X-Content-Type-Options`    | `nosniff`                                      | Prevents MIME-type sniffing.         |
+| `X-Frame-Options`           | `DENY`                                         | Prevents clickjacking.               |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`              | Limits referrer leakage.             |
+| `Permissions-Policy`        | `camera=(), microphone=(), geolocation=()`     | Disables sensitive browser features. |
+| `Content-Security-Policy`   | See §14.4                                      | Mitigates XSS.                       |
 
 ### 14.4 Content Security Policy
 
@@ -713,6 +713,7 @@ Returned when the request has no valid session cookie or bearer token.
 HTTP: `401`
 
 **When returned:**
+
 - Server Action called without a session cookie.
 - Route Handler called without `Authorization: Bearer` header.
 - Session token does not match any `user_sessions.session_token_hash`.
@@ -738,6 +739,7 @@ Returned when the user is authenticated but lacks the required role.
 HTTP: `403`
 
 **When returned:**
+
 - A `viewer` attempts to access a moderator-only endpoint.
 - A `moderator` attempts to access an admin-only endpoint.
 - A credentials user attempts to access any endpoint before email verification (code `EMAIL_NOT_VERIFIED` in M3+).
@@ -762,6 +764,7 @@ Returned when the user's subscription state blocks the action. This is a **futur
 HTTP: `402`
 
 **When returned (M4+):**
+
 - User attempts to watch premium content on a lapsed plan.
 - User attempts to access HD/4K streaming on a basic plan.
 
@@ -769,14 +772,14 @@ HTTP: `402`
 
 ### 15.4 Error-to-action mapping
 
-| Code | HTTP | Client action |
-|------|------|---------------|
-| `UNAUTHORIZED` | 401 | Redirect to signin |
-| `FORBIDDEN` | 403 | Show "no permission" message |
-| `PAYMENT_REQUIRED` | 402 | Redirect to billing upgrade |
-| `EMAIL_NOT_VERIFIED` | 403 | Show "verify your email" interstitial |
-| `ACCOUNT_LOCKED` | 403 | Show "account locked, contact support" (M3+) |
-| `MFA_REQUIRED` | 403 | Show MFA challenge (M5+) |
+| Code                 | HTTP | Client action                                |
+| -------------------- | ---- | -------------------------------------------- |
+| `UNAUTHORIZED`       | 401  | Redirect to signin                           |
+| `FORBIDDEN`          | 403  | Show "no permission" message                 |
+| `PAYMENT_REQUIRED`   | 402  | Redirect to billing upgrade                  |
+| `EMAIL_NOT_VERIFIED` | 403  | Show "verify your email" interstitial        |
+| `ACCOUNT_LOCKED`     | 403  | Show "account locked, contact support" (M3+) |
+| `MFA_REQUIRED`       | 403  | Show MFA challenge (M5+)                     |
 
 ---
 
@@ -784,15 +787,15 @@ HTTP: `402`
 
 These features are **not in scope for M3** but are designed for in the auth architecture. They are documented here so M3 decisions do not box them out.
 
-| Feature | Description | M3 impact |
-|---------|-------------|-----------|
-| **TOTP 2FA** | Time-based one-time passwords (RFC 6238). Stored encrypted in `user_accounts.totp_secret_encrypted`. Required for admin role. | `user_accounts` schema reserves a nullable column. |
-| **Passkeys (WebAuthn)** | FIDO2/WebAuthn for passwordless signin. Stored in a new `user_credentials` table alongside credential rows. | Schema designed to accommodate additional credential types. |
-| **Session management UI** | Users can view and revoke active sessions. Admins can revoke any user's sessions. | `user_sessions` table has `user_agent` and `ip_address` columns for display. |
-| **Admin impersonation** | Admins can sign in as another user for support. Logged in `audit_log`. The impersonated session is flagged (`is_impersonated = true`). | `user_sessions` schema reserves an `is_impersonated` column. |
-| **HaveIBeenPwned check** | On signup and password change, reject passwords found in breach databases. | No schema impact; external API call. |
-| **Configurable session lifetime** | "Remember me" extends to 90 days; default remains 30 days. Sensitive actions require step-up. | `user_sessions.expires_at` already supports variable values. |
-| **Custom roles** | M5+ may introduce `editor`, `translator`, etc. See §12.4 for the reconciliation plan. | `users.role` remains the fast-path; `roles` + `user_roles` tables added. |
+| Feature                           | Description                                                                                                                            | M3 impact                                                                    |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| **TOTP 2FA**                      | Time-based one-time passwords (RFC 6238). Stored encrypted in `user_accounts.totp_secret_encrypted`. Required for admin role.          | `user_accounts` schema reserves a nullable column.                           |
+| **Passkeys (WebAuthn)**           | FIDO2/WebAuthn for passwordless signin. Stored in a new `user_credentials` table alongside credential rows.                            | Schema designed to accommodate additional credential types.                  |
+| **Session management UI**         | Users can view and revoke active sessions. Admins can revoke any user's sessions.                                                      | `user_sessions` table has `user_agent` and `ip_address` columns for display. |
+| **Admin impersonation**           | Admins can sign in as another user for support. Logged in `audit_log`. The impersonated session is flagged (`is_impersonated = true`). | `user_sessions` schema reserves an `is_impersonated` column.                 |
+| **HaveIBeenPwned check**          | On signup and password change, reject passwords found in breach databases.                                                             | No schema impact; external API call.                                         |
+| **Configurable session lifetime** | "Remember me" extends to 90 days; default remains 30 days. Sensitive actions require step-up.                                          | `user_sessions.expires_at` already supports variable values.                 |
+| **Custom roles**                  | M5+ may introduce `editor`, `translator`, etc. See §12.4 for the reconciliation plan.                                                  | `users.role` remains the fast-path; `roles` + `user_roles` tables added.     |
 
 ---
 
@@ -800,36 +803,36 @@ These features are **not in scope for M3** but are designed for in the auth arch
 
 The following measures are **implemented in M3** unless noted.
 
-| # | Measure | Status | Why |
-|---|---------|--------|-----|
-| 1 | bcrypt cost 12 | M3 | Resists GPU cracking; ~250ms per hash. |
-| 2 | Session tokens hashed in DB (SHA-256) | M3 | Table dump does not yield live tokens. |
-| 3 | Verification tokens hashed in DB (SHA-256) | M3 | Table dump does not yield live verification links. |
-| 4 | `__Host-` cookie prefix | M3 | Enforces Secure, Path=/, no Domain. |
-| 5 | `HttpOnly` session cookie | M3 | Not readable by JavaScript — mitigates XSS. |
-| 6 | `SameSite=lax` session cookie | M3 | Blocks cross-origin POST (CSRF). |
-| 7 | CSRF double-submit cookie (Auth.js built-in) | M3 | Defense-in-depth against CSRF. |
-| 8 | Rate-limited login/signup (Redis) | M3 | Thwarts credential stuffing. See `Rate-Limiting.md`. |
-| 9 | Email verification required before access | M3 | Prevents account creation with typos / throwaway emails. |
-| 10 | OAuth auto-link requires verified email | M3 | Prevents account merging attacks. |
-| 11 | All sessions deleted on password change | M3 | Forces re-login on all devices. |
-| 12 | Roles never self-assigned | M3 | Prevents privilege escalation. |
-| 13 | Audit log captures every role change | M3 | Accountability. |
-| 14 | Security headers (HSTS, CSP, X-Frame-Options, etc.) | M3 | Defense-in-depth. |
-| 15 | `citext` for email/username | M3 | Prevents case-squatting (`Alice@x.com` vs `alice@x.com`). |
-| 16 | No `any` in auth code | M3 | TypeScript strict mode — auth code must be fully typed. |
-| 17 | Secrets in env vars / Vault, never in code | M3 | Prevents credential leakage via source control. |
-| 18 | Zod validation on all auth inputs | M3 | Reject malformed input at the boundary. |
-| 19 | Error messages are vague ("invalid credentials") | M3 | Do not reveal whether email exists. |
-| 20 | TLS 1.2+ enforced at edge | M3 | Prevents downgrade attacks. |
-| 21 | CSP with nonce for inline scripts | M3 | Mitigates XSS even if an attacker can inject HTML. |
-| 22 | `Permissions-Policy` disables camera/mic/geo | M3 | Reduces attack surface for browser-based exploits. |
-| 23 | Background purge of expired sessions | M3 | Prevents unbounded table growth. |
-| 24 | Partial unique indexes on email/username (`WHERE deleted_at IS NULL`) | M3 | Allows re-registration after soft-delete. |
-| 25 | HaveIBeenPwned password check | M5+ | Reject known-breached passwords. |
-| 26 | TOTP 2FA | M5+ | Protects against credential theft. |
-| 27 | Passkeys (WebAuthn) | M5+ | Phishing-resistant authentication. |
-| 28 | Geo-gating enforcement | M4+ | Regional content licensing compliance. |
+| #   | Measure                                                               | Status | Why                                                       |
+| --- | --------------------------------------------------------------------- | ------ | --------------------------------------------------------- |
+| 1   | bcrypt cost 12                                                        | M3     | Resists GPU cracking; ~250ms per hash.                    |
+| 2   | Session tokens hashed in DB (SHA-256)                                 | M3     | Table dump does not yield live tokens.                    |
+| 3   | Verification tokens hashed in DB (SHA-256)                            | M3     | Table dump does not yield live verification links.        |
+| 4   | `__Host-` cookie prefix                                               | M3     | Enforces Secure, Path=/, no Domain.                       |
+| 5   | `HttpOnly` session cookie                                             | M3     | Not readable by JavaScript — mitigates XSS.               |
+| 6   | `SameSite=lax` session cookie                                         | M3     | Blocks cross-origin POST (CSRF).                          |
+| 7   | CSRF double-submit cookie (Auth.js built-in)                          | M3     | Defense-in-depth against CSRF.                            |
+| 8   | Rate-limited login/signup (Redis)                                     | M3     | Thwarts credential stuffing. See `Rate-Limiting.md`.      |
+| 9   | Email verification required before access                             | M3     | Prevents account creation with typos / throwaway emails.  |
+| 10  | OAuth auto-link requires verified email                               | M3     | Prevents account merging attacks.                         |
+| 11  | All sessions deleted on password change                               | M3     | Forces re-login on all devices.                           |
+| 12  | Roles never self-assigned                                             | M3     | Prevents privilege escalation.                            |
+| 13  | Audit log captures every role change                                  | M3     | Accountability.                                           |
+| 14  | Security headers (HSTS, CSP, X-Frame-Options, etc.)                   | M3     | Defense-in-depth.                                         |
+| 15  | `citext` for email/username                                           | M3     | Prevents case-squatting (`Alice@x.com` vs `alice@x.com`). |
+| 16  | No `any` in auth code                                                 | M3     | TypeScript strict mode — auth code must be fully typed.   |
+| 17  | Secrets in env vars / Vault, never in code                            | M3     | Prevents credential leakage via source control.           |
+| 18  | Zod validation on all auth inputs                                     | M3     | Reject malformed input at the boundary.                   |
+| 19  | Error messages are vague ("invalid credentials")                      | M3     | Do not reveal whether email exists.                       |
+| 20  | TLS 1.2+ enforced at edge                                             | M3     | Prevents downgrade attacks.                               |
+| 21  | CSP with nonce for inline scripts                                     | M3     | Mitigates XSS even if an attacker can inject HTML.        |
+| 22  | `Permissions-Policy` disables camera/mic/geo                          | M3     | Reduces attack surface for browser-based exploits.        |
+| 23  | Background purge of expired sessions                                  | M3     | Prevents unbounded table growth.                          |
+| 24  | Partial unique indexes on email/username (`WHERE deleted_at IS NULL`) | M3     | Allows re-registration after soft-delete.                 |
+| 25  | HaveIBeenPwned password check                                         | M5+    | Reject known-breached passwords.                          |
+| 26  | TOTP 2FA                                                              | M5+    | Protects against credential theft.                        |
+| 27  | Passkeys (WebAuthn)                                                   | M5+    | Phishing-resistant authentication.                        |
+| 28  | Geo-gating enforcement                                                | M4+    | Regional content licensing compliance.                    |
 
 ---
 
@@ -898,11 +901,11 @@ M5+ will introduce opaque refresh tokens for long-lived sessions:
 
 ## 19. Changelog
 
-| Date | Change | Ticket / PR |
-|------|--------|-------------|
-| 2026-06-26 | Initial authentication spec | — |
-| | | |
-| | | |
+| Date       | Change                      | Ticket / PR |
+| ---------- | --------------------------- | ----------- |
+| 2026-06-26 | Initial authentication spec | —           |
+|            |                             |             |
+|            |                             |             |
 
 > Each entry is added when the auth contract changes — not on every bugfix. Backfill in the same PR that changes an auth behavior.
 

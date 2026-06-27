@@ -1,0 +1,6 @@
+# commit-msg — enforces Conventional Commits (@commitlint/config-conventional)
+# plus our custom scope allowlist (see .commitlintrc.ts).
+#
+# Echo the message file path to a temp so commitlint can re-read it without
+# conflicting with stdin in CI runners.
+npx --no-install commitlint --edit "$1"

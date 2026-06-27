@@ -85,47 +85,47 @@ Show all-time popular anime ranked by rating, popularity, or view count. Unlike 
 
 ## 7. UI Components
 
-| Component | Responsibility | Reusable? | Package |
-|-----------|---------------|-----------|---------|
-| `PopularPage` | Page shell with header, toolbar, and grid | No | `apps/web` |
-| `PopularToolbar` | Sticky toolbar containing filter and sort controls | No | `apps/web` |
-| `FilterChipGroup` | Chip group for genre filter | Yes | `@nexus/ui` |
-| `SortDropdown` | Dropdown for sort options | Yes | `@nexus/ui` |
-| `PopularGrid` | Responsive card grid with stagger animation | No | `apps/web` |
-| `PopularCard` | Card with rank badge, poster, title, rating, watchlist toggle | No | `apps/web` |
-| `RankBadge` | Large rank number overlay on poster | Yes | `@nexus/ui` |
-| `AnimeCard` | Base card component (poster + title + meta) | Yes | `@nexus/ui` |
-| `WatchlistToggle` | Heart icon toggle for watchlist add/remove | Yes | `@nexus/ui` |
-| `LoadMoreButton` | Client-side pagination trigger | Yes | `@nexus/ui` |
-| `PopularSkeleton` | Placeholder skeleton matching card grid | Yes | `@nexus/ui` |
-| `EmptyState` | Illustration + message for zero-results state | Yes | `@nexus/ui` |
-| `CarouselToggle` | Icon button to switch between grid and carousel on mobile | Yes | `@nexus/ui` |
-| `PopularCarousel` | Horizontal snap-scroll carousel variant for mobile | No | `apps/web` |
+| Component         | Responsibility                                                | Reusable? | Package     |
+| ----------------- | ------------------------------------------------------------- | --------- | ----------- |
+| `PopularPage`     | Page shell with header, toolbar, and grid                     | No        | `apps/web`  |
+| `PopularToolbar`  | Sticky toolbar containing filter and sort controls            | No        | `apps/web`  |
+| `FilterChipGroup` | Chip group for genre filter                                   | Yes       | `@nexus/ui` |
+| `SortDropdown`    | Dropdown for sort options                                     | Yes       | `@nexus/ui` |
+| `PopularGrid`     | Responsive card grid with stagger animation                   | No        | `apps/web`  |
+| `PopularCard`     | Card with rank badge, poster, title, rating, watchlist toggle | No        | `apps/web`  |
+| `RankBadge`       | Large rank number overlay on poster                           | Yes       | `@nexus/ui` |
+| `AnimeCard`       | Base card component (poster + title + meta)                   | Yes       | `@nexus/ui` |
+| `WatchlistToggle` | Heart icon toggle for watchlist add/remove                    | Yes       | `@nexus/ui` |
+| `LoadMoreButton`  | Client-side pagination trigger                                | Yes       | `@nexus/ui` |
+| `PopularSkeleton` | Placeholder skeleton matching card grid                       | Yes       | `@nexus/ui` |
+| `EmptyState`      | Illustration + message for zero-results state                 | Yes       | `@nexus/ui` |
+| `CarouselToggle`  | Icon button to switch between grid and carousel on mobile     | Yes       | `@nexus/ui` |
+| `PopularCarousel` | Horizontal snap-scroll carousel variant for mobile            | No        | `apps/web`  |
 
 ## 8. API Dependencies
 
-| Endpoint | Method | Auth Required | Rate Limit | Cache |
-|----------|--------|---------------|------------|-------|
-| `/api/anime/popular` | GET | No | 100/min per IP | ISR 900s |
-| `/api/anime/{id}/watchlist` | POST / DELETE | Yes | 30/min per user | None |
+| Endpoint                    | Method        | Auth Required | Rate Limit      | Cache    |
+| --------------------------- | ------------- | ------------- | --------------- | -------- |
+| `/api/anime/popular`        | GET           | No            | 100/min per IP  | ISR 900s |
+| `/api/anime/{id}/watchlist` | POST / DELETE | Yes           | 30/min per user | None     |
 
 Query parameters for `/api/anime/popular`:
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `sort` | `rating` \| `popularity` \| `year` | `rating` | Sort dimension |
-| `genre` | string (slug) | — | Genre filter (omitted = all genres) |
-| `limit` | integer (1-50) | `20` | Page size |
-| `cursor` | string | — | Cursor for pagination |
+| Parameter | Type                               | Default  | Description                         |
+| --------- | ---------------------------------- | -------- | ----------------------------------- |
+| `sort`    | `rating` \| `popularity` \| `year` | `rating` | Sort dimension                      |
+| `genre`   | string (slug)                      | —        | Genre filter (omitted = all genres) |
+| `limit`   | integer (1-50)                     | `20`     | Page size                           |
+| `cursor`  | string                             | —        | Cursor for pagination               |
 
 ## 9. Database Dependencies
 
-| Table / View | Operation | Index / Query Notes |
-|--------------|-----------|---------------------|
-| `anime` | SELECT | Composite index on `(rating_count, rating DESC)` for rating sort; `(rating_count, popularity_score DESC)` for popularity sort; `(rating_count, release_year DESC)` for year sort |
-| `anime_genres` | SELECT | Indexed on `genre_id` for genre filter join |
-| `genres` | SELECT | Indexed on `slug` for genre lookup |
-| `watchlist` | INSERT / DELETE | Indexed on `user_id` for watchlist state check |
+| Table / View   | Operation       | Index / Query Notes                                                                                                                                                              |
+| -------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `anime`        | SELECT          | Composite index on `(rating_count, rating DESC)` for rating sort; `(rating_count, popularity_score DESC)` for popularity sort; `(rating_count, release_year DESC)` for year sort |
+| `anime_genres` | SELECT          | Indexed on `genre_id` for genre filter join                                                                                                                                      |
+| `genres`       | SELECT          | Indexed on `slug` for genre lookup                                                                                                                                               |
+| `watchlist`    | INSERT / DELETE | Indexed on `user_id` for watchlist state check                                                                                                                                   |
 
 ## 10. Edge Cases
 
@@ -144,26 +144,26 @@ Query parameters for `/api/anime/popular`:
 
 ## 11. Error Handling
 
-| Error Condition | User-Facing Message | Recovery Action | Log Level |
-|-----------------|---------------------|-----------------|-----------|
-| Popular API failure (origin) | ISR serves stale cached data | Page renders with stale data | warn |
-| Popular API failure (client refresh) | "Couldn't load popular anime. Retry." | Inline retry button | warn |
-| Genre filter produces 0 results | "No popular anime in this genre yet." | "Reset filters" button | info |
-| Watchlist toggle failure | "Couldn't update watchlist. Try again." | Revert toggle state, show toast | warn |
-| Invalid sort parameter | Default sort (rating) used | Silent fallback | info |
-| Invalid genre slug | All-genre filter applied | Silent fallback | info |
+| Error Condition                      | User-Facing Message                     | Recovery Action                 | Log Level |
+| ------------------------------------ | --------------------------------------- | ------------------------------- | --------- |
+| Popular API failure (origin)         | ISR serves stale cached data            | Page renders with stale data    | warn      |
+| Popular API failure (client refresh) | "Couldn't load popular anime. Retry."   | Inline retry button             | warn      |
+| Genre filter produces 0 results      | "No popular anime in this genre yet."   | "Reset filters" button          | info      |
+| Watchlist toggle failure             | "Couldn't update watchlist. Try again." | Revert toggle state, show toast | warn      |
+| Invalid sort parameter               | Default sort (rating) used              | Silent fallback                 | info      |
+| Invalid genre slug                   | All-genre filter applied                | Silent fallback                 | info      |
 
 ## 12. Analytics Events
 
-| Event Name | Trigger | Properties | Surface |
-|------------|---------|------------|---------|
-| `popular_page_view` | Page loads | `{ sort, genre }` | Server |
-| `popular_sort_change` | User changes sort | `{ sort: 'rating' | 'popularity' | 'year' }` | Client |
-| `popular_genre_filter` | User changes genre filter | `{ genre }` | Client |
-| `popular_card_click` | User clicks an anime card | `{ anime_id, rank, sort }` | Client |
-| `popular_watchlist_toggle` | User toggles watchlist | `{ anime_id, action: 'add' | 'remove' }` | Client |
-| `popular_load_more` | User clicks "Load more" | `{ page, sort, genre }` | Client |
-| `popular_carousel_toggle` | User toggles carousel mode on mobile | `{ mode: 'grid' | 'carousel' }` | Client |
+| Event Name                 | Trigger                              | Properties                 | Surface       |
+| -------------------------- | ------------------------------------ | -------------------------- | ------------- | --------- | ------ |
+| `popular_page_view`        | Page loads                           | `{ sort, genre }`          | Server        |
+| `popular_sort_change`      | User changes sort                    | `{ sort: 'rating'          | 'popularity'  | 'year' }` | Client |
+| `popular_genre_filter`     | User changes genre filter            | `{ genre }`                | Client        |
+| `popular_card_click`       | User clicks an anime card            | `{ anime_id, rank, sort }` | Client        |
+| `popular_watchlist_toggle` | User toggles watchlist               | `{ anime_id, action: 'add' | 'remove' }`   | Client    |
+| `popular_load_more`        | User clicks "Load more"              | `{ page, sort, genre }`    | Client        |
+| `popular_carousel_toggle`  | User toggles carousel mode on mobile | `{ mode: 'grid'            | 'carousel' }` | Client    |
 
 ## 13. Security Considerations
 

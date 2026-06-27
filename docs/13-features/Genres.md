@@ -21,6 +21,7 @@ The Genres feature provides a two-level browsing experience: a genre index page 
 ## 3. Functional Requirements
 
 ### 3.1 Happy Path
+
 1. User navigates to `/genres`; system renders a grid of all active genres, each showing name, icon, and anime count.
 2. User clicks a genre card (e.g. "Action"); URL updates to `/genres/action` and the view transitions to genre detail with a filtered anime grid.
 3. User sorts the anime grid by popularity, rating, newest, or A-Z via sort dropdown.
@@ -28,12 +29,14 @@ The Genres feature provides a two-level browsing experience: a genre index page 
 5. User clicks an anime card to navigate to the Anime Detail page.
 
 ### 3.2 Alternate Flows
+
 1. User arrives via deep link `/genres/action?sort=rating`; page renders with genre pre-selected and sort pre-applied.
 2. User navigates from an anime detail page genre chip (e.g. clicking "Action" chip); genre detail page renders at `/genres/action`.
 3. User selects multiple genres via query params (`/genres?action&genre=fantasy`); filter bar shows both chips, grid shows anime matching all selected genres.
 4. User clicks a genre card on mobile (touch); navigates directly to genre detail (no thumbnail hover reveal).
 
 ### 3.3 Edge Cases
+
 1. Genre with 0 anime — detail page shows empty state.
 2. Genre slug collision — system enforces unique slugs at DB level; lookup by slug always resolves to exactly one genre.
 3. Genre with 10,000+ anime — pagination handles large result sets via cursor-based infinite scroll.
@@ -70,26 +73,26 @@ The Genres feature provides a two-level browsing experience: a genre index page 
 
 ## 7. UI Components
 
-| Component | Responsibility | Reusable? | Package |
-|-----------|---------------|-----------|---------|
-| `GenresPage` | Page shell for index view with Suspense boundary | No | `apps/web` |
-| `GenreDetailPage` | Page shell for detail view with Suspense boundary | No | `apps/web` |
-| `GenreCard` | Glass card with icon, name, count, hover thumbnail reveal | Yes | `@nexus/ui` |
-| `GenreIcon` | Colored glyph mapped to genre `color_hex` | Yes | `@nexus/ui` |
-| `CountBadge` | Anime count pill on genre card | Yes | `@nexus/ui` |
-| `ThumbnailReveal` | Hover-triggered poster thumbnails beneath card | Yes | `@nexus/ui` |
-| `GenreFilterBar` | Active genre chips + sort dropdown + view toggle | Yes | `@nexus/ui` |
-| `GenreBreadcrumb` | `Home > Genres > {Name}` navigation | Yes | `@nexus/ui` |
-| `AnimeCard` | Poster, title, rating, progress — reused from catalog | Yes | `@nexus/ui` |
-| `InfiniteScrollSentinel` | IntersectionObserver-based pagination trigger | Yes | `@nexus/ui` |
+| Component                | Responsibility                                            | Reusable? | Package     |
+| ------------------------ | --------------------------------------------------------- | --------- | ----------- |
+| `GenresPage`             | Page shell for index view with Suspense boundary          | No        | `apps/web`  |
+| `GenreDetailPage`        | Page shell for detail view with Suspense boundary         | No        | `apps/web`  |
+| `GenreCard`              | Glass card with icon, name, count, hover thumbnail reveal | Yes       | `@nexus/ui` |
+| `GenreIcon`              | Colored glyph mapped to genre `color_hex`                 | Yes       | `@nexus/ui` |
+| `CountBadge`             | Anime count pill on genre card                            | Yes       | `@nexus/ui` |
+| `ThumbnailReveal`        | Hover-triggered poster thumbnails beneath card            | Yes       | `@nexus/ui` |
+| `GenreFilterBar`         | Active genre chips + sort dropdown + view toggle          | Yes       | `@nexus/ui` |
+| `GenreBreadcrumb`        | `Home > Genres > {Name}` navigation                       | Yes       | `@nexus/ui` |
+| `AnimeCard`              | Poster, title, rating, progress — reused from catalog     | Yes       | `@nexus/ui` |
+| `InfiniteScrollSentinel` | IntersectionObserver-based pagination trigger             | Yes       | `@nexus/ui` |
 
 ## 8. API Dependencies
 
-| Endpoint | Method | Auth Required | Rate Limit | Cache |
-|----------|--------|---------------|------------|-------|
-| `/api/v1/genres` | GET | No | 60/min per IP | 15 min CDN |
-| `/api/v1/genres/{slug}` | GET | No | 60/min per IP | 15 min CDN |
-| `/api/v1/anime?genre={slug}&sort={sort}&cursor={cursor}` | GET | No | 60/min per IP | 15 min CDN |
+| Endpoint                                                 | Method | Auth Required | Rate Limit    | Cache      |
+| -------------------------------------------------------- | ------ | ------------- | ------------- | ---------- |
+| `/api/v1/genres`                                         | GET    | No            | 60/min per IP | 15 min CDN |
+| `/api/v1/genres/{slug}`                                  | GET    | No            | 60/min per IP | 15 min CDN |
+| `/api/v1/anime?genre={slug}&sort={sort}&cursor={cursor}` | GET    | No            | 60/min per IP | 15 min CDN |
 
 `/api/v1/genres` returns the full list of active genres with `slug`, `name`, `icon`, `color_hex`, `anime_count`, and `sort_order`.
 
@@ -97,12 +100,12 @@ The Genres feature provides a two-level browsing experience: a genre index page 
 
 ## 9. Database Dependencies
 
-| Table / View | Operation | Index / Query Notes |
-|--------------|-----------|---------------------|
-| `genres` | SELECT | Index on `slug` for lookup; `is_active WHERE is_active = true` for browse; `sort_order` for ordering |
-| `anime_genres` | SELECT (join) | Junction table; index on `genre_id` and `anime_id`; used for genre-to-anime mapping |
-| `anime` | SELECT | Joined via `anime_genres`; filtered by `deleted_at IS NULL`; sorted by `popularity_score`, `average_rating`, `published_at`, or `title` |
-| `bookmarks` | SELECT | Watchlist state per user; index on `(user_id, anime_id)` |
+| Table / View   | Operation     | Index / Query Notes                                                                                                                     |
+| -------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `genres`       | SELECT        | Index on `slug` for lookup; `is_active WHERE is_active = true` for browse; `sort_order` for ordering                                    |
+| `anime_genres` | SELECT (join) | Junction table; index on `genre_id` and `anime_id`; used for genre-to-anime mapping                                                     |
+| `anime`        | SELECT        | Joined via `anime_genres`; filtered by `deleted_at IS NULL`; sorted by `popularity_score`, `average_rating`, `published_at`, or `title` |
+| `bookmarks`    | SELECT        | Watchlist state per user; index on `(user_id, anime_id)`                                                                                |
 
 Anime count per genre is computed via a `COUNT` on `anime_genres` joined with `anime WHERE deleted_at IS NULL`, or read from a denormalized `anime_count` column on `genres` if available.
 
@@ -118,24 +121,24 @@ Anime count per genre is computed via a `COUNT` on `anime_genres` joined with `a
 
 ## 11. Error Handling
 
-| Error Condition | User-Facing Message | Recovery Action | Log Level |
-|-----------------|---------------------|-----------------|-----------|
-| Genre index API 500 | "Something went wrong loading genres." | Retry button (primary) | error |
-| Genre detail API 404 | "This genre doesn't exist." | CTA "Browse all genres" | warn |
-| Anime grid fetch fails during infinite scroll | Toast: "Could not load more anime." | Inline "Retry" link at scroll sentinel | error |
-| Sort/filter change fails | Grid retains previous data; toast: "Couldn't apply filter." | User can retry filter change | error |
-| Genre count badge fetch fails | Genre card renders without count; badge shows "—" | No blocking UI; background retry | warn |
+| Error Condition                               | User-Facing Message                                         | Recovery Action                        | Log Level |
+| --------------------------------------------- | ----------------------------------------------------------- | -------------------------------------- | --------- |
+| Genre index API 500                           | "Something went wrong loading genres."                      | Retry button (primary)                 | error     |
+| Genre detail API 404                          | "This genre doesn't exist."                                 | CTA "Browse all genres"                | warn      |
+| Anime grid fetch fails during infinite scroll | Toast: "Could not load more anime."                         | Inline "Retry" link at scroll sentinel | error     |
+| Sort/filter change fails                      | Grid retains previous data; toast: "Couldn't apply filter." | User can retry filter change           | error     |
+| Genre count badge fetch fails                 | Genre card renders without count; badge shows "—"           | No blocking UI; background retry       | warn      |
 
 ## 12. Analytics Events
 
-| Event Name | Trigger | Properties | Surface |
-|------------|---------|------------|---------|
-| `genre_index_view` | `/genres` page mount | `{ total_genres_visible }` | Client |
-| `genre_card_click` | Genre card clicked | `{ genre_slug, genre_name, anime_count }` | Client |
-| `genre_detail_view` | `/genres/{slug}` page mount | `{ genre_slug, sort, filter_genres }` | Client |
-| `genre_filter_change` | Genre chip toggled | `{ action: "add" | "remove", genre_slug }` | Client |
-| `genre_sort_change` | Sort dropdown value changed | `{ sort_value }` | Client |
-| `genre_anime_click` | Anime card clicked from genre detail | `{ anime_id, genre_slug, position }` | Client |
+| Event Name            | Trigger                              | Properties                                | Surface                 |
+| --------------------- | ------------------------------------ | ----------------------------------------- | ----------------------- | ------ |
+| `genre_index_view`    | `/genres` page mount                 | `{ total_genres_visible }`                | Client                  |
+| `genre_card_click`    | Genre card clicked                   | `{ genre_slug, genre_name, anime_count }` | Client                  |
+| `genre_detail_view`   | `/genres/{slug}` page mount          | `{ genre_slug, sort, filter_genres }`     | Client                  |
+| `genre_filter_change` | Genre chip toggled                   | `{ action: "add"                          | "remove", genre_slug }` | Client |
+| `genre_sort_change`   | Sort dropdown value changed          | `{ sort_value }`                          | Client                  |
+| `genre_anime_click`   | Anime card clicked from genre detail | `{ anime_id, genre_slug, position }`      | Client                  |
 
 ## 13. Security Considerations
 

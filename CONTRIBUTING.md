@@ -20,13 +20,13 @@ Thank you for your interest in contributing! This document explains the mechanic
 
 - **Examples:**
 
-  | Branch                    | Meaning                                   |
-  |---------------------------|-------------------------------------------|
-  | `feature/m3-auth-oauth`   | OAuth work, milestone 3                   |
-  | `bugfix/m3-login-redirect`| Login redirect fix, milestone 3           |
-  | `docs/repository-design`  | Docs-only change (no milestone)           |
-  | `hotfix/m2-cache-race`    | Urgent M2 cache fix (branched from tag)   |
-  | `release/v0.3.0`          | Release preparation                       |
+  | Branch                     | Meaning                                 |
+  | -------------------------- | --------------------------------------- |
+  | `feature/m3-auth-oauth`    | OAuth work, milestone 3                 |
+  | `bugfix/m3-login-redirect` | Login redirect fix, milestone 3         |
+  | `docs/repository-design`   | Docs-only change (no milestone)         |
+  | `hotfix/m2-cache-race`     | Urgent M2 cache fix (branched from tag) |
+  | `release/v0.3.0`           | Release preparation                     |
 
 - **Hotfixes** branch from the most recent release tag, are applied, and are cherry-picked back to `main`.
 
@@ -40,15 +40,15 @@ See [Repository Design §5–§7](docs/REPOSITORY-DESIGN.md) for the full ration
 
 We follow **[Conventional Commits](https://www.conventionalcommits.org/)**. The PR title (which becomes the squash commit on `main`) **must** use one of:
 
-| Prefix                | Meaning                                           | Version bump |
-|-----------------------|---------------------------------------------------|--------------|
-| `feat:`               | New feature                                       | MINOR        |
-| `fix:`                | Bug fix                                           | PATCH        |
-| `docs:`               | Documentation only                                | —            |
-| `chore:`              | Maintenance, tooling, dependencies                | —            |
-| `refactor:`           | Code change that neither fixes a bug nor adds a feature | —        |
-| `test:`               | Adding or correcting tests                        | —            |
-| `BREAKING CHANGE` in body | Breaking change to a public API or data model | MAJOR        |
+| Prefix                    | Meaning                                                 | Version bump |
+| ------------------------- | ------------------------------------------------------- | ------------ |
+| `feat:`                   | New feature                                             | MINOR        |
+| `fix:`                    | Bug fix                                                 | PATCH        |
+| `docs:`                   | Documentation only                                      | —            |
+| `chore:`                  | Maintenance, tooling, dependencies                      | —            |
+| `refactor:`               | Code change that neither fixes a bug nor adds a feature | —            |
+| `test:`                   | Adding or correcting tests                              | —            |
+| `BREAKING CHANGE` in body | Breaking change to a public API or data model           | MAJOR        |
 
 A `!` after the type/scope signals a breaking change: `feat!: redesign auth callback`.
 
@@ -75,13 +75,13 @@ See [Repository Design §23](docs/REPOSITORY-DESIGN.md) for the full workflow. A
    - Include **screenshots or screen recordings** for any UI change.
 3. **Required CI must pass.** The five gates are:
 
-   | Gate           | Command              |
-   |----------------|----------------------|
-   | lint           | `pnpm lint`          |
-   | typecheck      | `pnpm typecheck`     |
-   | test           | `pnpm test`          |
-   | build          | `pnpm build`         |
-   | format:check   | `pnpm format:check`  |
+   | Gate         | Command             |
+   | ------------ | ------------------- |
+   | lint         | `pnpm lint`         |
+   | typecheck    | `pnpm typecheck`    |
+   | test         | `pnpm test`         |
+   | build        | `pnpm build`        |
+   | format:check | `pnpm format:check` |
 
 4. **At least one approving review** from a maintainer. All conversations must be resolved.
 5. **Squash & merge** by the author (default merge strategy; see [Repository Design §22](docs/REPOSITORY-DESIGN.md)).
@@ -91,7 +91,7 @@ See [Repository Design §23](docs/REPOSITORY-DESIGN.md) for the full workflow. A
 
 ## Coding standards
 
-These rules are enforced by tooling *and* expected in review.
+These rules are enforced by tooling _and_ expected in review.
 
 ### TypeScript
 
@@ -158,20 +158,20 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Useful scripts
 
-| Command                | Description                                |
-|------------------------|--------------------------------------------|
-| `pnpm dev`             | Start dev server (Turborepo)               |
-| `pnpm build`           | Production build (all packages)            |
-| `pnpm lint`            | ESLint across workspace                    |
-| `pnpm typecheck`       | TypeScript check                           |
-| `pnpm test`            | Vitest unit tests                          |
-| `pnpm format`          | Prettier format                            |
-| `pnpm format:check`    | Prettier check                             |
-| `pnpm clean`           | Clean build artifacts                      |
-| `pnpm docker:up`       | Start Docker services                      |
-| `pnpm docker:down`     | Stop Docker services                       |
-| `pnpm docker:reset`    | Reset Docker services (wipe volumes)       |
-| `pnpm docker:logs`     | Tail Docker service logs                   |
+| Command             | Description                          |
+| ------------------- | ------------------------------------ |
+| `pnpm dev`          | Start dev server (Turborepo)         |
+| `pnpm build`        | Production build (all packages)      |
+| `pnpm lint`         | ESLint across workspace              |
+| `pnpm typecheck`    | TypeScript check                     |
+| `pnpm test`         | Vitest unit tests                    |
+| `pnpm format`       | Prettier format                      |
+| `pnpm format:check` | Prettier check                       |
+| `pnpm clean`        | Clean build artifacts                |
+| `pnpm docker:up`    | Start Docker services                |
+| `pnpm docker:down`  | Stop Docker services                 |
+| `pnpm docker:reset` | Reset Docker services (wipe volumes) |
+| `pnpm docker:logs`  | Tail Docker service logs             |
 
 ---
 

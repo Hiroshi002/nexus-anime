@@ -2,19 +2,19 @@
 
 This is the milestone table for Nexus Anime. Each milestone has a spec in [`docs/milestones/`](milestones/).
 
-| ID | Milestone | Goal | Status |
-|----|-----------|------|--------|
-| M0 | Repository scaffold | Repo, CI, conventions | ✅ |
-| M1 | Design system in code | `@nexus/ui` primitives, theme tokens | ✅ |
-| M2 | Catalog foundation | DB, cache, API envelope, error boundaries | ✅ |
-| M3 | Auth complete | Auth.js v5, sessions, OAuth | In progress |
-| M4 | User profiles, watchlist, continue-watching | Personalization | Planned |
-| M5 | Payments | Stripe subscriptions | Planned |
-| M6 | Video streaming | Cloudflare Stream | Planned |
-| M7 | Public launch | v1.0.0 | Planned |
-| M8 | Feature complete | All features integrated | Planned |
-| M9 | Optimization | CWV targets, a11y, bundle, monitoring | Planned |
-| M10 | Production launch | v1.0.0 tag, go-live | Planned |
+| ID  | Milestone                                   | Goal                                      | Status      |
+| --- | ------------------------------------------- | ----------------------------------------- | ----------- |
+| M0  | Repository scaffold                         | Repo, CI, conventions                     | ✅          |
+| M1  | Design system in code                       | `@nexus/ui` primitives, theme tokens      | ✅          |
+| M2  | Catalog foundation                          | DB, cache, API envelope, error boundaries | ✅          |
+| M3  | Auth complete                               | Auth.js v5, sessions, OAuth               | In progress |
+| M4  | User profiles, watchlist, continue-watching | Personalization                           | Planned     |
+| M5  | Payments                                    | Stripe subscriptions                      | Planned     |
+| M6  | Video streaming                             | Cloudflare Stream                         | Planned     |
+| M7  | Public launch                               | v1.0.0                                    | Planned     |
+| M8  | Feature complete                            | All features integrated                   | Planned     |
+| M9  | Optimization                                | CWV targets, a11y, bundle, monitoring     | Planned     |
+| M10 | Production launch                           | v1.0.0 tag, go-live                       | Planned     |
 
 ## How milestones map to versions
 

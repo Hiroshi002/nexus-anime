@@ -101,7 +101,7 @@ Theme is applied via a `data-theme` attribute on `<html>`, not a CSS
 class. Components use variants:
 
 ```html
-<html data-theme="midnight">
+<html data-theme="midnight"></html>
 ```
 
 ```html

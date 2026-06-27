@@ -27,6 +27,7 @@ Out of scope: TOTP/MFA (M5+), passkeys (M5+), session management UI (M5+), imper
 ### D1 — Auth.js Configuration
 
 `apps/web/src/lib/auth/config.ts` — Auth.js v5 configuration with:
+
 - Drizzle adapter (`@auth/drizzle-adapter`) mapped to the `users`, `user_accounts`, `user_sessions` tables
 - Providers: Credentials (with bcrypt verification), Google (with profile normalization), GitHub (with profile normalization)
 - Callbacks: `signIn` (auto-link OAuth accounts with verified email), `session` (attach role to session), `jwt` (no-op since using database sessions)
@@ -36,6 +37,7 @@ Out of scope: TOTP/MFA (M5+), passkeys (M5+), session management UI (M5+), imper
 ### D2 — Database Schema for Auth
 
 `packages/db/src/schema/auth.ts` — Drizzle schema definitions for:
+
 - `users` — id, name, email, emailVerified, image, role (denormalized, authoritative in M3), createdAt, updatedAt
 - `user_accounts` — id, userId, provider, providerAccountId, refreshToken, accessToken, expiresAt, tokenType, scope, idToken, sessionState
 - `user_sessions` — id, userId, sessionToken (SHA-256 hashed), expires, userAgent, ip
@@ -49,6 +51,7 @@ Migration applied to the Neon database.
 ### D3 — Credential Provider
 
 `apps/web/src/lib/auth/credentials.ts` — credential provider logic:
+
 - Password verified with bcrypt (cost factor 12)
 - Zod validation: email (valid email format), password (8–128 chars, no complexity rules per NIST)
 - Safe error messages: "Invalid email or password" (no indication of which field is wrong)
@@ -57,6 +60,7 @@ Migration applied to the Neon database.
 ### D4 — OAuth Providers
 
 `apps/web/src/lib/auth/oauth.ts` — OAuth provider configuration:
+
 - Google: OAuth 2.0 with profile normalization (name, email, image), email verified flag check
 - GitHub: OAuth 2.0 with profile normalization, email verified flag check (GitHub does not always verify email — handle gracefully)
 - Auto-link: if a user signs in with OAuth and an existing account has the same verified email, link the accounts automatically
@@ -64,6 +68,7 @@ Migration applied to the Neon database.
 ### D5 — Session Management
 
 `apps/web/src/lib/auth/session.ts` — session helpers:
+
 - `getSession()` — read session from the database, validate expiry, return user with role
 - `requireSession()` — throw `ApiError(UNAUTHORIZED)` if no valid session
 - `requireRole(role)` — throw `ApiError(FORBIDDEN)` if user lacks the required role
@@ -72,6 +77,7 @@ Migration applied to the Neon database.
 ### D6 — Email Verification
 
 `apps/web/src/lib/auth/verify-email.ts` — verification flow:
+
 - Generate SHA-256 token, store in `verification_tokens` with 24-hour expiry
 - Send verification email (via Mailpit in dev; email provider in production — deferred to M5+)
 - Verify endpoint: `GET /api/auth/verify?token=<token>` — marks `emailVerified` on user, deletes token
@@ -80,6 +86,7 @@ Migration applied to the Neon database.
 ### D7 — Password Reset
 
 `apps/web/src/lib/auth/reset-password.ts` — reset flow:
+
 - Request: `POST /api/auth/forgot-password` — generate SHA-256 token, send email (Mailpit in dev)
 - Reset: `POST /api/auth/reset-password` — verify token, hash new password, update user, invalidate all sessions
 - Token: SHA-256 hashed, 1-hour expiry, single-use
@@ -96,6 +103,7 @@ Migration applied to the Neon database.
 ### D9 — Middleware Auth Guard
 
 `apps/web/src/lib/middleware.ts`:
+
 - Redirect unauthenticated users from `(authenticated)` routes to `/login?callbackUrl=<current-url>`
 - Allow public routes: `(public)`, `(auth)`, `/api/health`, static assets
 - Apply security headers: `Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options`, `Referrer-Policy`, `X-Content-Type-Options`, `Permissions-Policy`
@@ -105,6 +113,7 @@ Migration applied to the Neon database.
 ### D10 — Rate Limiting
 
 `apps/web/src/lib/auth/rate-limit.ts`:
+
 - Login: 5 attempts per 15 minutes per IP
 - Signup: 3 attempts per hour per IP
 - Password reset: 3 attempts per hour per IP
@@ -123,6 +132,7 @@ Migration applied to the Neon database.
 ### D12 — Auth API Documentation
 
 `docs/06-api/Authentication.md` — 19 sections covering:
+
 - Auth.js v5 + Drizzle adapter configuration
 - Provider details (Credentials, Google, GitHub)
 - Session strategy and cookie attributes
@@ -157,16 +167,16 @@ Migration applied to the Neon database.
 
 ## Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| **Auth.js v5 breaking API changes** | Medium | High | Pin to a specific Auth.js version; the M3 spec references `2026-06-26` initial spec; test upgrade path in staging before applying. Google/GitHub OAuth provider changes are rare but would require config updates. |
-| **Drizzle adapter schema mismatch** | Medium | High | The adapter mapping is explicit in `config.ts` (User->users, Account->user_accounts, Session->user_sessions); verify column names match before applying migration; test with a manual insert query first. |
-| **CSRF token mismatch on load-balanced deployments** | Low | High | Auth.js handles double-submit CSRF tokens out of the box; the `AUTH_SECRET` environment variable must be consistent across all deployment instances. |
-| **Session token leakage via XSS** | Low | Critical | Session cookies use `httpOnly`, `secure`, `sameSite: lax`; CSP headers prevent inline script execution; user-generated content is sanitized with DOMPurify. |
-| **OAuth account linking attack** | Medium | High | Auto-link only occurs when the OAuth provider has verified the email; unverified OAuth emails are rejected from auto-linking; require email verification before linking. |
-| **Rate limit bypass behind proxy** | Medium | Medium | Rate limit key uses `x-forwarded-for` IP (validated by Next.js); document that the app must be behind a trusted proxy that sets this header; fallback to direct connection IP if header is absent. |
-| **bcrypt cost factor 12 causes login latency > 500ms on edge** | Medium | Medium | bcrypt cost 12 takes ~250ms on modern hardware; on edge functions it may be slower — accept this as the cost of security; cache session lookups to reduce repeated bcrypt calls; do not reduce cost below 12. |
-| **Email verification token collision** | Low | Critical | SHA-256 hashed tokens are cryptographically random (256-bit); collision probability is negligible; tokens are single-use and expired after 24 hours. |
+| Risk                                                           | Likelihood | Impact   | Mitigation                                                                                                                                                                                                         |
+| -------------------------------------------------------------- | ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Auth.js v5 breaking API changes**                            | Medium     | High     | Pin to a specific Auth.js version; the M3 spec references `2026-06-26` initial spec; test upgrade path in staging before applying. Google/GitHub OAuth provider changes are rare but would require config updates. |
+| **Drizzle adapter schema mismatch**                            | Medium     | High     | The adapter mapping is explicit in `config.ts` (User->users, Account->user_accounts, Session->user_sessions); verify column names match before applying migration; test with a manual insert query first.          |
+| **CSRF token mismatch on load-balanced deployments**           | Low        | High     | Auth.js handles double-submit CSRF tokens out of the box; the `AUTH_SECRET` environment variable must be consistent across all deployment instances.                                                               |
+| **Session token leakage via XSS**                              | Low        | Critical | Session cookies use `httpOnly`, `secure`, `sameSite: lax`; CSP headers prevent inline script execution; user-generated content is sanitized with DOMPurify.                                                        |
+| **OAuth account linking attack**                               | Medium     | High     | Auto-link only occurs when the OAuth provider has verified the email; unverified OAuth emails are rejected from auto-linking; require email verification before linking.                                           |
+| **Rate limit bypass behind proxy**                             | Medium     | Medium   | Rate limit key uses `x-forwarded-for` IP (validated by Next.js); document that the app must be behind a trusted proxy that sets this header; fallback to direct connection IP if header is absent.                 |
+| **bcrypt cost factor 12 causes login latency > 500ms on edge** | Medium     | Medium   | bcrypt cost 12 takes ~250ms on modern hardware; on edge functions it may be slower — accept this as the cost of security; cache session lookups to reduce repeated bcrypt calls; do not reduce cost below 12.      |
+| **Email verification token collision**                         | Low        | Critical | SHA-256 hashed tokens are cryptographically random (256-bit); collision probability is negligible; tokens are single-use and expired after 24 hours.                                                               |
 
 ## Acceptance Criteria
 
@@ -219,34 +229,34 @@ Migration applied to the Neon database.
 
 ## Estimated Tasks
 
-| # | Task | Estimate | Owner | Dependencies |
-|---|------|----------|-------|--------------|
-| T1 | Install dependencies: `@auth/core`, `@auth/drizzle-adapter`, `bcrypt`, `zod` | 0.5h | Backend | M2 complete |
-| T2 | Write Drizzle schema for auth tables (`users`, `user_accounts`, `user_sessions`, `verification_tokens`, `roles`, `user_roles`, `auth_events`) | 3h | Backend | M2 complete |
-| T3 | Generate and apply migration for auth tables | 1h | Backend | T2 |
-| T4 | Seed `roles` table with viewer, moderator, admin | 0.5h | Backend | T3 |
-| T5 | Implement `seed-admin.ts` script | 1h | Backend | T3 |
-| T6 | Configure Auth.js v5 with Drizzle adapter, all providers, callbacks | 3h | Backend | T1, T2 |
-| T7 | Implement credential provider with bcrypt verification and Zod validation | 2h | Backend | T6 |
-| T8 | Implement OAuth providers (Google, GitHub) with profile normalization and auto-link | 2.5h | Backend | T6 |
-| T9 | Implement session management helpers (`getSession`, `requireSession`, `requireRole`) | 2h | Backend | T6 |
-| T10 | Implement email verification flow (token generation, send, verify, resend) | 2.5h | Backend | T6 |
-| T11 | Implement password reset flow (request, email, reset, session invalidation) | 2.5h | Backend | T6 |
-| T12 | Implement rate limiting for auth routes | 1.5h | Backend | M2 Redis |
-| T13 | Implement middleware with auth guard and security headers | 2h | Full-stack | T6, M2 middleware |
-| T14 | Build login page (email/password, OAuth buttons, links) | 2h | Frontend | M1 complete |
-| T15 | Build signup page (name, email, password, confirm, terms, OAuth) | 2h | Frontend | M1 complete |
-| T16 | Build verify-email page (pending state, resend button) | 1h | Frontend | M1 complete |
-| T17 | Build forgot-password and reset-password pages | 1.5h | Frontend | M1 complete |
-| T18 | Build auth error page | 0.5h | Frontend | M1 complete |
-| T19 | Wire auth pages into route group `(auth)` | 0.5h | Frontend | T14–T18 |
-| T20 | Implement `/api/auth/session` endpoint | 1h | Backend | T9 |
-| T21 | Implement `/api/auth/verify` endpoint | 1h | Backend | T10 |
-| T22 | Implement `/api/auth/forgot-password` and `/api/auth/reset-password` endpoints | 1.5h | Backend | T11 |
-| T23 | Write `docs/06-api/Authentication.md` (19 sections) | 6h | Docs | T6–T13 |
-| T24 | Security audit: verify all 25 hardening measures from §17 | 3h | Security | T6–T13 |
-| T25 | QA pass: all auth flows, rate limiting, middleware, error states | 4h | QA | T14–T22 |
-| T26 | Final typecheck, lint, build verification | 1h | Full-stack | T25 |
+| #   | Task                                                                                                                                          | Estimate | Owner      | Dependencies      |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------- | ----------------- |
+| T1  | Install dependencies: `@auth/core`, `@auth/drizzle-adapter`, `bcrypt`, `zod`                                                                  | 0.5h     | Backend    | M2 complete       |
+| T2  | Write Drizzle schema for auth tables (`users`, `user_accounts`, `user_sessions`, `verification_tokens`, `roles`, `user_roles`, `auth_events`) | 3h       | Backend    | M2 complete       |
+| T3  | Generate and apply migration for auth tables                                                                                                  | 1h       | Backend    | T2                |
+| T4  | Seed `roles` table with viewer, moderator, admin                                                                                              | 0.5h     | Backend    | T3                |
+| T5  | Implement `seed-admin.ts` script                                                                                                              | 1h       | Backend    | T3                |
+| T6  | Configure Auth.js v5 with Drizzle adapter, all providers, callbacks                                                                           | 3h       | Backend    | T1, T2            |
+| T7  | Implement credential provider with bcrypt verification and Zod validation                                                                     | 2h       | Backend    | T6                |
+| T8  | Implement OAuth providers (Google, GitHub) with profile normalization and auto-link                                                           | 2.5h     | Backend    | T6                |
+| T9  | Implement session management helpers (`getSession`, `requireSession`, `requireRole`)                                                          | 2h       | Backend    | T6                |
+| T10 | Implement email verification flow (token generation, send, verify, resend)                                                                    | 2.5h     | Backend    | T6                |
+| T11 | Implement password reset flow (request, email, reset, session invalidation)                                                                   | 2.5h     | Backend    | T6                |
+| T12 | Implement rate limiting for auth routes                                                                                                       | 1.5h     | Backend    | M2 Redis          |
+| T13 | Implement middleware with auth guard and security headers                                                                                     | 2h       | Full-stack | T6, M2 middleware |
+| T14 | Build login page (email/password, OAuth buttons, links)                                                                                       | 2h       | Frontend   | M1 complete       |
+| T15 | Build signup page (name, email, password, confirm, terms, OAuth)                                                                              | 2h       | Frontend   | M1 complete       |
+| T16 | Build verify-email page (pending state, resend button)                                                                                        | 1h       | Frontend   | M1 complete       |
+| T17 | Build forgot-password and reset-password pages                                                                                                | 1.5h     | Frontend   | M1 complete       |
+| T18 | Build auth error page                                                                                                                         | 0.5h     | Frontend   | M1 complete       |
+| T19 | Wire auth pages into route group `(auth)`                                                                                                     | 0.5h     | Frontend   | T14–T18           |
+| T20 | Implement `/api/auth/session` endpoint                                                                                                        | 1h       | Backend    | T9                |
+| T21 | Implement `/api/auth/verify` endpoint                                                                                                         | 1h       | Backend    | T10               |
+| T22 | Implement `/api/auth/forgot-password` and `/api/auth/reset-password` endpoints                                                                | 1.5h     | Backend    | T11               |
+| T23 | Write `docs/06-api/Authentication.md` (19 sections)                                                                                           | 6h       | Docs       | T6–T13            |
+| T24 | Security audit: verify all 25 hardening measures from §17                                                                                     | 3h       | Security   | T6–T13            |
+| T25 | QA pass: all auth flows, rate limiting, middleware, error states                                                                              | 4h       | QA         | T14–T22           |
+| T26 | Final typecheck, lint, build verification                                                                                                     | 1h       | Full-stack | T25               |
 
 **Total estimate: ~46 engineer-hours** (approximately 1 week for a full-stack engineer, or 3 days for a backend + frontend pair working in parallel).
 

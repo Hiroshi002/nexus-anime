@@ -25,23 +25,23 @@ Illustrations are used **sparingly** — for empty states, error states, onboard
 
 ### Color Palettes for Illustrations
 
-| Palette | Colors | Usage |
-|---------|--------|-------|
-| Default | `void-6`, `void-7`, `void-8`, `aether-5` | Standard illustrations |
-| Positive | `void-6`, `void-7`, `void-8`, `success` | Success states, completion |
-| Negative | `void-6`, `void-7`, `void-8`, `error` | Error states, failure |
-| Premium | `void-6`, `void-7`, `void-8`, `nova-5` | Premium features |
+| Palette  | Colors                                   | Usage                      |
+| -------- | ---------------------------------------- | -------------------------- |
+| Default  | `void-6`, `void-7`, `void-8`, `aether-5` | Standard illustrations     |
+| Positive | `void-6`, `void-7`, `void-8`, `success`  | Success states, completion |
+| Negative | `void-6`, `void-7`, `void-8`, `error`    | Error states, failure      |
+| Premium  | `void-6`, `void-7`, `void-8`, `nova-5`   | Premium features           |
 
 ---
 
 ## Illustration Sizes
 
-| Token | Size (px) | Usage |
-|-------|-----------|-------|
-| `illust-sm` | 120×120 | Inline empty states, toast illustrations |
-| `illust-md` | 200×200 | Standard empty states, error pages |
-| `illust-lg` | 320×320 | Onboarding screens, feature promotion |
-| `illust-xl` | 480×480 | Full-page empty/error states, splash |
+| Token       | Size (px) | Usage                                    |
+| ----------- | --------- | ---------------------------------------- |
+| `illust-sm` | 120×120   | Inline empty states, toast illustrations |
+| `illust-md` | 200×200   | Standard empty states, error pages       |
+| `illust-lg` | 320×320   | Onboarding screens, feature promotion    |
+| `illust-xl` | 480×480   | Full-page empty/error states, splash     |
 
 ---
 
@@ -49,43 +49,43 @@ Illustrations are used **sparingly** — for empty states, error states, onboard
 
 ### Empty States
 
-| Name | Description | Used When |
-|------|-------------|-----------|
-| `empty-watchlist` | Crystalline bookmark with floating particles | Watchlist has no items |
-| `empty-search` | Magnifying glass with fractured lines | Search returns no results |
-| `empty-history` | Clock face with no hands, dust particles | No watch history |
-| `empty-notifications` | Bell with muted ripples | No notifications |
-| `empty-comments` | Speech bubble with faded text lines | No comments on anime |
-| `empty-episodes` | Film strip with transparent frames | No episodes available |
-| `empty-genre` | Geometric shape dissolving | Genre has no anime |
+| Name                  | Description                                  | Used When                 |
+| --------------------- | -------------------------------------------- | ------------------------- |
+| `empty-watchlist`     | Crystalline bookmark with floating particles | Watchlist has no items    |
+| `empty-search`        | Magnifying glass with fractured lines        | Search returns no results |
+| `empty-history`       | Clock face with no hands, dust particles     | No watch history          |
+| `empty-notifications` | Bell with muted ripples                      | No notifications          |
+| `empty-comments`      | Speech bubble with faded text lines          | No comments on anime      |
+| `empty-episodes`      | Film strip with transparent frames           | No episodes available     |
+| `empty-genre`         | Geometric shape dissolving                   | Genre has no anime        |
 
 ### Error States
 
-| Name | Description | Used When |
-|------|-------------|-----------|
-| `error-generic` | Circuit board with broken trace | Generic error |
-| `error-network` | Signal tower with disconnected wave | Network failure |
-| `error-404` | Doorway to void (angular) | Page not found |
-| `error-500` | Server crystal with cracks | Server error |
-| `error-rate-limit` | Hourglass with energy overflow | Rate limited |
-| `error-auth` | Shield with access denied symbol | Authentication failure |
-| `error-payment` | Card with rejected stamp | Payment declined |
+| Name               | Description                         | Used When              |
+| ------------------ | ----------------------------------- | ---------------------- |
+| `error-generic`    | Circuit board with broken trace     | Generic error          |
+| `error-network`    | Signal tower with disconnected wave | Network failure        |
+| `error-404`        | Doorway to void (angular)           | Page not found         |
+| `error-500`        | Server crystal with cracks          | Server error           |
+| `error-rate-limit` | Hourglass with energy overflow      | Rate limited           |
+| `error-auth`       | Shield with access denied symbol    | Authentication failure |
+| `error-payment`    | Card with rejected stamp            | Payment declined       |
 
 ### Onboarding
 
-| Name | Description | Used When |
-|------|-------------|-----------|
-| `onboard-discover` | Eye with expanding data rings | Step 1: Discover anime |
+| Name                | Description                        | Used When               |
+| ------------------- | ---------------------------------- | ----------------------- |
+| `onboard-discover`  | Eye with expanding data rings      | Step 1: Discover anime  |
 | `onboard-watchlist` | Heart entering a crystal container | Step 2: Build watchlist |
-| `onboard-stream` | Play button in energy field | Step 3: Start watching |
-| `onboard-premium` | Crown with energy aura | Premium upsell |
+| `onboard-stream`    | Play button in energy field        | Step 3: Start watching  |
+| `onboard-premium`   | Crown with energy aura             | Premium upsell          |
 
 ### Functional
 
-| Name | Description | Used When |
-|------|-------------|-----------|
-| `login-hero` | Portal frame with energy field | Login/signup hero |
-| `maintenance` | Gear with pause symbol | Maintenance mode |
+| Name                 | Description                      | Used When                 |
+| -------------------- | -------------------------------- | ------------------------- |
+| `login-hero`         | Portal frame with energy field   | Login/signup hero         |
+| `maintenance`        | Gear with pause symbol           | Maintenance mode          |
 | `under-construction` | Crystalline structure assembling | Feature not yet available |
 
 ---
@@ -94,25 +94,25 @@ Illustrations are used **sparingly** — for empty states, error states, onboard
 
 ### Format
 
-| Aspect | Requirement |
-|--------|-------------|
-| Format | SVG (inline or `<img>`) for UI illustrations; PNG @1x/@2x for hero illustrations with raster effects |
-| ViewBox | Based on size token (e.g., `0 0 200 200` for `illust-md`) |
-| Stroke | 2px, matching icon system |
-| Fill | Solid colors from design token palette only |
-| Optimization | Run through SVGO with default preset; remove `<?xml>`, editor data, comments |
-| Accessibility | Decorative (all current illustrations): `aria-hidden="true"` |
-| Responsiveness | SVG `viewBox` handles this naturally; set `width`/`height` via token class |
+| Aspect         | Requirement                                                                                          |
+| -------------- | ---------------------------------------------------------------------------------------------------- |
+| Format         | SVG (inline or `<img>`) for UI illustrations; PNG @1x/@2x for hero illustrations with raster effects |
+| ViewBox        | Based on size token (e.g., `0 0 200 200` for `illust-md`)                                            |
+| Stroke         | 2px, matching icon system                                                                            |
+| Fill           | Solid colors from design token palette only                                                          |
+| Optimization   | Run through SVGO with default preset; remove `<?xml>`, editor data, comments                         |
+| Accessibility  | Decorative (all current illustrations): `aria-hidden="true"`                                         |
+| Responsiveness | SVG `viewBox` handles this naturally; set `width`/`height` via token class                           |
 
 ### Animation
 
 Illustrations can have **subtle idle animations** — floating particles, gentle glow pulses, slow rotation of geometric elements.
 
-| Animation Type | Duration | Easing | Reduced Motion |
-|---------------|----------|--------|----------------|
-| Float (translateY oscillation) | 3000ms | `ease-in-out` | Disabled |
-| Glow pulse (opacity oscillation) | 2000ms | `ease-in-out` | Disabled |
-| Slow rotation (transform: rotate) | 6000ms | `linear` | Disabled |
+| Animation Type                    | Duration | Easing        | Reduced Motion |
+| --------------------------------- | -------- | ------------- | -------------- |
+| Float (translateY oscillation)    | 3000ms   | `ease-in-out` | Disabled       |
+| Glow pulse (opacity oscillation)  | 2000ms   | `ease-in-out` | Disabled       |
+| Slow rotation (transform: rotate) | 6000ms   | `linear`      | Disabled       |
 
 **Decision: 3+ second idle animations.** Faster animation on idle illustrations becomes distracting. 3s+ makes the motion ambient rather than attention-grabbing.
 

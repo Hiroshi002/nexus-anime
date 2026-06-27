@@ -36,19 +36,19 @@ features/<name>/
 
 **Responsibility:** User authentication — login, signup, OAuth, email verification, session management.
 
-| Component | Rendering | Purpose |
-|-----------|-----------|---------|
-| LoginForm | Client | Email/password form with validation |
-| SignupForm | Client | Registration form with password strength |
-| OAuthButtons | Client | Google/GitHub OAuth buttons |
-| EmailVerification | Server | Verify email token, show success/failure |
-| SessionIndicator | Client | Show logged-in state, avatar |
+| Component         | Rendering | Purpose                                  |
+| ----------------- | --------- | ---------------------------------------- |
+| LoginForm         | Client    | Email/password form with validation      |
+| SignupForm        | Client    | Registration form with password strength |
+| OAuthButtons      | Client    | Google/GitHub OAuth buttons              |
+| EmailVerification | Server    | Verify email token, show success/failure |
+| SessionIndicator  | Client    | Show logged-in state, avatar             |
 
-| Action | Purpose |
-|--------|---------|
-| signInAction | Credential sign-in with Zod validation |
-| signUpAction | Create account + send verification email |
-| signOutAction | Clear session |
+| Action        | Purpose                                  |
+| ------------- | ---------------------------------------- |
+| signInAction  | Credential sign-in with Zod validation   |
+| signUpAction  | Create account + send verification email |
+| signOutAction | Clear session                            |
 
 **Hooks:** None (session state managed by Auth.js).
 
@@ -60,19 +60,19 @@ features/<name>/
 
 **Responsibility:** Anime browsing, search, detail pages, season navigation, trending/popular rankings.
 
-| Component | Rendering | Purpose |
-|-----------|-----------|---------|
-| AnimeCard | Server | Thumbnail card for browse/search results |
-| AnimeHero | Server | Large hero section on detail page |
-| EpisodeList | Server (Suspense) | Episode list for an anime |
-| SeasonSelector | Client | Season navigation tabs |
-| SearchBar | Client | Search input with debounced suggestions |
-| SearchResults | Server | Search result grid |
-| TrendingCarousel | Server (ISR) | Trending anime carousel |
-| GenreGrid | Server (ISR) | Genre-based browse grid |
+| Component        | Rendering         | Purpose                                  |
+| ---------------- | ----------------- | ---------------------------------------- |
+| AnimeCard        | Server            | Thumbnail card for browse/search results |
+| AnimeHero        | Server            | Large hero section on detail page        |
+| EpisodeList      | Server (Suspense) | Episode list for an anime                |
+| SeasonSelector   | Client            | Season navigation tabs                   |
+| SearchBar        | Client            | Search input with debounced suggestions  |
+| SearchResults    | Server            | Search result grid                       |
+| TrendingCarousel | Server (ISR)      | Trending anime carousel                  |
+| GenreGrid        | Server (ISR)      | Genre-based browse grid                  |
 
-| Action | Purpose |
-|--------|---------|
+| Action       | Purpose                             |
+| ------------ | ----------------------------------- |
 | searchAction | Server Action for search (fallback) |
 
 **Hooks:** `useSearch` (debounced search input).
@@ -85,17 +85,17 @@ features/<name>/
 
 **Responsibility:** Save/remove anime to personal watchlist, reorder, and display watchlist page.
 
-| Component | Rendering | Purpose |
-|-----------|-----------|---------|
-| WatchlistToggle | Client | Add/remove button (optimistic update) |
-| WatchlistGrid | Server | Watchlist page grid |
-| WatchlistItem | Server | Single watchlist entry card |
-| EmptyWatchlist | Server | Empty state illustration |
+| Component       | Rendering | Purpose                               |
+| --------------- | --------- | ------------------------------------- |
+| WatchlistToggle | Client    | Add/remove button (optimistic update) |
+| WatchlistGrid   | Server    | Watchlist page grid                   |
+| WatchlistItem   | Server    | Single watchlist entry card           |
+| EmptyWatchlist  | Server    | Empty state illustration              |
 
-| Action | Purpose |
-|--------|---------|
-| toggleWatchlistAction | Add or remove anime from watchlist |
-| reorderWatchlistAction | Update sort position |
+| Action                 | Purpose                            |
+| ---------------------- | ---------------------------------- |
+| toggleWatchlistAction  | Add or remove anime from watchlist |
+| reorderWatchlistAction | Update sort position               |
 
 **Hooks:** `useWatchlist` (React Query for optimistic updates, cache invalidation).
 
@@ -107,16 +107,16 @@ features/<name>/
 
 **Responsibility:** Video playback, quality selection, progress tracking, continue-watching.
 
-| Component | Rendering | Purpose |
-|-----------|-----------|---------|
-| PlayerContainer | Server | Fetches signed URL, passes to island |
-| PlayerIsland | Client (dynamic) | Video player (lazy-loaded) |
-| PlayerControls | Client | Play/pause, quality, fullscreen, seek |
-| ProgressBar | Client | Playback progress bar |
-| QualitySelector | Client | Quality/resolution selector |
+| Component       | Rendering        | Purpose                               |
+| --------------- | ---------------- | ------------------------------------- |
+| PlayerContainer | Server           | Fetches signed URL, passes to island  |
+| PlayerIsland    | Client (dynamic) | Video player (lazy-loaded)            |
+| PlayerControls  | Client           | Play/pause, quality, fullscreen, seek |
+| ProgressBar     | Client           | Playback progress bar                 |
+| QualitySelector | Client           | Quality/resolution selector           |
 
-| Action | Purpose |
-|--------|---------|
+| Action               | Purpose                         |
+| -------------------- | ------------------------------- |
 | reportProgressAction | Update watch progress on server |
 
 **Hooks:** `usePlayback` (player state), `useProgressTracker` (periodic progress reports).
@@ -129,16 +129,16 @@ features/<name>/
 
 **Responsibility:** Subscription plans, Stripe checkout, webhook handling, billing status.
 
-| Component | Rendering | Purpose |
-|-----------|-----------|---------|
-| PricingTable | Server | Plan comparison table |
-| CheckoutForm | Client (dynamic) | Stripe Elements checkout |
-| PlanBadge | Server | Current plan indicator |
-| BillingHistory | Server | Past invoices |
+| Component      | Rendering        | Purpose                  |
+| -------------- | ---------------- | ------------------------ |
+| PricingTable   | Server           | Plan comparison table    |
+| CheckoutForm   | Client (dynamic) | Stripe Elements checkout |
+| PlanBadge      | Server           | Current plan indicator   |
+| BillingHistory | Server           | Past invoices            |
 
-| Action | Purpose |
-|--------|---------|
-| createCheckoutAction | Create Stripe Checkout Session |
+| Action                   | Purpose                               |
+| ------------------------ | ------------------------------------- |
+| createCheckoutAction     | Create Stripe Checkout Session        |
 | manageSubscriptionAction | Create Stripe Customer Portal Session |
 
 **Hooks:** None (checkout is a redirect flow, not inline state).
@@ -151,17 +151,17 @@ features/<name>/
 
 **Responsibility:** User profile display, settings, avatar upload, viewing history.
 
-| Component | Rendering | Purpose |
-|-----------|-----------|---------|
-| ProfileHeader | Server | Avatar, username, join date |
-| AvatarUpload | Client | Avatar image upload |
-| SettingsForm | Client | Update display name, email preferences |
-| ViewingHistory | Server (paginated) | Continue-watching / watch history |
+| Component      | Rendering          | Purpose                                |
+| -------------- | ------------------ | -------------------------------------- |
+| ProfileHeader  | Server             | Avatar, username, join date            |
+| AvatarUpload   | Client             | Avatar image upload                    |
+| SettingsForm   | Client             | Update display name, email preferences |
+| ViewingHistory | Server (paginated) | Continue-watching / watch history      |
 
-| Action | Purpose |
-|--------|---------|
+| Action              | Purpose               |
+| ------------------- | --------------------- |
 | updateProfileAction | Update profile fields |
-| uploadAvatarAction | Upload avatar to R2 |
+| uploadAvatarAction  | Upload avatar to R2   |
 
 **Hooks:** None (forms use `useActionState`).
 

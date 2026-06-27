@@ -6,13 +6,14 @@
 
 ## Overview
 
-This directory is the **single source of truth for the product experience**. It is the contract between product, design, and engineering. Every page, flow, and state described here will be implemented in `apps/web` — but this document says *what* to build, not *how*.
+This directory is the **single source of truth for the product experience**. It is the contract between product, design, and engineering. Every page, flow, and state described here will be implemented in `apps/web` — but this document says _what_ to build, not _how_.
 
 **Design identity:** Dark, cinematic, glassmorphic, atmospheric — a portal, not a dashboard. AAA game launcher aesthetics. WCAG 2.2 AA.
 
 **Standard:** Every page spec follows the same structure (Purpose → User Goals → Entry Points → Layout → Responsive → Motion → Loading → Empty → Error → SEO → A11y → Future). This consistency means an engineer can implement any page by reading only its spec.
 
 **Relationship to other docs:**
+
 - `docs/04-design-system/` — the visual language (tokens, components, motion, glassmorphism). Page specs reference design-system tokens by name.
 - `docs/03-architecture/` — the technical architecture (routes, data flow, rendering strategy). Page specs reference architecture decisions by section.
 - `docs/architecture/adr/` — structural decisions. Page specs honor ADRs.
@@ -21,34 +22,34 @@ This directory is the **single source of truth for the product experience**. It 
 
 ## Documents
 
-| # | Document | Purpose |
-|---|----------|---------|
-| 1 | [Information-Architecture](Information-Architecture.md) | Content hierarchy, entity relationships, content types |
-| 2 | [Navigation](Navigation.md) | Global nav, mobile nav, sidebar, breadcrumbs, contextual nav |
-| 3 | [User-Flows](User-Flows.md) | New visitor, returning visitor, logged-in, anonymous journeys |
-| 4 | [Sitemap](Sitemap.md) | Route tree with rendering strategy and access control |
-| 5 | [Landing-Page](Landing-Page.md) | Marketing landing for anonymous visitors |
-| 6 | [Home](Home.md) | Default home / browse hub |
-| 7 | [Trending](Trending.md) | Trending anime rankings |
-| 8 | [Popular](Popular.md) | All-time popular anime |
-| 9 | [Latest](Latest.md) | Recently released / updated anime |
-| 10 | [Genres](Genres.md) | Genre browse and genre detail |
-| 11 | [Schedule](Schedule.md) | Weekly release schedule |
-| 12 | [Search](Search.md) | Search UI, results, suggestions |
-| 13 | [Anime-Detail](Anime-Detail.md) | Anime detail page |
-| 14 | [Episode-Player](Episode-Player.md) | Video player and episode view |
-| 15 | [Watch-History](Watch-History.md) | User's viewing history |
-| 16 | [Bookmarks](Bookmarks.md) | Saved / bookmarked anime |
-| 17 | [Continue-Watching](Continue-Watching.md) | Resume in-progress episodes |
-| 18 | [Profile](Profile.md) | User profile |
-| 19 | [Settings](Settings.md) | Account and app settings |
-| 20 | [Notifications](Notifications.md) | Notification center |
-| 21 | [Authentication](Authentication.md) | Login, signup, verify, password reset |
-| 22 | [Error-Pages](Error-Pages.md) | 404, 500, and inline errors |
-| 23 | [Empty-States](Empty-States.md) | Empty state patterns across the app |
-| 24 | [Loading-States](Loading-States.md) | Skeleton and spinner patterns |
-| 25 | [Responsive-Layouts](Responsive-Layouts.md) | Breakpoint behavior across all pages |
-| 26 | [Accessibility-Checklist](Accessibility-Checklist.md) | Per-page accessibility requirements |
+| #   | Document                                                | Purpose                                                       |
+| --- | ------------------------------------------------------- | ------------------------------------------------------------- |
+| 1   | [Information-Architecture](Information-Architecture.md) | Content hierarchy, entity relationships, content types        |
+| 2   | [Navigation](Navigation.md)                             | Global nav, mobile nav, sidebar, breadcrumbs, contextual nav  |
+| 3   | [User-Flows](User-Flows.md)                             | New visitor, returning visitor, logged-in, anonymous journeys |
+| 4   | [Sitemap](Sitemap.md)                                   | Route tree with rendering strategy and access control         |
+| 5   | [Landing-Page](Landing-Page.md)                         | Marketing landing for anonymous visitors                      |
+| 6   | [Home](Home.md)                                         | Default home / browse hub                                     |
+| 7   | [Trending](Trending.md)                                 | Trending anime rankings                                       |
+| 8   | [Popular](Popular.md)                                   | All-time popular anime                                        |
+| 9   | [Latest](Latest.md)                                     | Recently released / updated anime                             |
+| 10  | [Genres](Genres.md)                                     | Genre browse and genre detail                                 |
+| 11  | [Schedule](Schedule.md)                                 | Weekly release schedule                                       |
+| 12  | [Search](Search.md)                                     | Search UI, results, suggestions                               |
+| 13  | [Anime-Detail](Anime-Detail.md)                         | Anime detail page                                             |
+| 14  | [Episode-Player](Episode-Player.md)                     | Video player and episode view                                 |
+| 15  | [Watch-History](Watch-History.md)                       | User's viewing history                                        |
+| 16  | [Bookmarks](Bookmarks.md)                               | Saved / bookmarked anime                                      |
+| 17  | [Continue-Watching](Continue-Watching.md)               | Resume in-progress episodes                                   |
+| 18  | [Profile](Profile.md)                                   | User profile                                                  |
+| 19  | [Settings](Settings.md)                                 | Account and app settings                                      |
+| 20  | [Notifications](Notifications.md)                       | Notification center                                           |
+| 21  | [Authentication](Authentication.md)                     | Login, signup, verify, password reset                         |
+| 22  | [Error-Pages](Error-Pages.md)                           | 404, 500, and inline errors                                   |
+| 23  | [Empty-States](Empty-States.md)                         | Empty state patterns across the app                           |
+| 24  | [Loading-States](Loading-States.md)                     | Skeleton and spinner patterns                                 |
+| 25  | [Responsive-Layouts](Responsive-Layouts.md)             | Breakpoint behavior across all pages                          |
+| 26  | [Accessibility-Checklist](Accessibility-Checklist.md)   | Per-page accessibility requirements                           |
 
 ---
 
@@ -78,12 +79,12 @@ Every page spec in this directory follows this structure:
 
 ## User Journeys Covered
 
-| Journey | Description |
-|---------|-------------|
-| New visitor | Lands on marketing page, browses catalog, watches a trailer, signs up |
-| Returning visitor | Returns via URL or bookmark, resumes watching or continues browsing |
-| Logged-in user | Opens home feed, manages watchlist, watches episode, edits profile |
-| Anonymous user | Browses freely, hits auth wall on personalized features, signs up |
+| Journey           | Description                                                           |
+| ----------------- | --------------------------------------------------------------------- |
+| New visitor       | Lands on marketing page, browses catalog, watches a trailer, signs up |
+| Returning visitor | Returns via URL or bookmark, resumes watching or continues browsing   |
+| Logged-in user    | Opens home feed, manages watchlist, watches episode, edits profile    |
+| Anonymous user    | Browses freely, hits auth wall on personalized features, signs up     |
 
 ---
 

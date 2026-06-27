@@ -44,22 +44,22 @@ This milestone covers the **UI layer and data wiring only**. The underlying REST
 
 ## 3. Deliverables
 
-| # | Deliverable | Location | Acceptance |
-| :-- | :-- | :-- | :-- |
-| D1 | Home route page with session-aware branching | `apps/web/src/app/page.tsx` | Renders anonymous layout without session; renders authenticated layout with valid session; no `any` types |
-| D2 | `HomeShell` orchestrator component | `apps/web/src/components/home/HomeShell.tsx` | Composes all rails; passes session/context to children; exports typed props |
-| D3 | `HeroCarousel` + `FeaturedSlide` | `apps/web/src/components/home/HeroCarousel.tsx` | Auto-rotates every 8s; manual arrows + dots; pause on hover/focus; crossfade 600ms; responsive heights (480/400/320px) |
-| D4 | `ContinueWatchingRail` + `ProgressCard` | `apps/web/src/components/home/ContinueWatchingRail.tsx` | Fetches user progress; renders horizontal progress bar per card; empty state with CTA to `/trending`; hidden when no progress |
-| D5 | `TrendingRail` with rank overlay | `apps/web/src/components/home/TrendingRail.tsx` | Fetches trending anime; renders `AnimeCard` with rank number; "See all" link to `/trending` |
-| D6 | `PopularRail` (anonymous only) | `apps/web/src/components/home/PopularRail.tsx` | Fetches popular anime; renders `AnimeCard`; visible only for anonymous users |
-| D7 | `RecommendedRail` (authenticated only) | `apps/web/src/components/home/RecommendedRail.tsx` | Fetches basic recommendations; renders `AnimeCard`; visible only for authenticated users |
-| D8 | `GenrePills` | `apps/web/src/components/home/GenrePills.tsx` | Horizontal scroll of 12-16 genre badges; links to `/search?genre=` |
-| D9 | `LatestRail` | `apps/web/src/components/home/LatestRail.tsx` | Fetches latest releases; renders `AnimeCard`; "See all" link to `/latest` |
-| D10 | Skeleton loaders per rail | `apps/web/src/components/home/skeletons/` | Dimension-matched skeletons; shimmer animation; no layout shift on hydration |
-| D11 | Per-rail error fallback | `apps/web/src/components/home/RailError.tsx` | Inline error with retry button; other rails unaffected |
-| D12 | Custom data-fetching hooks | `apps/web/src/hooks/` | One hook per rail; typed responses; error state handling; no `any` |
-| D13 | Metadata + JSON-LD | `apps/web/src/app/page.tsx` (or `layout.tsx`) | Anonymous: `index, follow`, title "Nexus Anime — Stream the Best Anime". Authenticated: `noindex`, title "Home — Nexus Anime". JSON-LD `WebSite` present. |
-| D14 | Mobile bottom tab bar integration | `apps/web/src/components/navigation/BottomTabBar.tsx` | Visible <768px; 4 tabs; active state for Home |
+| #   | Deliverable                                  | Location                                                | Acceptance                                                                                                                                                |
+| :-- | :------------------------------------------- | :------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Home route page with session-aware branching | `apps/web/src/app/page.tsx`                             | Renders anonymous layout without session; renders authenticated layout with valid session; no `any` types                                                 |
+| D2  | `HomeShell` orchestrator component           | `apps/web/src/components/home/HomeShell.tsx`            | Composes all rails; passes session/context to children; exports typed props                                                                               |
+| D3  | `HeroCarousel` + `FeaturedSlide`             | `apps/web/src/components/home/HeroCarousel.tsx`         | Auto-rotates every 8s; manual arrows + dots; pause on hover/focus; crossfade 600ms; responsive heights (480/400/320px)                                    |
+| D4  | `ContinueWatchingRail` + `ProgressCard`      | `apps/web/src/components/home/ContinueWatchingRail.tsx` | Fetches user progress; renders horizontal progress bar per card; empty state with CTA to `/trending`; hidden when no progress                             |
+| D5  | `TrendingRail` with rank overlay             | `apps/web/src/components/home/TrendingRail.tsx`         | Fetches trending anime; renders `AnimeCard` with rank number; "See all" link to `/trending`                                                               |
+| D6  | `PopularRail` (anonymous only)               | `apps/web/src/components/home/PopularRail.tsx`          | Fetches popular anime; renders `AnimeCard`; visible only for anonymous users                                                                              |
+| D7  | `RecommendedRail` (authenticated only)       | `apps/web/src/components/home/RecommendedRail.tsx`      | Fetches basic recommendations; renders `AnimeCard`; visible only for authenticated users                                                                  |
+| D8  | `GenrePills`                                 | `apps/web/src/components/home/GenrePills.tsx`           | Horizontal scroll of 12-16 genre badges; links to `/search?genre=`                                                                                        |
+| D9  | `LatestRail`                                 | `apps/web/src/components/home/LatestRail.tsx`           | Fetches latest releases; renders `AnimeCard`; "See all" link to `/latest`                                                                                 |
+| D10 | Skeleton loaders per rail                    | `apps/web/src/components/home/skeletons/`               | Dimension-matched skeletons; shimmer animation; no layout shift on hydration                                                                              |
+| D11 | Per-rail error fallback                      | `apps/web/src/components/home/RailError.tsx`            | Inline error with retry button; other rails unaffected                                                                                                    |
+| D12 | Custom data-fetching hooks                   | `apps/web/src/hooks/`                                   | One hook per rail; typed responses; error state handling; no `any`                                                                                        |
+| D13 | Metadata + JSON-LD                           | `apps/web/src/app/page.tsx` (or `layout.tsx`)           | Anonymous: `index, follow`, title "Nexus Anime — Stream the Best Anime". Authenticated: `noindex`, title "Home — Nexus Anime". JSON-LD `WebSite` present. |
+| D14 | Mobile bottom tab bar integration            | `apps/web/src/components/navigation/BottomTabBar.tsx`   | Visible <768px; 4 tabs; active state for Home                                                                                                             |
 
 ---
 
@@ -78,33 +78,33 @@ Before M4 begins, the following must be complete:
 
 ### Upstream (must exist before M4 starts)
 
-| Dependency | Type | Source | Contract |
-| :-- | :-- | :-- | :-- |
-| `GET /api/v1/anime` | REST endpoint | M2 | Returns `AnimeSummary[]` with cursor pagination; supports `sort=trending\|popular\|latest` query params |
-| `GET /api/v1/anime?sort=trending` | REST endpoint | M2 | Trending list (popularity-weighted, 7-day window) |
-| `GET /api/v1/anime?sort=popular` | REST endpoint | M2 | All-time popular list |
-| `GET /api/v1/anime?sort=latest` | REST endpoint | M2 | Recently published anime |
-| `GET /api/v1/anime?genres={id}` | REST endpoint | M2 | Genre-filtered list (for genre pills) |
-| `GET /api/v1/watchlist/progress` | REST endpoint | M3 companion | Continue-watching progress per user (anime_id, episode_id, progress_pct) |
-| `GET /api/v1/recommendations/basic` | REST endpoint | M3 companion | Basic genre-overlap recommendations per user |
-| Auth.js session helpers | Library | M3 | `getSession()` returns `{ userId }` or `null` |
-| `@nexus/ui` primitives | Package | M1 | `AnimeCard`, `Button`, `Skeleton`, `ErrorBoundary`, `Badge` |
+| Dependency                          | Type          | Source       | Contract                                                                                                |
+| :---------------------------------- | :------------ | :----------- | :------------------------------------------------------------------------------------------------------ |
+| `GET /api/v1/anime`                 | REST endpoint | M2           | Returns `AnimeSummary[]` with cursor pagination; supports `sort=trending\|popular\|latest` query params |
+| `GET /api/v1/anime?sort=trending`   | REST endpoint | M2           | Trending list (popularity-weighted, 7-day window)                                                       |
+| `GET /api/v1/anime?sort=popular`    | REST endpoint | M2           | All-time popular list                                                                                   |
+| `GET /api/v1/anime?sort=latest`     | REST endpoint | M2           | Recently published anime                                                                                |
+| `GET /api/v1/anime?genres={id}`     | REST endpoint | M2           | Genre-filtered list (for genre pills)                                                                   |
+| `GET /api/v1/watchlist/progress`    | REST endpoint | M3 companion | Continue-watching progress per user (anime_id, episode_id, progress_pct)                                |
+| `GET /api/v1/recommendations/basic` | REST endpoint | M3 companion | Basic genre-overlap recommendations per user                                                            |
+| Auth.js session helpers             | Library       | M3           | `getSession()` returns `{ userId }` or `null`                                                           |
+| `@nexus/ui` primitives              | Package       | M1           | `AnimeCard`, `Button`, `Skeleton`, `ErrorBoundary`, `Badge`                                             |
 
 ### Downstream (will consume M4)
 
-| Consumer | What they need | Milestone |
-| :-- | :-- | :-- |
-| M5 — Search | `AnimeCard` component, `EmptyState` pattern, skeleton dimensions | M5 |
-| M6 — Anime Detail | `AnimeCard` component, `WatchlistToggle` (shared) | M6 |
-| M7 — Public Launch | Homepage must be production-ready | M7 |
+| Consumer           | What they need                                                   | Milestone |
+| :----------------- | :--------------------------------------------------------------- | :-------- |
+| M5 — Search        | `AnimeCard` component, `EmptyState` pattern, skeleton dimensions | M5        |
+| M6 — Anime Detail  | `AnimeCard` component, `WatchlistToggle` (shared)                | M6        |
+| M7 — Public Launch | Homepage must be production-ready                                | M7        |
 
 ### External services
 
-| Service | Purpose | Failure mode |
-| :-- | :-- | :-- |
-| Upstash Redis | Cache trending/popular/latest responses (TTL 60s) | Fallback to direct DB query; serve stale if available |
-| Vercel Edge | ISR caching for anonymous home (revalidate: 300s) | First request triggers revalidation; subsequent requests serve cached |
-| TMDB / AniList | Source of anime metadata (populated via seed scripts) | Pre-seeded data must be available; no live dependency at runtime |
+| Service        | Purpose                                               | Failure mode                                                          |
+| :------------- | :---------------------------------------------------- | :-------------------------------------------------------------------- |
+| Upstash Redis  | Cache trending/popular/latest responses (TTL 60s)     | Fallback to direct DB query; serve stale if available                 |
+| Vercel Edge    | ISR caching for anonymous home (revalidate: 300s)     | First request triggers revalidation; subsequent requests serve cached |
+| TMDB / AniList | Source of anime metadata (populated via seed scripts) | Pre-seeded data must be available; no live dependency at runtime      |
 
 ---
 
@@ -117,6 +117,7 @@ Before M4 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** High (data leakage between users)
 
 **Mitigation:**
+
 - Use `cache()` from React for request dedup inside the ISR route only.
 - Never call `requireUser()` inside the ISR branch; session-aware content is gated behind a dynamic function (`cookies().get()`) so Next.js marks the route dynamic.
 - Set `Vary: Cookie` on the route via `next.config.ts` middleware or route segment config.
@@ -129,6 +130,7 @@ Before M4 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Medium (page load latency)
 
 **Mitigation:**
+
 - Use `AnimeSummary` projection (no synopsis, no version) for all rails.
 - Batch requests via a shared data-fetching function with React `cache()` so overlapping calls (e.g., trending and popular sharing some anime) deduplicate at the DB level.
 - Add a `Promise.allSettled` orchestration layer in `HomeShell` so rails load in parallel.
@@ -141,6 +143,7 @@ Before M4 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Medium (Core Web Vitals CLS regression)
 
 **Mitigation:**
+
 - Set explicit `width` and `height` on the `FeaturedSlide` image container; use `aspect-ratio: 16/9` or fixed height per breakpoint.
 - Render a solid `surface-base` background as placeholder beneath the image.
 - Use `next/image` with `priority={true}` for the first slide and `loading="lazy"` for subsequent slides.
@@ -153,6 +156,7 @@ Before M4 begins, the following must be complete:
 **Likelihood:** Low · **Impact:** Low (minor UX inconsistency)
 
 **Mitigation:**
+
 - Invalidate `nexus:watchlist:progress:{userId}` on every progress mutation (Server Action).
 - Set short TTL (30s) on progress cache to bound staleness.
 - Client-side hook revalidates on focus (visibility change) as a safety net.
@@ -164,6 +168,7 @@ Before M4 begins, the following must be complete:
 **Likelihood:** High (all new users) · **Impact:** Low (rail can be hidden)
 
 **Mitigation:**
+
 - Hide `RecommendedRail` when the response array is empty.
 - Fall back to trending anime if recommendations return < 4 items (configured in the recommendation service).
 - Log cold-start rate to track when the heuristic needs improvement.
@@ -244,29 +249,29 @@ Each criterion is binary pass/fail. All must pass for the milestone to be consid
 
 ## 9. Estimated Tasks
 
-| # | Task | Estimate | Dependencies | Notes |
-| :-- | :-- | :-- | :-- | :-- |
-| T1 | Scaffold `apps/web/src/components/home/` directory structure and barrel exports | 0.5d | M1 | |
-| T2 | Implement `AnimeCard` rank overlay variant (if not already in `@nexus/ui`) | 0.5d | M1 | May already exist from M1; verify first |
-| T3 | Implement `HeroCarousel` + `FeaturedSlide` with responsive heights, auto-rotate, manual controls | 2d | T1, T2 | Includes motion, pause-on-hover, dot indicators |
-| T4 | Implement skeleton components per rail (card-shaped, shimmer) | 1d | T1 | Match exact dimensions of `AnimeCard` |
-| T5 | Implement `RailError` fallback component with retry button | 0.5d | T1 | |
-| T6 | Implement `useTrendingAnime`, `usePopularAnime`, `useLatestAnime` hooks | 1d | M2 endpoints | Thin wrappers around `fetch` with typed responses |
-| T7 | Implement `useContinueWatching` hook + `ContinueWatchingRail` + `ProgressCard` | 1.5d | M3 companion endpoint | Includes empty-state logic |
-| T8 | Implement `useRecommendedAnime` hook + `RecommendedRail` | 1d | M3 companion endpoint | Cold-start fallback logic |
-| T9 | Implement `GenrePills` with genre list fetch | 0.5d | M2 genre endpoint | |
-| T10 | Implement `HomeShell` orchestrator with parallel `Promise.allSettled` rail loading | 1d | T3-T9 | |
-| T11 | Implement `page.tsx` with session-aware branching (anonymous vs. authenticated) | 1d | T10, M3 | |
-| T12 | Implement `generateMetadata` for both variants + JSON-LD injection | 0.5d | T11 | |
-| T13 | Integrate mobile bottom tab bar (verify or implement from navigation) | 0.5d | M1 navigation | May already exist; verify |
-| T14 | Wire per-rail Suspense boundaries and verify streaming behavior | 0.5d | T10, T11 | |
-| T15 | Implement empty states (continue watching: no history / all completed) | 0.5d | T7 | |
-| T16 | Responsive testing + fixes across 4 breakpoints | 1d | T11 | |
-| T17 | Accessibility audit + fixes (keyboard nav, ARIA, reduced-motion) | 1d | T11 | |
-| T18 | Performance audit + fixes (CLS, LCP, TTFB) | 1d | T11 | |
-| T19 | Integration tests (per-rail error isolation, session branching) | 1d | T11 | |
-| T20 | E2E test (anonymous home, authenticated home, hero rotation) | 1d | T11 | Playwright |
-| **Total** | | **~16.5d** | | ~3.5 weeks with 1 engineer |
+| #         | Task                                                                                             | Estimate   | Dependencies          | Notes                                             |
+| :-------- | :----------------------------------------------------------------------------------------------- | :--------- | :-------------------- | :------------------------------------------------ |
+| T1        | Scaffold `apps/web/src/components/home/` directory structure and barrel exports                  | 0.5d       | M1                    |                                                   |
+| T2        | Implement `AnimeCard` rank overlay variant (if not already in `@nexus/ui`)                       | 0.5d       | M1                    | May already exist from M1; verify first           |
+| T3        | Implement `HeroCarousel` + `FeaturedSlide` with responsive heights, auto-rotate, manual controls | 2d         | T1, T2                | Includes motion, pause-on-hover, dot indicators   |
+| T4        | Implement skeleton components per rail (card-shaped, shimmer)                                    | 1d         | T1                    | Match exact dimensions of `AnimeCard`             |
+| T5        | Implement `RailError` fallback component with retry button                                       | 0.5d       | T1                    |                                                   |
+| T6        | Implement `useTrendingAnime`, `usePopularAnime`, `useLatestAnime` hooks                          | 1d         | M2 endpoints          | Thin wrappers around `fetch` with typed responses |
+| T7        | Implement `useContinueWatching` hook + `ContinueWatchingRail` + `ProgressCard`                   | 1.5d       | M3 companion endpoint | Includes empty-state logic                        |
+| T8        | Implement `useRecommendedAnime` hook + `RecommendedRail`                                         | 1d         | M3 companion endpoint | Cold-start fallback logic                         |
+| T9        | Implement `GenrePills` with genre list fetch                                                     | 0.5d       | M2 genre endpoint     |                                                   |
+| T10       | Implement `HomeShell` orchestrator with parallel `Promise.allSettled` rail loading               | 1d         | T3-T9                 |                                                   |
+| T11       | Implement `page.tsx` with session-aware branching (anonymous vs. authenticated)                  | 1d         | T10, M3               |                                                   |
+| T12       | Implement `generateMetadata` for both variants + JSON-LD injection                               | 0.5d       | T11                   |                                                   |
+| T13       | Integrate mobile bottom tab bar (verify or implement from navigation)                            | 0.5d       | M1 navigation         | May already exist; verify                         |
+| T14       | Wire per-rail Suspense boundaries and verify streaming behavior                                  | 0.5d       | T10, T11              |                                                   |
+| T15       | Implement empty states (continue watching: no history / all completed)                           | 0.5d       | T7                    |                                                   |
+| T16       | Responsive testing + fixes across 4 breakpoints                                                  | 1d         | T11                   |                                                   |
+| T17       | Accessibility audit + fixes (keyboard nav, ARIA, reduced-motion)                                 | 1d         | T11                   |                                                   |
+| T18       | Performance audit + fixes (CLS, LCP, TTFB)                                                       | 1d         | T11                   |                                                   |
+| T19       | Integration tests (per-rail error isolation, session branching)                                  | 1d         | T11                   |                                                   |
+| T20       | E2E test (anonymous home, authenticated home, hero rotation)                                     | 1d         | T11                   | Playwright                                        |
+| **Total** |                                                                                                  | **~16.5d** |                       | ~3.5 weeks with 1 engineer                        |
 
 ---
 

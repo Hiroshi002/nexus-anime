@@ -8,28 +8,28 @@ Draft —Specs will be refined as implementation progresses through M3–M7. Acc
 
 ## Files
 
-| # | File | Lines | Milestone | Primary Surface |
-|---|------|-------|-----------|-----------------|
-| 1 | [Authentication.md](./Authentication.md) | 215 | M3 | Login, signup, verify, reset, OAuth, sessions |
-| 2 | [Home.md](./Home.md) | 195 | M3 | Authenticated-aware home feed |
-| 3 | [Landing.md](./Landing.md) | 182 | M3 | Marketing landing page (static) |
-| 4 | [Trending.md](./Trending.md) | 194 | M3 | Trending anime with time-window ranking |
-| 5 | [Popular.md](./Popular.md) | 198 | M3 | All-time popular anime |
-| 6 | [Latest.md](./Latest.md) | 157 | M3 | Recently released episodes |
-| 7 | [Genres.md](./Genres.md) | 166 | M3 | Genre index and detail browsing |
-| 8 | [Search.md](./Search.md) | 173 | M3 | Full-text search with filters and suggestions |
-| 9 | [Anime-Detail.md](./Anime-Detail.md) | 187 | M3 | Anime detail page, episodes, watchlist |
-| 10 | [Episode-Player.md](./Episode-Player.md) | 195 | M6 | Video player with signed URLs |
-| 11 | [Continue-Watching.md](./Continue-Watching.md) | 167 | M4 | Resume-from-progress rail and page |
-| 12 | [Watch-History.md](./Watch-History.md) | 180 | M4 | Append-only watch log, GDPR export |
-| 13 | [Bookmarks.md](./Bookmarks.md) | 183 | M4 | User watchlist management |
-| 14 | [Recommendations.md](./Recommendations.md) | 176 | M4 | Personalized recommendation engine |
-| 15 | [Comments.md](./Comments.md) | 229 | M4 | Episode-level threaded comments |
-| 16 | [Ratings.md](./Ratings.md) | 156 | M4 | User-submitted ratings, anti-gaming |
-| 17 | [Notifications.md](./Notifications.md) | 158 | M5 | In-app notification center |
-| 18 | [Profile.md](./Profile.md) | 163 | M4 | Public and private user profiles |
-| 19 | [Settings.md](./Settings.md) | 177 | M4 | Account, preferences, privacy, connected accounts |
-| 20 | [Admin.md](./Admin.md) | 192 | M7 | Admin dashboard, moderation, analytics |
+| #   | File                                           | Lines | Milestone | Primary Surface                                   |
+| --- | ---------------------------------------------- | ----- | --------- | ------------------------------------------------- |
+| 1   | [Authentication.md](./Authentication.md)       | 215   | M3        | Login, signup, verify, reset, OAuth, sessions     |
+| 2   | [Home.md](./Home.md)                           | 195   | M3        | Authenticated-aware home feed                     |
+| 3   | [Landing.md](./Landing.md)                     | 182   | M3        | Marketing landing page (static)                   |
+| 4   | [Trending.md](./Trending.md)                   | 194   | M3        | Trending anime with time-window ranking           |
+| 5   | [Popular.md](./Popular.md)                     | 198   | M3        | All-time popular anime                            |
+| 6   | [Latest.md](./Latest.md)                       | 157   | M3        | Recently released episodes                        |
+| 7   | [Genres.md](./Genres.md)                       | 166   | M3        | Genre index and detail browsing                   |
+| 8   | [Search.md](./Search.md)                       | 173   | M3        | Full-text search with filters and suggestions     |
+| 9   | [Anime-Detail.md](./Anime-Detail.md)           | 187   | M3        | Anime detail page, episodes, watchlist            |
+| 10  | [Episode-Player.md](./Episode-Player.md)       | 195   | M6        | Video player with signed URLs                     |
+| 11  | [Continue-Watching.md](./Continue-Watching.md) | 167   | M4        | Resume-from-progress rail and page                |
+| 12  | [Watch-History.md](./Watch-History.md)         | 180   | M4        | Append-only watch log, GDPR export                |
+| 13  | [Bookmarks.md](./Bookmarks.md)                 | 183   | M4        | User watchlist management                         |
+| 14  | [Recommendations.md](./Recommendations.md)     | 176   | M4        | Personalized recommendation engine                |
+| 15  | [Comments.md](./Comments.md)                   | 229   | M4        | Episode-level threaded comments                   |
+| 16  | [Ratings.md](./Ratings.md)                     | 156   | M4        | User-submitted ratings, anti-gaming               |
+| 17  | [Notifications.md](./Notifications.md)         | 158   | M5        | In-app notification center                        |
+| 18  | [Profile.md](./Profile.md)                     | 163   | M4        | Public and private user profiles                  |
+| 19  | [Settings.md](./Settings.md)                   | 177   | M4        | Account, preferences, privacy, connected accounts |
+| 20  | [Admin.md](./Admin.md)                         | 192   | M7        | Admin dashboard, moderation, analytics            |
 
 ## Template
 

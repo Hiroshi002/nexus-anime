@@ -5,21 +5,25 @@
 ---
 
 ## 1. Purpose
+
 Define the breakpoint system, layout transformations, and responsive patterns that every page in Nexus Anime follows to deliver a consistent experience from 320px mobile to 1600px+ wide desktop.
 
 ## 2. User Goals
+
 - Browse and consume content comfortably on any device without pinch-zoom or horizontal scroll.
 - Maintain access to primary navigation and playback controls regardless of viewport.
 - Experience no layout shift when navigating between pages at any breakpoint.
 - Interact with touch-friendly targets on mobile and tablet.
 
 ## 3. Entry Points
+
 - `apps/web/src/app/**` — every route in the App Router.
 - `apps/web/src/components/**` — shared layout shells (header, sidebar, tab bar).
 - `apps/web/src/styles/tokens.css` — design-token breakpoint values and spacing scales.
 - `apps/web/tailwind.config.ts` — Tailwind breakpoint mapping and container-query plugin config.
 
 ## 4. Layout Structure
+
 ```
 ┌──────────────────────────────────────────────────────────┐
 │  Header (persistent; transforms at 768px)                │
@@ -33,6 +37,7 @@ Define the breakpoint system, layout transformations, and responsive patterns th
 ```
 
 ## 5. Component Hierarchy
+
 - `RootLayout`
   - `Header` (desktop nav → hamburger at < 768px)
     - `Logo`
@@ -93,13 +98,13 @@ Define the breakpoint system, layout transformations, and responsive patterns th
 
 ## 9. Navigation Behavior
 
-| Element | Desktop (≥1024px) | Tablet (768–1023px) | Mobile (< 768px) |
-|---|---|---|---|
-| Primary nav | Horizontal links in header | Hamburger → drawer | Hamburger → drawer + bottom tab bar |
-| Sidebar | Persistent 240px | Drawer (overlay) | Drawer (overlay) |
-| Search | Full text input | Icon → expandable | Icon → full-screen overlay |
-| User menu | Avatar dropdown | Avatar dropdown | Avatar → full-screen menu |
-| Bottom tab bar | Hidden | Hidden | Visible (authenticated only) |
+| Element        | Desktop (≥1024px)          | Tablet (768–1023px) | Mobile (< 768px)                    |
+| -------------- | -------------------------- | ------------------- | ----------------------------------- |
+| Primary nav    | Horizontal links in header | Hamburger → drawer  | Hamburger → drawer + bottom tab bar |
+| Sidebar        | Persistent 240px           | Drawer (overlay)    | Drawer (overlay)                    |
+| Search         | Full text input            | Icon → expandable   | Icon → full-screen overlay          |
+| User menu      | Avatar dropdown            | Avatar dropdown     | Avatar → full-screen menu           |
+| Bottom tab bar | Hidden                     | Hidden              | Visible (authenticated only)        |
 
 - Tab bar items: Home, Browse, Watchlist, Profile — each with icon and label.
 - Active state uses `--color-accent` token background pill.

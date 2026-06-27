@@ -1,0 +1,32 @@
+# Build artifacts
+.next/
+dist/
+out/
+build/
+.turbo/
+
+# Dependencies
+node_modules/
+
+# Lockfile — never reformat; it is generated.
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Generated types
+*.d.ts
+
+# Coverage
+coverage/
+
+# Husky hooks — shell scripts, not JS.
+.husky/
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+
+# OS / editor
+.DS_Store
+*.log
+.vscode-test/

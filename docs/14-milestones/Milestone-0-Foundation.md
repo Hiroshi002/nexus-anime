@@ -71,12 +71,12 @@ None. M0 is the root of the milestone dependency graph.
 
 ## Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| **Over-engineering the initial scaffold** | Medium | Medium | Follow the 28 deliverables exactly; resist adding unrequested files; defer tooling choices to their respective milestones. |
-| **Branch protection blocks the initial push** | Low | High | Push the initial commit first, then enable branch protection in the same PR; verify status checks pass before merging. |
-| **CI workflow references packages that do not exist yet** | Medium | Medium | CI workflow uses `continue-on-error` or is limited to steps that succeed on an empty repo (e.g., `pnpm install`, `format:check`). Full CI activates in M1. |
-| **`.env.example` leaks a real secret** | Low | Critical | Only document variable names and placeholder values; never commit actual secrets; review with `git-secrets` or similar. |
+| Risk                                                      | Likelihood | Impact   | Mitigation                                                                                                                                                 |
+| --------------------------------------------------------- | ---------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Over-engineering the initial scaffold**                 | Medium     | Medium   | Follow the 28 deliverables exactly; resist adding unrequested files; defer tooling choices to their respective milestones.                                 |
+| **Branch protection blocks the initial push**             | Low        | High     | Push the initial commit first, then enable branch protection in the same PR; verify status checks pass before merging.                                     |
+| **CI workflow references packages that do not exist yet** | Medium     | Medium   | CI workflow uses `continue-on-error` or is limited to steps that succeed on an empty repo (e.g., `pnpm install`, `format:check`). Full CI activates in M1. |
+| **`.env.example` leaks a real secret**                    | Low        | Critical | Only document variable names and placeholder values; never commit actual secrets; review with `git-secrets` or similar.                                    |
 
 ## Acceptance Criteria
 
@@ -106,18 +106,18 @@ None. M0 is the root of the milestone dependency graph.
 
 ## Estimated Tasks
 
-| # | Task | Estimate | Owner | Dependencies |
-|---|------|----------|-------|--------------|
-| T1 | Create GitHub repository with name, description, topics, visibility | 0.5h | Lead | None |
-| T2 | Write `REPOSITORY-DESIGN.md` with all 28 deliverables | 4h | Lead | T1 |
-| T3 | Create root configuration files (`package.json`, `pnpm-workspace.yaml`, `turbo.json`, `.npmrc`, `.nvmrc`, `.env.example`, `.gitignore`, `prettier.config.js`, `tsconfig.base.json`) | 2h | Lead | T1 |
-| T4 | Write `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `LICENSE` | 1h | Lead | T1 |
-| T5 | Create `.github/` templates, labels, and CI workflow | 2h | Lead | T1 |
-| T6 | Create `docs/` structure: README, master-roadmap, ADR template, milestones dir | 1h | Lead | T1 |
-| T7 | Create `tooling/docker/docker-compose.yml` and `tooling/scripts/seed-*.ts` stubs | 1h | Lead | T1 |
-| T8 | Create initial commit using the 14-item checklist | 0.5h | Lead | T2–T7 |
-| T9 | Enable branch protection and required status checks on `main` | 0.5h | Lead | T8 |
-| T10 | Verify `pnpm install` succeeds from a clean clone | 0.5h | QA | T8 |
+| #   | Task                                                                                                                                                                                | Estimate | Owner | Dependencies |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- | ------------ |
+| T1  | Create GitHub repository with name, description, topics, visibility                                                                                                                 | 0.5h     | Lead  | None         |
+| T2  | Write `REPOSITORY-DESIGN.md` with all 28 deliverables                                                                                                                               | 4h       | Lead  | T1           |
+| T3  | Create root configuration files (`package.json`, `pnpm-workspace.yaml`, `turbo.json`, `.npmrc`, `.nvmrc`, `.env.example`, `.gitignore`, `prettier.config.js`, `tsconfig.base.json`) | 2h       | Lead  | T1           |
+| T4  | Write `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `LICENSE`                                                                                                               | 1h       | Lead  | T1           |
+| T5  | Create `.github/` templates, labels, and CI workflow                                                                                                                                | 2h       | Lead  | T1           |
+| T6  | Create `docs/` structure: README, master-roadmap, ADR template, milestones dir                                                                                                      | 1h       | Lead  | T1           |
+| T7  | Create `tooling/docker/docker-compose.yml` and `tooling/scripts/seed-*.ts` stubs                                                                                                    | 1h       | Lead  | T1           |
+| T8  | Create initial commit using the 14-item checklist                                                                                                                                   | 0.5h     | Lead  | T2–T7        |
+| T9  | Enable branch protection and required status checks on `main`                                                                                                                       | 0.5h     | Lead  | T8           |
+| T10 | Verify `pnpm install` succeeds from a clean clone                                                                                                                                   | 0.5h     | QA    | T8           |
 
 **Total estimate: ~13 engineer-hours** (approximately 2 days for a single engineer).
 

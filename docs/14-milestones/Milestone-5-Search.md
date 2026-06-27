@@ -45,28 +45,28 @@ This milestone covers the **UI layer and data wiring only**. The underlying sear
 
 ## 3. Deliverables
 
-| # | Deliverable | Location | Acceptance |
-| :-- | :-- | :-- | :-- |
-| D1 | Search route page with URL-driven state | `apps/web/src/app/search/page.tsx` | Reads `searchParams` for filter state; updates URL on filter change via `router.replace`; renders `SearchPage` |
-| D2 | `SearchPage` orchestrator | `apps/web/src/components/search/SearchPage.tsx` | Composes `SearchHeader`, `FilterDrawer`, `SortBar`, `ResultCount`, `ResultsGrid`, `EmptyState`; manages shared filter state |
-| D3 | `SearchHeader` + `SearchBar` (lg, auto-focus) | `apps/web/src/components/search/SearchHeader.tsx` | Auto-focuses on page load; full-width max 720px; glassmorphism surface |
-| D4 | `RecentSearches` (localStorage) | `apps/web/src/components/search/RecentSearches.tsx` | Reads/writes localStorage; max 5 entries; clears on demand; visible only when input is empty |
-| D5 | `TrendingList` (Redis-cached) | `apps/web/src/components/search/TrendingList.tsx` | Fetches from `/api/v1/search/suggest?type=trending`; renders clickable trending queries |
-| D6 | `FuzzySuggest` (debounced) | `apps/web/src/components/search/FuzzySuggest.tsx` | 300ms debounce; fetches from `/api/v1/search/suggest`; renders matching suggestions; keyboard navigable |
-| D7 | `FilterDrawer` (genre, year, status, rating) | `apps/web/src/components/search/FilterDrawer.tsx` | Desktop: 240px sticky rail; Tablet: off-canvas drawer; Mobile: bottom sheet; chip-style genre toggles; range sliders for year/rating |
-| D8 | `SortBar` (relevance, rating, popularity, date) | `apps/web/src/components/search/SortBar.tsx` | 4 chip variants; active = `primary`, inactive = `outline`; updates URL param on change |
-| D9 | `ResultCount` with aria-live | `apps/web/src/components/search/ResultCount.tsx` | Announces "N results for '{query}'" via `aria-live="polite"` |
-| D10 | `ResultsGrid` with cursor-based infinite scroll | `apps/web/src/components/search/ResultsGrid.tsx` | Renders `AnimeCard` × N; IntersectionObserver sentinel at 400px from bottom; loads next 20 via cursor |
-| D11 | `AnimeCardSkeleton` × 20 | `apps/web/src/components/search/skeletons/AnimeCardSkeleton.tsx` | Shimmer pulse; identical dimensions to loaded card; no layout shift |
-| D12 | `EmptyState` with alternate suggestions | `apps/web/src/components/search/EmptyState.tsx` | Heading "No results for '{query}.'"; 3 suggested query chips; filter-clear note when filters active |
-| D13 | `useDebounce` hook | `apps/web/src/hooks/useDebounce.ts` | Generic debounce hook; 300ms default; configurable delay |
-| D14 | `useSearch` hook | `apps/web/src/hooks/useSearch.ts` | Fetches search results from `/api/v1/search`; manages cursor pagination state; typed response |
-| D15 | `useSearchSuggestions` hook | `apps/web/src/hooks/useSearchSuggestions.ts` | Fetches suggestions from `/api/v1/search/suggest`; debounced; typed response |
-| D16 | `useSearchHistory` hook (authenticated) | `apps/web/src/hooks/useSearchHistory.ts` | Fetches history from `/api/v1/search/history`; adds/removes history entries via Server Actions |
-| D17 | Search history Server Actions | `apps/web/src/actions/searchHistory.ts` | `addSearchHistory`, `removeSearchHistory`, `clearSearchHistory`; Zod validation; requireUser |
-| D18 | URL filter state parser/serializer | `apps/web/src/lib/search-params.ts` | Parses `searchParams` into `SearchFilters` type; serializes `SearchFilters` back to URL params; validates with Zod |
-| D19 | SEO metadata + canonical | `apps/web/src/app/search/page.tsx` | Base page: "Search Anime — Nexus Anime"; query pages: `"{query}" Search Results — Nexus Anime`; noindex for non-alpha queries; `rel="prev"/"next"` on cursor links |
-| D20 | Responsive layout (desktop / tablet / mobile) | `apps/web/src/components/search/` | Desktop: 6-col grid + sticky filter rail; Tablet: 3-4 col + off-canvas filter; Mobile: single-col cards + bottom sheet filter + full-screen overlay |
+| #   | Deliverable                                     | Location                                                         | Acceptance                                                                                                                                                         |
+| :-- | :---------------------------------------------- | :--------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Search route page with URL-driven state         | `apps/web/src/app/search/page.tsx`                               | Reads `searchParams` for filter state; updates URL on filter change via `router.replace`; renders `SearchPage`                                                     |
+| D2  | `SearchPage` orchestrator                       | `apps/web/src/components/search/SearchPage.tsx`                  | Composes `SearchHeader`, `FilterDrawer`, `SortBar`, `ResultCount`, `ResultsGrid`, `EmptyState`; manages shared filter state                                        |
+| D3  | `SearchHeader` + `SearchBar` (lg, auto-focus)   | `apps/web/src/components/search/SearchHeader.tsx`                | Auto-focuses on page load; full-width max 720px; glassmorphism surface                                                                                             |
+| D4  | `RecentSearches` (localStorage)                 | `apps/web/src/components/search/RecentSearches.tsx`              | Reads/writes localStorage; max 5 entries; clears on demand; visible only when input is empty                                                                       |
+| D5  | `TrendingList` (Redis-cached)                   | `apps/web/src/components/search/TrendingList.tsx`                | Fetches from `/api/v1/search/suggest?type=trending`; renders clickable trending queries                                                                            |
+| D6  | `FuzzySuggest` (debounced)                      | `apps/web/src/components/search/FuzzySuggest.tsx`                | 300ms debounce; fetches from `/api/v1/search/suggest`; renders matching suggestions; keyboard navigable                                                            |
+| D7  | `FilterDrawer` (genre, year, status, rating)    | `apps/web/src/components/search/FilterDrawer.tsx`                | Desktop: 240px sticky rail; Tablet: off-canvas drawer; Mobile: bottom sheet; chip-style genre toggles; range sliders for year/rating                               |
+| D8  | `SortBar` (relevance, rating, popularity, date) | `apps/web/src/components/search/SortBar.tsx`                     | 4 chip variants; active = `primary`, inactive = `outline`; updates URL param on change                                                                             |
+| D9  | `ResultCount` with aria-live                    | `apps/web/src/components/search/ResultCount.tsx`                 | Announces "N results for '{query}'" via `aria-live="polite"`                                                                                                       |
+| D10 | `ResultsGrid` with cursor-based infinite scroll | `apps/web/src/components/search/ResultsGrid.tsx`                 | Renders `AnimeCard` × N; IntersectionObserver sentinel at 400px from bottom; loads next 20 via cursor                                                              |
+| D11 | `AnimeCardSkeleton` × 20                        | `apps/web/src/components/search/skeletons/AnimeCardSkeleton.tsx` | Shimmer pulse; identical dimensions to loaded card; no layout shift                                                                                                |
+| D12 | `EmptyState` with alternate suggestions         | `apps/web/src/components/search/EmptyState.tsx`                  | Heading "No results for '{query}.'"; 3 suggested query chips; filter-clear note when filters active                                                                |
+| D13 | `useDebounce` hook                              | `apps/web/src/hooks/useDebounce.ts`                              | Generic debounce hook; 300ms default; configurable delay                                                                                                           |
+| D14 | `useSearch` hook                                | `apps/web/src/hooks/useSearch.ts`                                | Fetches search results from `/api/v1/search`; manages cursor pagination state; typed response                                                                      |
+| D15 | `useSearchSuggestions` hook                     | `apps/web/src/hooks/useSearchSuggestions.ts`                     | Fetches suggestions from `/api/v1/search/suggest`; debounced; typed response                                                                                       |
+| D16 | `useSearchHistory` hook (authenticated)         | `apps/web/src/hooks/useSearchHistory.ts`                         | Fetches history from `/api/v1/search/history`; adds/removes history entries via Server Actions                                                                     |
+| D17 | Search history Server Actions                   | `apps/web/src/actions/searchHistory.ts`                          | `addSearchHistory`, `removeSearchHistory`, `clearSearchHistory`; Zod validation; requireUser                                                                       |
+| D18 | URL filter state parser/serializer              | `apps/web/src/lib/search-params.ts`                              | Parses `searchParams` into `SearchFilters` type; serializes `SearchFilters` back to URL params; validates with Zod                                                 |
+| D19 | SEO metadata + canonical                        | `apps/web/src/app/search/page.tsx`                               | Base page: "Search Anime — Nexus Anime"; query pages: `"{query}" Search Results — Nexus Anime`; noindex for non-alpha queries; `rel="prev"/"next"` on cursor links |
+| D20 | Responsive layout (desktop / tablet / mobile)   | `apps/web/src/components/search/`                                | Desktop: 6-col grid + sticky filter rail; Tablet: 3-4 col + off-canvas filter; Mobile: single-col cards + bottom sheet filter + full-screen overlay                |
 
 ---
 
@@ -85,32 +85,32 @@ Before M5 begins, the following must be complete:
 
 ### Upstream (must exist before M5 starts)
 
-| Dependency | Type | Source | Contract |
-| :-- | :-- | :-- | :-- |
-| `GET /api/v1/search?q=&type=&sort=&order=&cursor=&limit=` | REST endpoint | M2 | Returns `SearchResult[]` with cursor pagination; supports all filter params |
-| `POST /api/v1/search` | REST endpoint | M2 | Advanced search with structured body (`SearchRequest`); AND across facets, OR within facet |
-| `GET /api/v1/search/suggest?q=&type=` | REST endpoint | M2 | Returns max 10 `Suggestion[]`; `all` not permitted |
-| `GET /api/v1/search/history?limit=` | REST endpoint | M2 | Returns `SearchHistoryEntry[]` for authenticated user; bearer required |
-| `DELETE /api/v1/search/history/{id}` | REST endpoint | M2 | Deletes single history entry; bearer required |
-| `DELETE /api/v1/search/history` | REST endpoint | M2 | Bulk delete; bearer required |
-| `AnimeCard` component | Package | M1 | Reused for results grid |
-| Auth.js session helpers | Library | M3 | `requireUser` for history mutations |
-| `@nexus/cache` | Package | M2 | Redis caching for trending queries (TTL 60s) |
+| Dependency                                                | Type          | Source | Contract                                                                                   |
+| :-------------------------------------------------------- | :------------ | :----- | :----------------------------------------------------------------------------------------- |
+| `GET /api/v1/search?q=&type=&sort=&order=&cursor=&limit=` | REST endpoint | M2     | Returns `SearchResult[]` with cursor pagination; supports all filter params                |
+| `POST /api/v1/search`                                     | REST endpoint | M2     | Advanced search with structured body (`SearchRequest`); AND across facets, OR within facet |
+| `GET /api/v1/search/suggest?q=&type=`                     | REST endpoint | M2     | Returns max 10 `Suggestion[]`; `all` not permitted                                         |
+| `GET /api/v1/search/history?limit=`                       | REST endpoint | M2     | Returns `SearchHistoryEntry[]` for authenticated user; bearer required                     |
+| `DELETE /api/v1/search/history/{id}`                      | REST endpoint | M2     | Deletes single history entry; bearer required                                              |
+| `DELETE /api/v1/search/history`                           | REST endpoint | M2     | Bulk delete; bearer required                                                               |
+| `AnimeCard` component                                     | Package       | M1     | Reused for results grid                                                                    |
+| Auth.js session helpers                                   | Library       | M3     | `requireUser` for history mutations                                                        |
+| `@nexus/cache`                                            | Package       | M2     | Redis caching for trending queries (TTL 60s)                                               |
 
 ### Downstream (will consume M5)
 
-| Consumer | What they need | Milestone |
-| :-- | :-- | :-- |
-| M6 — Anime Detail | `AnimeCard` component (shared), `EmptyState` pattern | M6 |
-| M7 — Public Launch | Search must be production-ready | M7 |
+| Consumer           | What they need                                       | Milestone |
+| :----------------- | :--------------------------------------------------- | :-------- |
+| M6 — Anime Detail  | `AnimeCard` component (shared), `EmptyState` pattern | M6        |
+| M7 — Public Launch | Search must be production-ready                      | M7        |
 
 ### External services
 
-| Service | Purpose | Failure mode |
-| :-- | :-- | :-- |
-| Upstash Redis | Cache search results (TTL 60s), trending queries (TTL 60s), history (no cache) | Fallback to direct DB query; serve stale if available |
-| Postgres (Neon) | `tsvector` search with GIN index | Query timeout → 503 `SEARCH_BACKEND_UNAVAILABLE` |
-| Vercel Edge | Rate limiting (20/60s per IP/user) | Fail open for reads; 429 with `Retry-After` header |
+| Service         | Purpose                                                                        | Failure mode                                          |
+| :-------------- | :----------------------------------------------------------------------------- | :---------------------------------------------------- |
+| Upstash Redis   | Cache search results (TTL 60s), trending queries (TTL 60s), history (no cache) | Fallback to direct DB query; serve stale if available |
+| Postgres (Neon) | `tsvector` search with GIN index                                               | Query timeout → 503 `SEARCH_BACKEND_UNAVAILABLE`      |
+| Vercel Edge     | Rate limiting (20/60s per IP/user)                                             | Fail open for reads; 429 with `Retry-After` header    |
 
 ---
 
@@ -123,6 +123,7 @@ Before M5 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Medium (broken share links)
 
 **Mitigation:**
+
 - Use a single source of truth: `searchParams` from `useSearchParams()`. All filter reads derive from URL; all filter writes call `router.replace()` with the full serialized state.
 - Serialize filters via a Zod schema (`SearchFiltersSchema`) so invalid URL params fall back to defaults.
 - Integration test: copy URL from a filtered search, open in incognito, verify identical results and active filter chips.
@@ -134,6 +135,7 @@ Before M5 begins, the following must be complete:
 **Likelihood:** Low · **Impact:** Low (occasional duplicate or missed result)
 
 **Mitigation:**
+
 - Cursors are based on sort-key values (e.g., `popularity_score:id`), not offsets. This is stable under inserts.
 - The search backend must guarantee cursor stability for the sort field used.
 - Deduplicate results client-side by `id` as a safety net.
@@ -146,6 +148,7 @@ Before M5 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Low (flickering suggestions)
 
 **Mitigation:**
+
 - Use `useRef` + `AbortController` in `useSearchSuggestions` to cancel in-flight requests when a new debounced value arrives.
 - The hook returns `data` only for the latest request ID; stale responses are discarded.
 - Test: type "nar", wait 100ms, type "naruto"; verify only "naruto" suggestions appear.
@@ -157,6 +160,7 @@ Before M5 begins, the following must be complete:
 **Likelihood:** Low · **Impact:** Low (minor UX degradation)
 
 **Mitigation:**
+
 - Server Action returns `{ error: { message, code } }` on failure; the hook surfaces this to a toast notification.
 - History writes are best-effort: a failure does not block the search itself.
 - Log history write failures for monitoring; alert if error rate exceeds 5%.
@@ -168,6 +172,7 @@ Before M5 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Medium (accessibility failure on mobile)
 
 **Mitigation:**
+
 - Use `@nexus/ui` `BottomSheet` primitive with built-in focus trap (or implement via `focus-trap-react`).
 - Verify: Tab cycles within the sheet; Escape closes the sheet and returns focus to the filter trigger.
 - Test with VoiceOver (iOS) and TalkBack (Android).
@@ -179,6 +184,7 @@ Before M5 begins, the following must be complete:
 **Likelihood:** Low · **Impact:** Medium (legitimate pages not indexed)
 
 **Mitigation:**
+
 - Noindex rule: queries starting with non-alphanumeric characters (e.g., `!`, `@`, `#`). Queries starting with digits are still indexed.
 - Canonical URL includes sanitized `q` param; empty `q` canonical is just `/search`.
 - Integration test: verify `91 Days` is indexed; verify `@#$%` is noindex.
@@ -272,34 +278,34 @@ Each criterion is binary pass/fail. All must pass for the milestone to be consid
 
 ## 9. Estimated Tasks
 
-| # | Task | Estimate | Dependencies | Notes |
-| :-- | :-- | :-- | :-- | :-- |
-| T1 | Scaffold `apps/web/src/components/search/` directory structure and barrel exports | 0.5d | M1 | |
-| T2 | Implement `useDebounce` hook | 0.25d | — | Generic utility |
-| T3 | Implement `useSearch` hook with cursor pagination | 1d | M2 search endpoint | Manages cursor state, accumulates results |
-| T4 | Implement `useSearchSuggestions` hook with AbortController | 0.5d | M2 suggest endpoint | Cancels stale requests |
-| T5 | Implement `useSearchHistory` hook + Server Actions | 1d | M2 history endpoints, M3 auth | Zod validation, requireUser |
-| T6 | Implement `SearchBar` (lg variant, auto-focus) | 0.5d | M1 `SearchBar` primitive | Extend if needed |
-| T7 | Implement `RecentSearches` (localStorage) | 0.5d | — | Max 5, clear-on-demand |
-| T8 | Implement `TrendingList` | 0.5d | T4 | Fetches trending queries |
-| T9 | Implement `FuzzySuggest` with keyboard navigation | 1d | T4 | Arrow keys, Enter, Escape |
-| T10 | Implement `FilterDrawer` (responsive: rail / off-canvas / bottom sheet) | 2d | M1 `Drawer`/`BottomSheet` | Genre chips, year range, status, rating |
-| T11 | Implement `SortBar` | 0.5d | M1 `Button` chip variant | 4 sort options |
-| T12 | Implement `ResultCount` with aria-live | 0.25d | — | |
-| T13 | Implement `ResultsGrid` with IntersectionObserver infinite scroll | 1.5d | T3, `AnimeCard` | Sentinel at 400px, load next 20 |
-| T14 | Implement `AnimeCardSkeleton` × 20 | 0.5d | M1 `Skeleton` | Shimmer, dimension-matched |
-| T15 | Implement `EmptyState` with suggestions | 0.5d | — | 3 query chips, filter-clear note |
-| T16 | Implement `SearchPage` orchestrator | 1d | T6-T15 | Shared filter state management |
-| T17 | Implement `page.tsx` with URL-driven state | 1d | T16, T18 | `searchParams` → filters → URL sync |
-| T18 | Implement `search-params.ts` (Zod schema + serializer) | 0.5d | — | `SearchFiltersSchema` |
-| T19 | Implement `SearchHeader` layout | 0.25d | T6 | |
-| T20 | Implement SEO metadata + canonical | 0.5d | T17 | Title, robots, rel prev/next |
-| T21 | Responsive testing + fixes across 4 breakpoints | 1d | T17 | |
-| T22 | Accessibility audit + fixes | 1d | T17 | Focus trap, ARIA, keyboard |
-| T23 | Performance audit + fixes | 0.5d | T17 | Debounce, CLS, infinite scroll |
-| T24 | Integration tests (URL sync, cursor pagination, history) | 1.5d | T17 | |
-| T25 | E2E tests (search flow, filter flow, infinite scroll) | 1d | T17 | Playwright |
-| **Total** | | **~18.25d** | | ~3.5-4 weeks with 1 engineer |
+| #         | Task                                                                              | Estimate    | Dependencies                  | Notes                                     |
+| :-------- | :-------------------------------------------------------------------------------- | :---------- | :---------------------------- | :---------------------------------------- |
+| T1        | Scaffold `apps/web/src/components/search/` directory structure and barrel exports | 0.5d        | M1                            |                                           |
+| T2        | Implement `useDebounce` hook                                                      | 0.25d       | —                             | Generic utility                           |
+| T3        | Implement `useSearch` hook with cursor pagination                                 | 1d          | M2 search endpoint            | Manages cursor state, accumulates results |
+| T4        | Implement `useSearchSuggestions` hook with AbortController                        | 0.5d        | M2 suggest endpoint           | Cancels stale requests                    |
+| T5        | Implement `useSearchHistory` hook + Server Actions                                | 1d          | M2 history endpoints, M3 auth | Zod validation, requireUser               |
+| T6        | Implement `SearchBar` (lg variant, auto-focus)                                    | 0.5d        | M1 `SearchBar` primitive      | Extend if needed                          |
+| T7        | Implement `RecentSearches` (localStorage)                                         | 0.5d        | —                             | Max 5, clear-on-demand                    |
+| T8        | Implement `TrendingList`                                                          | 0.5d        | T4                            | Fetches trending queries                  |
+| T9        | Implement `FuzzySuggest` with keyboard navigation                                 | 1d          | T4                            | Arrow keys, Enter, Escape                 |
+| T10       | Implement `FilterDrawer` (responsive: rail / off-canvas / bottom sheet)           | 2d          | M1 `Drawer`/`BottomSheet`     | Genre chips, year range, status, rating   |
+| T11       | Implement `SortBar`                                                               | 0.5d        | M1 `Button` chip variant      | 4 sort options                            |
+| T12       | Implement `ResultCount` with aria-live                                            | 0.25d       | —                             |                                           |
+| T13       | Implement `ResultsGrid` with IntersectionObserver infinite scroll                 | 1.5d        | T3, `AnimeCard`               | Sentinel at 400px, load next 20           |
+| T14       | Implement `AnimeCardSkeleton` × 20                                                | 0.5d        | M1 `Skeleton`                 | Shimmer, dimension-matched                |
+| T15       | Implement `EmptyState` with suggestions                                           | 0.5d        | —                             | 3 query chips, filter-clear note          |
+| T16       | Implement `SearchPage` orchestrator                                               | 1d          | T6-T15                        | Shared filter state management            |
+| T17       | Implement `page.tsx` with URL-driven state                                        | 1d          | T16, T18                      | `searchParams` → filters → URL sync       |
+| T18       | Implement `search-params.ts` (Zod schema + serializer)                            | 0.5d        | —                             | `SearchFiltersSchema`                     |
+| T19       | Implement `SearchHeader` layout                                                   | 0.25d       | T6                            |                                           |
+| T20       | Implement SEO metadata + canonical                                                | 0.5d        | T17                           | Title, robots, rel prev/next              |
+| T21       | Responsive testing + fixes across 4 breakpoints                                   | 1d          | T17                           |                                           |
+| T22       | Accessibility audit + fixes                                                       | 1d          | T17                           | Focus trap, ARIA, keyboard                |
+| T23       | Performance audit + fixes                                                         | 0.5d        | T17                           | Debounce, CLS, infinite scroll            |
+| T24       | Integration tests (URL sync, cursor pagination, history)                          | 1.5d        | T17                           |                                           |
+| T25       | E2E tests (search flow, filter flow, infinite scroll)                             | 1d          | T17                           | Playwright                                |
+| **Total** |                                                                                   | **~18.25d** |                               | ~3.5-4 weeks with 1 engineer              |
 
 ---
 

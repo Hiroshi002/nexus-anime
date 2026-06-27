@@ -89,13 +89,13 @@ Returns the authenticated user's watch history, ordered by `watched_at` descendi
 
 **Query parameters:**
 
-| Parameter    | Type    | Default    | Description                                          |
-| ------------ | ------- | ---------- | ---------------------------------------------------- |
-| `cursor`     | string  | —          | Cursor for pagination (see `Pagination.md`)          |
-| `limit`      | integer | 20         | Items per page (1–100)                               |
-| `anime_id`   | string  | —          | Filter to a specific anime                            |
-| `from`       | string  | —          | Inclusive lower bound on `watched_at` (ISO-8601)    |
-| `to`         | string  | —          | Inclusive upper bound on `watched_at` (ISO-8601)    |
+| Parameter  | Type    | Default | Description                                      |
+| ---------- | ------- | ------- | ------------------------------------------------ |
+| `cursor`   | string  | —       | Cursor for pagination (see `Pagination.md`)      |
+| `limit`    | integer | 20      | Items per page (1–100)                           |
+| `anime_id` | string  | —       | Filter to a specific anime                       |
+| `from`     | string  | —       | Inclusive lower bound on `watched_at` (ISO-8601) |
+| `to`       | string  | —       | Inclusive upper bound on `watched_at` (ISO-8601) |
 
 **Response `200`:**
 
@@ -160,19 +160,19 @@ Called by the client after watching an episode (or once per session for long epi
 }
 ```
 
-| Field                    | Type   | Required | Validation                                      |
-| ------------------------ | ------ | -------- | ----------------------------------------------- |
-| `anime_id`               | string | yes      | Valid uuid, must exist in `anime` table         |
-| `episode_id`             | string | yes      | Valid uuid, must belong to `anime_id`           |
-| `watched_at`             | string | no       | ISO-8601; defaults to server `now()`            |
-| `watch_duration_seconds` | number | yes      | ≥ 0                                             |
-| `completion_pct`         | number | yes      | 0–100                                           |
+| Field                    | Type   | Required | Validation                                         |
+| ------------------------ | ------ | -------- | -------------------------------------------------- |
+| `anime_id`               | string | yes      | Valid uuid, must exist in `anime` table            |
+| `episode_id`             | string | yes      | Valid uuid, must belong to `anime_id`              |
+| `watched_at`             | string | no       | ISO-8601; defaults to server `now()`               |
+| `watch_duration_seconds` | number | yes      | ≥ 0                                                |
+| `completion_pct`         | number | yes      | 0–100                                              |
 | `device`                 | string | no       | One of `"mobile"`, `"tablet"`, `"desktop"`, `"tv"` |
-| `os`                     | string | no       | —                                               |
-| `browser`                | string | no       | —                                               |
-| `country`                | string | no       | ISO alpha-2                                     |
-| `app_version`            | string | no       | —                                               |
-| `event_id`               | string | no       | Client-supplied uuid for idempotency           |
+| `os`                     | string | no       | —                                                  |
+| `browser`                | string | no       | —                                                  |
+| `country`                | string | no       | ISO alpha-2                                        |
+| `app_version`            | string | no       | —                                                  |
+| `event_id`               | string | no       | Client-supplied uuid for idempotency               |
 
 `user_id` is always the authenticated session user — never client-supplied.
 
@@ -224,7 +224,7 @@ DELETE /api/v1/users/me/watch-history/{id}
 
 Deletes a single watch-history entry. **Users may only delete their own rows.** Rows belonging to other users return `404` (no existence leak).
 
-This **hard-deletes** the row. This is the *only* delete path that removes a row; anonymization on account deletion is a separate flow (see [Section 5](#5-on-account-deletion-anonymize-don't-delete)).
+This **hard-deletes** the row. This is the _only_ delete path that removes a row; anonymization on account deletion is a separate flow (see [Section 5](#5-on-account-deletion-anonymize-don't-delete)).
 
 **Path parameter:** `id` — the watch-history entry uuid.
 
@@ -244,9 +244,9 @@ This endpoint exists to satisfy **right-to-erasure** requests under GDPR / CCPA.
 
 **Query parameters:**
 
-| Parameter   | Type    | Default | Description                               |
-| ----------- | ------- | ------- | ----------------------------------------- |
-| `confirm`   | boolean | —       | **Required.** Must be `true` to execute.  |
+| Parameter | Type    | Default | Description                              |
+| --------- | ------- | ------- | ---------------------------------------- |
+| `confirm` | boolean | —       | **Required.** Must be `true` to execute. |
 
 Without `confirm=true`, the endpoint returns `400` — defense against accidental invocation.
 
@@ -305,9 +305,9 @@ See `docs/07-database/Data-Retention.md` for the rollup + raw-row purge flow.
 
 ## 6. Rate limit
 
-| Scope          | Limit   | Window | Key                    |
-| -------------- | ------- | ------ | ---------------------- |
-| Per user       | 30      | 60 s   | `user_id`              |
+| Scope    | Limit | Window | Key       |
+| -------- | ----- | ------ | --------- |
+| Per user | 30    | 60 s   | `user_id` |
 
 POST (30/60 s) covers the common case of one event per completed episode, plus replays. Heavy clients (e.g., a sync importing history in bulk) should request a higher limit via a scoped API key. Exceeding the limit returns `429 Too Many Requests` with standard rate-limit headers (see `Rate-Limiting.md`).
 
@@ -317,11 +317,11 @@ GET is not rate-limited by this table's budget but is still subject to the globa
 
 ## 7. Retention
 
-| Phase       | Duration   | Action                                                  |
-| ----------- | ---------- | ------------------------------------------------------- |
-| Raw rows    | 90 days    | Kept as-is; served by GET / watch-history.              |
-| Aggregated  | Indefinite | After 90 days, aggregated into daily rollups (anime_id, country, device, completion bucket). Raw rows are deleted by a partition-drop or batch-purge job. |
-| Anonymized  | Indefinite | Anonymized rows (user_id = NULL) are never purged — they are already PII-free. |
+| Phase      | Duration   | Action                                                                                                                                                    |
+| ---------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Raw rows   | 90 days    | Kept as-is; served by GET / watch-history.                                                                                                                |
+| Aggregated | Indefinite | After 90 days, aggregated into daily rollups (anime_id, country, device, completion bucket). Raw rows are deleted by a partition-drop or batch-purge job. |
+| Anonymized | Indefinite | Anonymized rows (user_id = NULL) are never purged — they are already PII-free.                                                                            |
 
 Aggregation is **lossy by design**: the rollup keeps `COUNT`, `AVG(completion_pct)`, `AVG(watch_duration_seconds)`, and `device/country` distribution, but loses per-user detail. After 90 days, per-user history older than that window is no longer accessible through the API.
 
@@ -331,10 +331,10 @@ See `docs/07-database/Data-Retention.md` for the job specification.
 
 ## 8. Cache policy
 
-| Header            | Value       |
-| ----------------- | ----------- |
-| `Cache-Control`   | `private, no-store` |
-| `Pragma`          | `no-cache`  |
+| Header          | Value               |
+| --------------- | ------------------- |
+| `Cache-Control` | `private, no-store` |
+| `Pragma`        | `no-cache`          |
 
 Watch history is user-specific and must never be served from a shared cache. Authenticated GET responses carry `private` to allow the browser to cache for the session (e.g., back-navigation), but `no-store` is acceptable if freshness is preferred — behavior is at the API route's discretion.
 

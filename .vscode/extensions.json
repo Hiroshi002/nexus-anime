@@ -1,0 +1,23 @@
+{
+  // Recommended extensions for this workspace.
+  // VS Code prompts to install these when the repo is opened.
+  "recommendations": [
+    // Core toolchain
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "EditorConfig.EditorConfig",
+
+    // Tailwind (prepare for future — plugin already in prettier)
+    "bradlc.vscode-tailwindcss",
+
+    // TypeScript / Next.js
+    "ms-vscode.vscode-typescript-next",
+
+    // Git & commit quality
+    "waderyan.gitblame",
+    "usernamehw.errorlens",
+
+    // Lint-aids
+    " streetsidesoftware.code-spell-checker"
+  ]
+}

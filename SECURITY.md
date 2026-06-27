@@ -4,8 +4,8 @@
 
 Only the latest release on `main` is actively supported with security updates. Previous release tags are not backported unless a critical vulnerability is found.
 
-| Version | Supported          |
-|---------|--------------------|
+| Version          | Supported          |
+| ---------------- | ------------------ |
 | Latest on `main` | :white_check_mark: |
 | Older tags       | :x:                |
 
@@ -22,11 +22,11 @@ Report vulnerabilities privately to the maintainers at **[INSERT SECURITY EMAIL]
 
 ### What to expect
 
-| Step                     | Timeline                            |
-|--------------------------|-------------------------------------|
-| Acknowledgment           | Within **48 hours** of receipt      |
-| Initial assessment       | Within **7 days**                   |
-| Fix or mitigation plan   | Within **90 days** of acknowledgment |
+| Step                   | Timeline                             |
+| ---------------------- | ------------------------------------ |
+| Acknowledgment         | Within **48 hours** of receipt       |
+| Initial assessment     | Within **7 days**                    |
+| Fix or mitigation plan | Within **90 days** of acknowledgment |
 
 We coordinate disclosure with you before any public announcement. If you have a preferred disclosure timeline or need, tell us in the report and we will accommodate it where possible.
 

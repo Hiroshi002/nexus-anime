@@ -21,6 +21,7 @@ Full-text search with 300ms debounced input, fuzzy autocomplete suggestions, rec
 ## 3. Functional Requirements
 
 ### 3.1 Happy Path
+
 1. User clicks the search bar in the global header; input auto-focuses and the suggestions dropdown opens showing recent searches and trending queries.
 2. User types a query; after 300ms debounce, the suggestions dropdown updates with fuzzy-matched anime titles.
 3. User presses Enter or clicks a suggestion; the page navigates to `/search?q=<query>` and renders a ranked results grid.
@@ -29,12 +30,14 @@ Full-text search with 300ms debounced input, fuzzy autocomplete suggestions, rec
 6. User scrolls to load more results via infinite scroll (20 per batch).
 
 ### 3.2 Alternate Flows
+
 1. User arrives via direct URL `/search?q=attack+on+titan&genre=action&sort=rating`; page renders with query, filters, and sort pre-applied.
 2. User clicks a trending query chip on the Home page empty state; navigates to `/search?q=<trending>`.
 3. User types a special character or non-Latin script (CJK, Cyrillic); the system normalizes and fuzzily matches database entries.
 4. User clears the search input; suggestions dropdown reverts to recent searches and trending queries.
 
 ### 3.3 Edge Cases
+
 1. Special characters in query (`<script>`, SQL-like strings); sanitized before rendering and query execution.
 2. Empty results for a valid query; three alternate query suggestions offered.
 3. Very common query (e.g. "anime") returning 10,000+ results; cursor pagination limits response size.
@@ -73,24 +76,24 @@ Full-text search with 300ms debounced input, fuzzy autocomplete suggestions, rec
 
 ## 7. UI Components
 
-| Component | Responsibility | Reusable? | Package |
-|-----------|---------------|-----------|---------|
-| `SearchPage` | Page shell for `/search` route with Suspense boundary | No | `apps/web` |
-| `SearchBar` | Global header search input with combobox, suggestions dropdown | Yes | `@nexus/ui` |
-| `SuggestionsDropdown` | Recent, trending, fuzzy suggestion list | Yes | `@nexus/ui` |
-| `FilterDrawer` | Year, genre, status, rating filter panel | Yes | `@nexus/ui` |
-| `SortBar` | Sort chip row (relevance, rating, popularity, date) | Yes | `@nexus/ui` |
-| `ResultCount` | "N results for '{query}'" with `aria-live` | Yes | `@nexus/ui` |
-| `SearchAnimeCard` | Result card with rank number, poster, title, rating | Yes | `@nexus/ui` |
-| `EmptySearchState` | Zero-results illustration with alternative suggestions | Yes | `@nexus/ui` |
-| `InfiniteScrollSentinel` | IntersectionObserver-based pagination trigger | Yes | `@nexus/ui` |
+| Component                | Responsibility                                                 | Reusable? | Package     |
+| ------------------------ | -------------------------------------------------------------- | --------- | ----------- |
+| `SearchPage`             | Page shell for `/search` route with Suspense boundary          | No        | `apps/web`  |
+| `SearchBar`              | Global header search input with combobox, suggestions dropdown | Yes       | `@nexus/ui` |
+| `SuggestionsDropdown`    | Recent, trending, fuzzy suggestion list                        | Yes       | `@nexus/ui` |
+| `FilterDrawer`           | Year, genre, status, rating filter panel                       | Yes       | `@nexus/ui` |
+| `SortBar`                | Sort chip row (relevance, rating, popularity, date)            | Yes       | `@nexus/ui` |
+| `ResultCount`            | "N results for '{query}'" with `aria-live`                     | Yes       | `@nexus/ui` |
+| `SearchAnimeCard`        | Result card with rank number, poster, title, rating            | Yes       | `@nexus/ui` |
+| `EmptySearchState`       | Zero-results illustration with alternative suggestions         | Yes       | `@nexus/ui` |
+| `InfiniteScrollSentinel` | IntersectionObserver-based pagination trigger                  | Yes       | `@nexus/ui` |
 
 ## 8. API Dependencies
 
-| Endpoint | Method | Auth Required | Rate Limit | Cache |
-|----------|--------|---------------|------------|-------|
-| `/api/v1/search?q=&filters=&sort=&cursor=` | GET | No | 60/min per IP | No (dynamic results) |
-| `/api/v1/search/suggestions?q=` | GET | No | 30/min per IP | 60s Redis |
+| Endpoint                                   | Method | Auth Required | Rate Limit    | Cache                |
+| ------------------------------------------ | ------ | ------------- | ------------- | -------------------- |
+| `/api/v1/search?q=&filters=&sort=&cursor=` | GET    | No            | 60/min per IP | No (dynamic results) |
+| `/api/v1/search/suggestions?q=`            | GET    | No            | 30/min per IP | 60s Redis            |
 
 `/api/v1/search` accepts: `q` (string), `genre` (comma-separated slugs), `year` (range `2020-2026`), `status` (comma-separated), `rating` (range `0-10`), `sort` (relevance|rating|popularity|date), `cursor` (opaque), `limit` (default 20, max 50).
 
@@ -98,14 +101,14 @@ Full-text search with 300ms debounced input, fuzzy autocomplete suggestions, rec
 
 ## 9. Database Dependencies
 
-| Table / View | Operation | Index / Query Notes |
-|--------------|-----------|---------------------|
-| `anime` | SELECT | GIN index on `search_vector` (tsvector) for full-text matching; `websearch_to_tsquery` for query parsing; `ts_rank_cd` for relevance ranking |
-| `anime` | SELECT | Btree index on `average_rating DESC`, `popularity_score DESC`, `published_at DESC` for sort options |
-| `anime_genres` | SELECT (join) | Genre filter; index on `genre_id`, `anime_id` |
-| `genres` | SELECT (join) | Genre slug resolution; index on `slug` |
-| `episodes` | SELECT (optional) | Episode-level search via GIN index on `search_vector` |
-| `search_history` | SELECT / DELETE | Per-user recent searches (if server-side); localStorage is the M3 default |
+| Table / View     | Operation         | Index / Query Notes                                                                                                                          |
+| ---------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `anime`          | SELECT            | GIN index on `search_vector` (tsvector) for full-text matching; `websearch_to_tsquery` for query parsing; `ts_rank_cd` for relevance ranking |
+| `anime`          | SELECT            | Btree index on `average_rating DESC`, `popularity_score DESC`, `published_at DESC` for sort options                                          |
+| `anime_genres`   | SELECT (join)     | Genre filter; index on `genre_id`, `anime_id`                                                                                                |
+| `genres`         | SELECT (join)     | Genre slug resolution; index on `slug`                                                                                                       |
+| `episodes`       | SELECT (optional) | Episode-level search via GIN index on `search_vector`                                                                                        |
+| `search_history` | SELECT / DELETE   | Per-user recent searches (if server-side); localStorage is the M3 default                                                                    |
 
 ## 10. Edge Cases
 
@@ -120,26 +123,26 @@ Full-text search with 300ms debounced input, fuzzy autocomplete suggestions, rec
 
 ## 11. Error Handling
 
-| Error Condition | User-Facing Message | Recovery Action | Log Level |
-|-----------------|---------------------|-----------------|-----------|
-| Search API 500 | "Something went wrong searching." | Retry button (primary) | error |
-| Suggestions API fails | Dropdown shows recent searches only | Toast: "Suggestions unavailable. Showing recent searches." | warn |
-| Search API 503 (backend down) | "Search is temporarily unavailable." | Auto-retry with exponential backoff (1s, 2s, 4s) | warn |
-| Rate limit (429) on suggestions | "Search is busy. Please wait a moment." | Disable auto-suggest for 60s | warn |
-| Zero results | "No results for '{query}'." with 3 alternative suggestion chips | User clicks an alternative or clears filters | info |
-| Network offline | "You appear to be offline." | Show cached recent searches if available | warn |
+| Error Condition                 | User-Facing Message                                             | Recovery Action                                            | Log Level |
+| ------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------- | --------- |
+| Search API 500                  | "Something went wrong searching."                               | Retry button (primary)                                     | error     |
+| Suggestions API fails           | Dropdown shows recent searches only                             | Toast: "Suggestions unavailable. Showing recent searches." | warn      |
+| Search API 503 (backend down)   | "Search is temporarily unavailable."                            | Auto-retry with exponential backoff (1s, 2s, 4s)           | warn      |
+| Rate limit (429) on suggestions | "Search is busy. Please wait a moment."                         | Disable auto-suggest for 60s                               | warn      |
+| Zero results                    | "No results for '{query}'." with 3 alternative suggestion chips | User clicks an alternative or clears filters               | info      |
+| Network offline                 | "You appear to be offline."                                     | Show cached recent searches if available                   | warn      |
 
 ## 12. Analytics Events
 
-| Event Name | Trigger | Properties | Surface |
-|------------|---------|------------|---------|
-| `search_query_submitted` | Enter pressed or suggestion clicked | `{ query, source: "input" | "suggestion" | "trending" | "recent", result_count }` | Client |
-| `search_suggestion_shown` | Suggestions dropdown rendered | `{ query_prefix, suggestion_count, has_trending, has_recent }` | Client |
-| `search_suggestion_clicked` | Suggestion item clicked | `{ query, suggestion_type: "anime" | "episode" | "trending" | "recent", position }` | Client |
-| `search_filter_applied` | Filter drawer value changed | `{ filter_type: "genre" | "year" | "status" | "rating", filter_value }` | Client |
-| `search_sort_changed` | Sort chip selected | `{ sort_value }` | Client |
-| `search_result_clicked` | Result card clicked | `{ query, anime_id, position, sort }` | Client |
-| `search_zero_results` | Results API returns empty array | `{ query, filters }` | Client |
+| Event Name                  | Trigger                             | Properties                                                     | Surface      |
+| --------------------------- | ----------------------------------- | -------------------------------------------------------------- | ------------ | ---------- | ------------------------- | ------ |
+| `search_query_submitted`    | Enter pressed or suggestion clicked | `{ query, source: "input"                                      | "suggestion" | "trending" | "recent", result_count }` | Client |
+| `search_suggestion_shown`   | Suggestions dropdown rendered       | `{ query_prefix, suggestion_count, has_trending, has_recent }` | Client       |
+| `search_suggestion_clicked` | Suggestion item clicked             | `{ query, suggestion_type: "anime"                             | "episode"    | "trending" | "recent", position }`     | Client |
+| `search_filter_applied`     | Filter drawer value changed         | `{ filter_type: "genre"                                        | "year"       | "status"   | "rating", filter_value }` | Client |
+| `search_sort_changed`       | Sort chip selected                  | `{ sort_value }`                                               | Client       |
+| `search_result_clicked`     | Result card clicked                 | `{ query, anime_id, position, sort }`                          | Client       |
+| `search_zero_results`       | Results API returns empty array     | `{ query, filters }`                                           | Client       |
 
 ## 13. Security Considerations
 

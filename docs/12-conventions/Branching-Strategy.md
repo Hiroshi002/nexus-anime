@@ -39,15 +39,15 @@ Never merge a red CI into `main`. Never push directly to `main` — every change
 
 ## Branch Types
 
-| Type | When to use | Branches from | Merges to |
-|------|-------------|---------------|-----------|
-| `feature` | New capability (OAuth, catalog page, sidebar drawer) | `main` | `main` |
-| `bugfix` | Defect that blocks the user path but is not production-critical | `main` | `main` |
-| `chore` | Dependency bump, config change, housekeeping with no user-visible effect | `main` | `main` |
-| `docs` | Documentation or ADR additions with no code change | `main` | `main` |
-| `refactor` | Behavior-preserving restructure (rename, extract helper, simplify types) | `main` | `main` |
-| `hotfix` | Production defect that must ship immediately | annotated tag on `main` | `main` (cherry-pick or squash from hotfix branch) |
-| `release` | Final stabilization before a version tag (QA, polish, changelog) | `main` at freeze | `main` + annotated tag |
+| Type       | When to use                                                              | Branches from           | Merges to                                         |
+| ---------- | ------------------------------------------------------------------------ | ----------------------- | ------------------------------------------------- |
+| `feature`  | New capability (OAuth, catalog page, sidebar drawer)                     | `main`                  | `main`                                            |
+| `bugfix`   | Defect that blocks the user path but is not production-critical          | `main`                  | `main`                                            |
+| `chore`    | Dependency bump, config change, housekeeping with no user-visible effect | `main`                  | `main`                                            |
+| `docs`     | Documentation or ADR additions with no code change                       | `main`                  | `main`                                            |
+| `refactor` | Behavior-preserving restructure (rename, extract helper, simplify types) | `main`                  | `main`                                            |
+| `hotfix`   | Production defect that must ship immediately                             | annotated tag on `main` | `main` (cherry-pick or squash from hotfix branch) |
+| `release`  | Final stabilization before a version tag (QA, polish, changelog)         | `main` at freeze        | `main` + annotated tag                            |
 
 Every branch follows the `<type>/<milestone>-<slug>` naming convention. Examples:
 
@@ -85,7 +85,7 @@ A release is a **freeze → stabilize → tag** sequence, not a long-lived code 
 
 1. **Freeze** — decide the release scope. No new features merge after freeze; only docs, polish, and bug fixes.
 2. **Create the release branch**: `git checkout -b release/v1.1.0 main`.
-3. **Stabilize** — bug fixes targeted at the release branch as `bugfix/release-v1.1.x-*. Run the full QA checklist.
+3. **Stabilize** — bug fixes targeted at the release branch as `bugfix/release-v1.1.x-\*. Run the full QA checklist.
 4. **Changelog** — generate the changelog from the conventional commits on `main` since the last tag. Commit it directly to the release branch.
 5. **Merge** — open a PR from `release/v1.1.0` to `main`. Squash-and-merge.
 6. **Tag** — `git tag -a v1.1.0 -m "release: v1.1.0"` on the merged commit. Tags are **annotated** and **immutable** — never move a tag after it is pushed.

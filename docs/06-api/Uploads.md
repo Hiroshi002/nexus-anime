@@ -20,12 +20,12 @@ There is **no standalone `uploads` table**. Media is stored as URLs on existing 
 
 ## 2. Storage backends
 
-| Media type | Backend              | Container / bucket        | Notes                              |
-| :--------- | :------------------- | :------------------------ | :--------------------------------- |
-| Avatar     | Cloudflare R2        | `nexus-avatars`           | Public read, PNG / JPEG / WebP     |
-| Poster     | Cloudflare R2        | `nexus-posters`           | Public read, PNG / JPEG / WebP     |
-| Cover      | Cloudflare R2        | `nexus-covers`            | Public read, PNG / JPEG / WebP     |
-| Video      | Cloudflare Stream    | —                         | Returns `video_asset_id` for player |
+| Media type | Backend           | Container / bucket | Notes                               |
+| :--------- | :---------------- | :----------------- | :---------------------------------- |
+| Avatar     | Cloudflare R2     | `nexus-avatars`    | Public read, PNG / JPEG / WebP      |
+| Poster     | Cloudflare R2     | `nexus-posters`    | Public read, PNG / JPEG / WebP      |
+| Cover      | Cloudflare R2     | `nexus-covers`     | Public read, PNG / JPEG / WebP      |
+| Video      | Cloudflare Stream | —                  | Returns `video_asset_id` for player |
 
 R2 buckets are fronted by a CDN with a long TTL on immutable keys. Stream assets use signed-URL playback with a 5-minute expiry (see `docs/auth.md` section on signed URLs).
 
@@ -44,22 +44,22 @@ All upload endpoints enforce the same validation pipeline. Validation short-circ
 
 ### 3.2 Per-endpoint constraints
 
-| Endpoint                         | MIME allowlist                              | Max size | Max dimensions (px) |
-| :------------------------------- | :------------------------------------------ | :------- | :------------------ |
-| `POST /uploads/avatar`             | `image/png`, `image/jpeg`, `image/webp`     | 5 MB     | 2048 × 2048         |
-| `POST /uploads/poster`            | `image/png`, `image/jpeg`, `image/webp`     | 10 MB    | 4096 × 6000         |
-| `POST /uploads/cover`             | `image/png`, `image/jpeg`, `image/webp`     | 10 MB    | 4096 × 6000         |
-| `POST /uploads/video`             | `video/mp4`, `video/webm`, `video/quicktime` | 2 GB     | —                   |
+| Endpoint               | MIME allowlist                               | Max size | Max dimensions (px) |
+| :--------------------- | :------------------------------------------- | :------- | :------------------ |
+| `POST /uploads/avatar` | `image/png`, `image/jpeg`, `image/webp`      | 5 MB     | 2048 × 2048         |
+| `POST /uploads/poster` | `image/png`, `image/jpeg`, `image/webp`      | 10 MB    | 4096 × 6000         |
+| `POST /uploads/cover`  | `image/png`, `image/jpeg`, `image/webp`      | 10 MB    | 4096 × 6000         |
+| `POST /uploads/video`  | `video/mp4`, `video/webm`, `video/quicktime` | 2 GB     | —                   |
 
 ### 3.3 Error codes
 
-| Condition                     | `error.code`          | HTTP |
-| :---------------------------- | :-------------------- | :--- |
-| MIME not in allowlist         | `INVALID_MEDIA_TYPE`  | 413  |
-| File exceeds max size         | `MEDIA_TOO_LARGE`     | 413  |
-| Image exceeds max dimensions  | `MEDIA_TOO_LARGE`     | 413  |
-| Virus scan positive          | `MEDIA_REJECTED`      | 422  |
-| Scan unavailable (M5+ only)   | `INTERNAL`            | 500  |
+| Condition                    | `error.code`         | HTTP |
+| :--------------------------- | :------------------- | :--- |
+| MIME not in allowlist        | `INVALID_MEDIA_TYPE` | 413  |
+| File exceeds max size        | `MEDIA_TOO_LARGE`    | 413  |
+| Image exceeds max dimensions | `MEDIA_TOO_LARGE`    | 413  |
+| Virus scan positive          | `MEDIA_REJECTED`     | 422  |
+| Scan unavailable (M5+ only)  | `INTERNAL`           | 500  |
 
 `INVALID_MEDIA_TYPE` and `MEDIA_TOO_LARGE` both return HTTP 413 for consistency with the existing error-code registry. The `details` field includes `{ field, allowed, received }` for type errors and `{ field, maxBytes, receivedBytes }` for size errors.
 
@@ -69,9 +69,9 @@ All upload endpoints enforce the same validation pipeline. Validation short-circ
 
 Upload endpoints share a single rate-limit rule:
 
-| Rule   | Limit | Window | Scope        |
-| :----- | :---- | :----- | :----------- |
-| Upload | 5     | 300 s  | Per user ID  |
+| Rule   | Limit | Window | Scope       |
+| :----- | :---- | :----- | :---------- |
+| Upload | 5     | 300 s  | Per user ID |
 
 Unauthenticated callers (only relevant for the avatar endpoint, which requires auth — so this is a no-op in practice) fall back to per-IP scoping. See `Rate-Limiting.md` for the token-bucket algorithm and header semantics.
 
@@ -81,14 +81,14 @@ The rule name is `uploads`. The bucket key is `nexus:ratelimit:uploads:{actor}` 
 
 ## 5. Authentication & authorization
 
-| Endpoint                         | Auth required | Role     |
-| :------------------------------- | :------------ | :------- |
-| `POST /uploads/avatar`             | Yes           | Any authenticated user |
-| `POST /uploads/poster`            | Yes           | `admin`  |
-| `POST /uploads/cover`             | Yes           | `admin`  |
-| `POST /uploads/video`             | Yes           | `admin`  |
-| `POST /uploads/presigned-url`     | Yes           | `admin`  |
-| `GET /uploads/presigned-url/{token}` | No (webhook) | —        |
+| Endpoint                             | Auth required | Role                   |
+| :----------------------------------- | :------------ | :--------------------- |
+| `POST /uploads/avatar`               | Yes           | Any authenticated user |
+| `POST /uploads/poster`               | Yes           | `admin`                |
+| `POST /uploads/cover`                | Yes           | `admin`                |
+| `POST /uploads/video`                | Yes           | `admin`                |
+| `POST /uploads/presigned-url`        | Yes           | `admin`                |
+| `GET /uploads/presigned-url/{token}` | No (webhook)  | —                      |
 
 The presigned-URL confirmation endpoint is called by the R2 webhook infrastructure, not by the browser. It authenticates via a shared secret in the `x-r2-signature` header — not a user session.
 
@@ -244,10 +244,10 @@ Admin-only. Issue a presigned R2 URL for direct browser upload. The browser PUTs
 }
 ```
 
-| Field       | Type   | Required | Notes                                              |
-| :---------- | :----- | :------- | :------------------------------------------------- |
-| `contentType` | string | yes      | Must match the allowlist of the target endpoint.   |
-| `size`        | number | yes      | Bytes. Must not exceed the target endpoint's cap.  |
+| Field         | Type   | Required | Notes                                             |
+| :------------ | :----- | :------- | :------------------------------------------------ |
+| `contentType` | string | yes      | Must match the allowlist of the target endpoint.  |
+| `size`        | number | yes      | Bytes. Must not exceed the target endpoint's cap. |
 | `filename`    | string | yes      | Original filename. Used as the R2 key prefix.     |
 
 **Response `200`:**
@@ -256,7 +256,12 @@ Admin-only. Issue a presigned R2 URL for direct browser upload. The browser PUTs
 {
   "data": {
     "uploadUrl": "https://r2.cloudflarestorage.com/nexus-posters/...",
-    "fields": { "key": "posters/abc123.png", "AWSAccessKeyId": "...", "policy": "...", "signature": "..." },
+    "fields": {
+      "key": "posters/abc123.png",
+      "AWSAccessKeyId": "...",
+      "policy": "...",
+      "signature": "..."
+    },
     "token": "upload_xyz789",
     "expiresAt": "2026-06-26T00:05:00Z"
   },
@@ -308,9 +313,9 @@ Confirm a direct-to-R2 upload is complete. Called by the R2 webhook after the br
 
 R2 object keys follow a deterministic pattern so they are guessable only by an attacker who knows the bucket name and the UUID — and the buckets are not listed publicly.
 
-| Bucket         | Key pattern                    |
-| :------------- | :----------------------------- |
-| `nexus-avatars` | `avatars/{userId}.{ext}`       |
+| Bucket          | Key pattern                        |
+| :-------------- | :--------------------------------- |
+| `nexus-avatars` | `avatars/{userId}.{ext}`           |
 | `nexus-posters` | `posters/{animeId}-{random}.{ext}` |
 | `nexus-covers`  | `covers/{animeId}-{random}.{ext}`  |
 
@@ -344,7 +349,11 @@ For avatars (small, 5 MB cap), the direct `POST /api/v1/uploads/avatar` multipar
   "error": {
     "message": "Unsupported media type",
     "code": "INVALID_MEDIA_TYPE",
-    "details": { "field": "file", "allowed": ["image/png","image/jpeg","image/webp"], "received": "image/gif" }
+    "details": {
+      "field": "file",
+      "allowed": ["image/png", "image/jpeg", "image/webp"],
+      "received": "image/gif"
+    }
   },
   "meta": { "requestId": "req_..." }
 }
@@ -382,8 +391,8 @@ Response headers include `Retry-After` and the standard `X-RateLimit-*` headers 
 
 ## 10. Changelog
 
-| Date       | Change              | Ticket / PR |
-| :--------- | :------------------ | :---------- |
+| Date       | Change               | Ticket / PR |
+| :--------- | :------------------- | :---------- |
 | 2026-06-26 | Initial uploads spec | —           |
-|            |                     |             |
-|            |                     |             |
+|            |                      |             |
+|            |                      |             |

@@ -16,13 +16,13 @@ Blur is the core mechanism behind glassmorphism surfaces. The system defines **4
 
 ## Backdrop Blur Scale
 
-| Token | Value | Visual Effect | Usage |
-|-------|-------|---------------|-------|
-| `blur-xs` | 4px | Barely perceptible — slight color bleed | Subtle glass hints, decorative panels |
-| `blur-sm` | 8px | Light frosted glass — background shapes visible | Secondary cards, tags, badges |
-| `blur-md` | 16px | Standard frosted glass — background colors present, detail absent | Primary cards, navigation bar, modal surfaces |
-| `blur-lg` | 24px | Heavy frost — background barely recognizable | Dialogs, overlays, full-screen panels |
-| `blur-xl` | 32px | Maximum frost — near-opaque blur | Splash screens, loading overlays |
+| Token     | Value | Visual Effect                                                     | Usage                                         |
+| --------- | ----- | ----------------------------------------------------------------- | --------------------------------------------- |
+| `blur-xs` | 4px   | Barely perceptible — slight color bleed                           | Subtle glass hints, decorative panels         |
+| `blur-sm` | 8px   | Light frosted glass — background shapes visible                   | Secondary cards, tags, badges                 |
+| `blur-md` | 16px  | Standard frosted glass — background colors present, detail absent | Primary cards, navigation bar, modal surfaces |
+| `blur-lg` | 24px  | Heavy frost — background barely recognizable                      | Dialogs, overlays, full-screen panels         |
+| `blur-xl` | 32px  | Maximum frost — near-opaque blur                                  | Splash screens, loading overlays              |
 
 **Decision: Anchor at 16px for default glass.** 16px blur on a typical desktop background produces readable text while maintaining visible color influence from the background. This is the "sweet spot" for glassmorphism that actually looks like glass, not like a semi-transparent overlay over noise.
 
@@ -34,10 +34,10 @@ Blur is the core mechanism behind glassmorphism surfaces. The system defines **4
 
 Content blur is used for spoiler images, age-gated content, and preview thumbnails.
 
-| Token | Value | Visual Effect | Usage |
-|-------|-------|---------------|-------|
-| `blur-content-sm` | 8px | Faces obscured, text unreadable | Mild spoiler protection |
-| `blur-content-md` | 20px | Everything reduced to color blobs | Full spoiler/age-gate blur |
+| Token             | Value | Visual Effect                     | Usage                      |
+| ----------------- | ----- | --------------------------------- | -------------------------- |
+| `blur-content-sm` | 8px   | Faces obscured, text unreadable   | Mild spoiler protection    |
+| `blur-content-md` | 20px  | Everything reduced to color blobs | Full spoiler/age-gate blur |
 
 **Decision: `filter: blur()` for content (not `backdrop-filter`).** Content blur applies to the element itself (an image), not the area behind it. `filter: blur()` is appropriate here and doesn't trigger the same compositing overhead as `backdrop-filter` on surrounding content.
 
@@ -45,32 +45,32 @@ Content blur is used for spoiler images, age-gated content, and preview thumbnai
 
 ## Blur by Component
 
-| Component | Blur Token | Rationale |
-|-----------|-----------|-----------|
-| Navigation bar (fixed) | `blur-md` | Must be readable while scrolling content shows through |
-| Card (glass variant) | `blur-sm` | Subtle glass — card content is the focus, not the effect |
-| Card (featured) | `blur-md` | Prominent glass — backdrop color creates atmosphere |
-| Modal/Dialog | `blur-lg` | Strong separation from background content |
-| Drawer/Sidebar | `blur-md` | Moderate separation — sidebar is persistent, not disruptive |
-| Toast | `blur-sm` | Lightweight — toast should feel ephemeral |
-| Tooltip | `blur-xs` | Barely there — tooltip is small, blur is decorative |
-| Dropdown | `blur-sm` | Subtle glass — content behind is often the trigger button |
-| Bottom sheet (mobile) | `blur-lg` | Covers most of the screen — needs strong frost |
-| Badge (glass variant) | `blur-xs` | Minimal — badge is tiny, heavy blur wastes GPU |
-| Spoiler image | `blur-content-md` | Full obscuration |
-| Age-gate preview | `blur-content-md` | Full obscuration |
+| Component              | Blur Token        | Rationale                                                   |
+| ---------------------- | ----------------- | ----------------------------------------------------------- |
+| Navigation bar (fixed) | `blur-md`         | Must be readable while scrolling content shows through      |
+| Card (glass variant)   | `blur-sm`         | Subtle glass — card content is the focus, not the effect    |
+| Card (featured)        | `blur-md`         | Prominent glass — backdrop color creates atmosphere         |
+| Modal/Dialog           | `blur-lg`         | Strong separation from background content                   |
+| Drawer/Sidebar         | `blur-md`         | Moderate separation — sidebar is persistent, not disruptive |
+| Toast                  | `blur-sm`         | Lightweight — toast should feel ephemeral                   |
+| Tooltip                | `blur-xs`         | Barely there — tooltip is small, blur is decorative         |
+| Dropdown               | `blur-sm`         | Subtle glass — content behind is often the trigger button   |
+| Bottom sheet (mobile)  | `blur-lg`         | Covers most of the screen — needs strong frost              |
+| Badge (glass variant)  | `blur-xs`         | Minimal — badge is tiny, heavy blur wastes GPU              |
+| Spoiler image          | `blur-content-md` | Full obscuration                                            |
+| Age-gate preview       | `blur-content-md` | Full obscuration                                            |
 
 ---
 
 ## Performance Budget
 
-| Constraint | Limit | Rationale |
-|------------|-------|-----------|
-| Max simultaneous `backdrop-filter` regions | 3 per viewport | GPU compositing cost scales linearly with blur regions |
-| Max blur per region | 32px (`blur-xl`) | Beyond 32px, GPU cost increases sharply with diminishing visual return |
-| Max total blur area | ~500,000 px² per viewport | 3 regions × ~400×400px = 480,000px² — within most mobile GPU budgets |
-| Mobile (≤768px) max regions | 2 | Mobile GPUs have less VRAM; reduce blur regions |
-| Low-end device fallback | 0 regions | Detect via `@supports (backdrop-filter: blur(1px))` and serve opaque surfaces |
+| Constraint                                 | Limit                     | Rationale                                                                     |
+| ------------------------------------------ | ------------------------- | ----------------------------------------------------------------------------- |
+| Max simultaneous `backdrop-filter` regions | 3 per viewport            | GPU compositing cost scales linearly with blur regions                        |
+| Max blur per region                        | 32px (`blur-xl`)          | Beyond 32px, GPU cost increases sharply with diminishing visual return        |
+| Max total blur area                        | ~500,000 px² per viewport | 3 regions × ~400×400px = 480,000px² — within most mobile GPU budgets          |
+| Mobile (≤768px) max regions                | 2                         | Mobile GPUs have less VRAM; reduce blur regions                               |
+| Low-end device fallback                    | 0 regions                 | Detect via `@supports (backdrop-filter: blur(1px))` and serve opaque surfaces |
 
 **Decision: 3-region cap with detection.** Modern desktop browsers handle 5+ blur regions easily. The bottleneck is mobile Safari and mid-range Android devices. 3 regions is conservative enough to avoid jank on 90% of devices.
 
@@ -83,13 +83,13 @@ When `backdrop-filter` is unsupported or the device is low-end, glass surfaces d
 ```css
 /* Design specification — fallback logic */
 .glass-surface {
-  background: oklch(0.10 0.02 260 / 0.80); /* semi-transparent */
+  background: oklch(0.1 0.02 260 / 0.8); /* semi-transparent */
   backdrop-filter: blur(16px);
 }
 
 @supports not (backdrop-filter: blur(1px)) {
   .glass-surface {
-    background: oklch(0.10 0.02 260); /* opaque */
+    background: oklch(0.1 0.02 260); /* opaque */
     /* border + shadow remain — depth still communicated */
   }
 }
@@ -103,10 +103,10 @@ When `backdrop-filter` is unsupported or the device is low-end, glass surfaces d
 
 `prefers-reduced-motion: reduce` does **not** disable blur — blur is a static visual property, not a motion effect. However, animated blur transitions (changing blur value over time) are disabled under reduced-motion.
 
-| Preference | Static Blur | Animated Blur |
-|-----------|-------------|---------------|
-| `prefers-reduced-motion: no-preference` | Enabled | Enabled |
-| `prefers-reduced-motion: reduce` | Enabled | Instant snap (no animation) |
+| Preference                              | Static Blur | Animated Blur               |
+| --------------------------------------- | ----------- | --------------------------- |
+| `prefers-reduced-motion: no-preference` | Enabled     | Enabled                     |
+| `prefers-reduced-motion: reduce`        | Enabled     | Instant snap (no animation) |
 
 ---
 

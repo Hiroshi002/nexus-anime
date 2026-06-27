@@ -12,12 +12,12 @@ Nexus Anime has four caching layers, each serving a distinct request path:
 Request → [1. Browser cache] → [2. CDN/Edge cache] → [3. Next.js fetch cache] → [4. Redis cache] → Origin
 ```
 
-| Layer | Technology | Where | Cached by | Invalidation |
-|-------|-----------|-------|-----------|-------------|
-| **Browser** | HTTP Cache headers | Client | Browser | `Cache-Control` max-age, Vercel revalidation |
-| **CDN/Edge** | Vercel Edge Network | Cloud edge | Vercel | `revalidatePath()`, `revalidateTag()` |
-| **Next.js fetch** | In-memory + persistent | Server process | `fetch()` `next` option | `revalidateTag()`, time-based |
-| **Redis** | Upstash Redis | Server (Upstash) | Application code | Explicit `del` on mutation |
+| Layer             | Technology             | Where            | Cached by               | Invalidation                                 |
+| ----------------- | ---------------------- | ---------------- | ----------------------- | -------------------------------------------- |
+| **Browser**       | HTTP Cache headers     | Client           | Browser                 | `Cache-Control` max-age, Vercel revalidation |
+| **CDN/Edge**      | Vercel Edge Network    | Cloud edge       | Vercel                  | `revalidatePath()`, `revalidateTag()`        |
+| **Next.js fetch** | In-memory + persistent | Server process   | `fetch()` `next` option | `revalidateTag()`, time-based                |
+| **Redis**         | Upstash Redis          | Server (Upstash) | Application code        | Explicit `del` on mutation                   |
 
 ---
 
@@ -31,17 +31,17 @@ All Redis keys follow a structured naming convention to prevent collisions and m
 nexus:{entity}:{identifier}:{view}
 ```
 
-| Example | Meaning |
-|---------|---------|
-| `nexus:anime:uuid-123:detail` | Anime detail view for a specific anime |
-| `nexus:anime:uuid-123:episodes` | Episode list for a specific anime |
-| `nexus:user:uuid-456:watchlist` | Watchlist for a specific user |
-| `nexus:catalog:trending:global` | Global trending anime list |
-| `nexus:catalog:genre:action` | Anime in the "action" genre |
-| `nexus:search:query:naruto` | Search results for "naruto" |
-| `nexus:session:token:abc123` | Session data for a token |
-| `nexus:rate-limit:ip:1.2.3.4:search` | Rate limit counter for IP + endpoint |
-| `nexus:flag:hd-preview` | Feature flag state |
+| Example                              | Meaning                                |
+| ------------------------------------ | -------------------------------------- |
+| `nexus:anime:uuid-123:detail`        | Anime detail view for a specific anime |
+| `nexus:anime:uuid-123:episodes`      | Episode list for a specific anime      |
+| `nexus:user:uuid-456:watchlist`      | Watchlist for a specific user          |
+| `nexus:catalog:trending:global`      | Global trending anime list             |
+| `nexus:catalog:genre:action`         | Anime in the "action" genre            |
+| `nexus:search:query:naruto`          | Search results for "naruto"            |
+| `nexus:session:token:abc123`         | Session data for a token               |
+| `nexus:rate-limit:ip:1.2.3.4:search` | Rate limit counter for IP + endpoint   |
+| `nexus:flag:hd-preview`              | Feature flag state                     |
 
 ### Why structured keys
 
@@ -49,18 +49,18 @@ Structured keys are grep-able, auditable, and prevent accidental collisions. `ne
 
 ### TTL Strategy
 
-| Entity | TTL | Why |
-|--------|-----|-----|
-| Anime detail | 3600s (1 hr) | Metadata changes infrequently |
-| Episode list | 1800s (30 min) | New episodes appear weekly; list changes less often |
-| Trending catalog | 300s (5 min) | Trending changes daily; users expect somewhat fresh data |
-| Genre catalog | 86400s (24 hr) | Genres are stable |
-| Search results | 60s (1 min) | Search is low-cache; results change as catalog updates |
-| Watchlist | 30s | User-specific; must be fresh after mutation |
-| Watch progress | 0s (no cache) | Real-time; always read from DB |
-| Session | 86400s (24 hr) | Matches session maxAge; deleted on logout |
-| Rate limit counters | Window-based | Auto-expire with the rate limit window |
-| Feature flags | 300s (5 min) | Flags change rarely but should propagate quickly |
+| Entity              | TTL            | Why                                                      |
+| ------------------- | -------------- | -------------------------------------------------------- |
+| Anime detail        | 3600s (1 hr)   | Metadata changes infrequently                            |
+| Episode list        | 1800s (30 min) | New episodes appear weekly; list changes less often      |
+| Trending catalog    | 300s (5 min)   | Trending changes daily; users expect somewhat fresh data |
+| Genre catalog       | 86400s (24 hr) | Genres are stable                                        |
+| Search results      | 60s (1 min)    | Search is low-cache; results change as catalog updates   |
+| Watchlist           | 30s            | User-specific; must be fresh after mutation              |
+| Watch progress      | 0s (no cache)  | Real-time; always read from DB                           |
+| Session             | 86400s (24 hr) | Matches session maxAge; deleted on logout                |
+| Rate limit counters | Window-based   | Auto-expire with the rate limit window                   |
+| Feature flags       | 300s (5 min)   | Flags change rarely but should propagate quickly         |
 
 ---
 
@@ -148,16 +148,18 @@ export async function getWithSWR<T>(
   key: string,
   fetcher: () => Promise<T>,
   ttl: number,
-  staleWhileRevalidate: number
+  staleWhileRevalidate: number,
 ): Promise<T> {
   const cached = await cacheGet<T & { _cachedAt?: number }>(key);
 
   if (cached) {
     const age = Date.now() - (cached._cachedAt ?? 0);
-    if (age < ttl * 1000) return cached;  // Fresh
+    if (age < ttl * 1000) return cached; // Fresh
     if (age < staleWhileRevalidate * 1000) {
       // Stale but within SWR window — return stale, refresh in background
-      fetcher().then((fresh) => cacheSet(key, { ...fresh, _cachedAt: Date.now() }, staleWhileRevalidate));
+      fetcher().then((fresh) =>
+        cacheSet(key, { ...fresh, _cachedAt: Date.now() }, staleWhileRevalidate),
+      );
       return cached;
     }
   }
@@ -182,8 +184,8 @@ Server Components use `fetch()` with the `next` option for caching:
 ```ts
 const res = await fetch(url, {
   next: {
-    revalidate: 3600,            // Revalidate every hour
-    tags: ["anime", `anime:${id}`],  // Tag for group invalidation
+    revalidate: 3600, // Revalidate every hour
+    tags: ["anime", `anime:${id}`], // Tag for group invalidation
   },
 });
 ```
@@ -192,13 +194,13 @@ const res = await fetch(url, {
 
 Next.js fetch cache and Redis cache serve different purposes:
 
-| Aspect | Next.js fetch cache | Redis cache |
-|--------|-------------------|-------------|
-| Scope | Per-server-process (durable on Vercel) | Shared across all server instances |
-| Granularity | Per-fetch-call | Per-entity |
-| Access | Implicit (Next.js handles it) | Explicit (application code reads/writes) |
-| Invalidation | `revalidatePath`, `revalidateTag` | `cacheDel`, TTL |
-| Use for | External API responses (TMDB, AniList) | Application-level data aggregation |
+| Aspect       | Next.js fetch cache                    | Redis cache                              |
+| ------------ | -------------------------------------- | ---------------------------------------- |
+| Scope        | Per-server-process (durable on Vercel) | Shared across all server instances       |
+| Granularity  | Per-fetch-call                         | Per-entity                               |
+| Access       | Implicit (Next.js handles it)          | Explicit (application code reads/writes) |
+| Invalidation | `revalidatePath`, `revalidateTag`      | `cacheDel`, TTL                          |
+| Use for      | External API responses (TMDB, AniList) | Application-level data aggregation       |
 
 External API responses (TMDB, AniList) are cached via Next.js fetch cache because the `next` option integrates with ISR and revalidation. Application-level data (composed views, user watchlists) is cached in Redis because it needs TTL, SWR, and explicit invalidation that the Next.js fetch cache doesn't provide.
 
@@ -226,11 +228,11 @@ async function getAnimeDetail(id: string): Promise<AnimeDetail> {
 
 ### Why cache-aside over write-through
 
-| Pattern | Read path | Write path | Complexity |
-|---------|----------|------------|------------|
-| **Cache-aside** | Check cache → miss → fetch → populate | Write to DB → delete cache key | Simple; standard |
-| Write-through | Check cache → miss → fetch → populate | Write to DB → write to cache | Must keep cache and DB in sync on every write |
-| Write-behind | Same as write-through | Write to cache → async write to DB | Risk of data loss if cache fails before DB write |
+| Pattern         | Read path                             | Write path                         | Complexity                                       |
+| --------------- | ------------------------------------- | ---------------------------------- | ------------------------------------------------ |
+| **Cache-aside** | Check cache → miss → fetch → populate | Write to DB → delete cache key     | Simple; standard                                 |
+| Write-through   | Check cache → miss → fetch → populate | Write to DB → write to cache       | Must keep cache and DB in sync on every write    |
+| Write-behind    | Same as write-through                 | Write to cache → async write to DB | Risk of data loss if cache fails before DB write |
 
 Cache-aside is the simplest and most resilient. If Redis is down, reads fall through to the DB (degraded but functional). Write-through and write-behind add complexity and failure modes.
 
@@ -248,7 +250,7 @@ async function cacheGetSafe<T>(key: string): Promise<T | null> {
     return await cacheGet<T>(key);
   } catch (error) {
     log.warn("Cache read failed", { key, error });
-    return null;  // Treat as cache miss
+    return null; // Treat as cache miss
   }
 }
 ```
@@ -269,13 +271,13 @@ Cache is a performance optimization, not a source of truth. A cache outage shoul
 
 Set via `next.config.ts` headers and `Cache-Control` in Route Handlers:
 
-| Path | `Cache-Control` | Why |
-|------|-----------------|-----|
-| `/_next/static/*` | `public, max-age=31536000, immutable` | Static assets are content-hashed — never change |
-| `/fonts/*` | `public, max-age=31536000, immutable` | Self-hosted fonts are immutable |
-| `/images/*` (R2) | `public, max-age=86400, stale-while-revalidate=604800` | Images change rarely; stale-while-revalidate for 1 week |
-| `/api/*` | `no-store` | API responses are dynamic |
-| Pages | Handled by ISR/SSR — no explicit header needed | Next.js sets appropriate headers per rendering strategy |
+| Path              | `Cache-Control`                                        | Why                                                     |
+| ----------------- | ------------------------------------------------------ | ------------------------------------------------------- |
+| `/_next/static/*` | `public, max-age=31536000, immutable`                  | Static assets are content-hashed — never change         |
+| `/fonts/*`        | `public, max-age=31536000, immutable`                  | Self-hosted fonts are immutable                         |
+| `/images/*` (R2)  | `public, max-age=86400, stale-while-revalidate=604800` | Images change rarely; stale-while-revalidate for 1 week |
+| `/api/*`          | `no-store`                                             | API responses are dynamic                               |
+| Pages             | Handled by ISR/SSR — no explicit header needed         | Next.js sets appropriate headers per rendering strategy |
 
 ---
 
@@ -289,18 +291,18 @@ export async function isFeatureEnabled(flag: string, defaultValue = false): Prom
     const value = await redis.get(`nexus:flag:${flag}`);
     return value === "true";
   } catch {
-    return defaultValue;  // Safe default — flags are "off" when Redis is down
+    return defaultValue; // Safe default — flags are "off" when Redis is down
   }
 }
 ```
 
 ### Flag examples
 
-| Flag | Default | Purpose |
-|------|---------|---------|
+| Flag         | Default | Purpose                                         |
+| ------------ | ------- | ----------------------------------------------- |
 | `hd-preview` | `false` | Enable HD episode thumbnails (higher bandwidth) |
-| `new-search` | `false` | Use new search algorithm (A/B test) |
-| `comments` | `false` | Enable comment section (feature rollout) |
+| `new-search` | `false` | Use new search algorithm (A/B test)             |
+| `comments`   | `false` | Enable comment section (feature rollout)        |
 
 ### Why Redis for flags, not environment variables
 

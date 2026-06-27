@@ -126,6 +126,7 @@ Standardize how Nexus Anime communicates empty data conditions — zero results,
 ### Catalog Empty States
 
 **Search No Results**
+
 - Title: `No results for "{query}".`
 - Description: `Try one of these instead:`
 - Primary CTA: none (suggestion chips are the action).
@@ -133,11 +134,13 @@ Standardize how Nexus Anime communicates empty data conditions — zero results,
 - If filters are also active, append: `Clearing filters may show more results.` with a ghost-button CTA "Clear filters".
 
 **Genre No Results**
+
 - Title: `No anime in this genre yet.`
 - Description: `Check back later or explore a different genre.`
 - Primary CTA: `Browse genres` (navigates to /genres).
 
 **Schedule Empty**
+
 - Title: `No releases this day.`
 - Description: `Nothing is scheduled for this date. Try another day.`
 - Primary CTA: `Pick another date` (opens date picker or navigates to nearest day with releases).
@@ -145,21 +148,25 @@ Standardize how Nexus Anime communicates empty data conditions — zero results,
 ### Personal Empty States
 
 **Watchlist Empty**
+
 - Title: `Your watchlist is empty.`
 - Description: `Save anime you want to watch later. Tap the bookmark icon on any title to add it here.`
 - Primary CTA: `Browse trending` (navigates to /trending).
 
 **Continue Watching Empty**
+
 - Title: `Nothing to resume.`
 - Description: `Start watching anime and it will appear here for quick pickup.`
 - Primary CTA: `Browse trending` (navigates to /trending).
 
 **Watch History Empty**
+
 - Title: `You haven't watched anything yet.`
 - Description: `Your watch history will show up here once you start streaming.`
 - Primary CTA: `Browse trending` (navigates to /trending).
 
 **Notifications Empty**
+
 - Title: `You're all caught up!`
 - Description: `New notifications will appear here. Check back after new episodes or features drop.`
 - Primary CTA: `Browse what's new` (navigates to /latest).
@@ -167,11 +174,13 @@ Standardize how Nexus Anime communicates empty data conditions — zero results,
 ### Error Empty States (Data Failed to Load)
 
 **Page-Level Error**
+
 - Title: `Couldn't load this section.`
 - Description: `Something went wrong fetching your data. Check your connection and try again.`
 - Primary CTA: `Try again` (re-fetches the data).
 
 **Rail-Level Inline Error**
+
 - Uses `EmptyStateInline` variant.
 - Title: `Couldn't load.`
 - Description: (none — keep it compact).

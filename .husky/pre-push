@@ -1,0 +1,5 @@
+# pre-push — runs workspace-wide typecheck before pushes land.
+# This matches Git-Workflow.md §9.3: pre-push is the last local gate before
+# CI is the source of truth. Failing the typecheck here is far cheaper than
+# failing the CI runner.
+pnpm typecheck

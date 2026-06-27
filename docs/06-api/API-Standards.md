@@ -60,10 +60,10 @@ All request and response bodies MUST be encoded as UTF-8 JSON without BOM. The s
 
 `Content-Type` header requirements on requests:
 
-| Method | Required Content-Type | Notes |
-|--------|-----------------------|-------|
-| GET, HEAD, DELETE | Optional (no body) | MUST NOT send a body |
-| POST, PUT, PATCH | `application/json` (exact, UTF-8) | 415 Unsupported Media Type otherwise |
+| Method            | Required Content-Type             | Notes                                |
+| ----------------- | --------------------------------- | ------------------------------------ |
+| GET, HEAD, DELETE | Optional (no body)                | MUST NOT send a body                 |
+| POST, PUT, PATCH  | `application/json` (exact, UTF-8) | 415 Unsupported Media Type otherwise |
 
 ### Content-Type Response Header
 
@@ -104,7 +104,7 @@ All JSON responses use a discriminated envelope. Success responses MUST contain 
   "error": {
     "message": "Human-readable English message",
     "code": "MACHINE_READABLE_CODE",
-    "details": { }
+    "details": {}
   }
 }
 ```
@@ -137,13 +137,13 @@ The `issues` array follows a lightweight subset of Zod's `ZodIssue` format.
 
 Consistent naming reduces friction between backend (PostgreSQL `snake_case`) and frontend (JavaScript `camelCase`).
 
-| Layer | Convention | Example |
-|-------|-----------|---------|
-| URL path segments | lowercase-hyphenated | `/api/v1/watchlist-items` |
-| Query parameters | camelCase | `?sortOrder=asc&pageSize=20` |
-| JSON request/response fields | camelCase | `"createdAt"`, `"displayName"` |
-| HTTP headers | Hyphenated title case | `Idempotency-Key`, `Accept-Language` |
-| Database columns | snake_case (in schema only, never leaked) | `created_at`, `display_name` |
+| Layer                        | Convention                                | Example                              |
+| ---------------------------- | ----------------------------------------- | ------------------------------------ |
+| URL path segments            | lowercase-hyphenated                      | `/api/v1/watchlist-items`            |
+| Query parameters             | camelCase                                 | `?sortOrder=asc&pageSize=20`         |
+| JSON request/response fields | camelCase                                 | `"createdAt"`, `"displayName"`       |
+| HTTP headers                 | Hyphenated title case                     | `Idempotency-Key`, `Accept-Language` |
+| Database columns             | snake_case (in schema only, never leaked) | `created_at`, `display_name`         |
 
 Rules:
 
@@ -211,11 +211,11 @@ Errors:
 
 Clients SHOULD send `Accept-Language` on every request. Supported tags:
 
-| Tag | Status |
-|-----|--------|
-| `en-US` | Default, always supported |
-| `ja-JP` | Supported, translated UI strings |
-| Others | Treated as `en-US` (no error, silent fallback) |
+| Tag     | Status                                         |
+| ------- | ---------------------------------------------- |
+| `en-US` | Default, always supported                      |
+| `ja-JP` | Supported, translated UI strings               |
+| Others  | Treated as `en-US` (no error, silent fallback) |
 
 Format follows RFC 7231, e.g. `ja-JP,ja;q=0.9,en-US;q=0.8`.
 
@@ -245,13 +245,13 @@ Idempotency-Key: <uuid-v4 or opaque token, max 128 chars>
 
 ### When Required vs Recommended
 
-| Condition | Idempotency-Key |
-|-----------|-----------------|
-| Write endpoints that are not natively idempotent by HTTP method (e.g. POST create) | Required |
-| Payment creation, webhook trigger, watchlist mutations | Required |
-| PUT full-replace | Recommended (defensive against partial retries) |
-| PATCH with idempotent semantics | Recommended |
-| Read endpoints (GET, HEAD, DELETE) | Optional |
+| Condition                                                                          | Idempotency-Key                                 |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Write endpoints that are not natively idempotent by HTTP method (e.g. POST create) | Required                                        |
+| Payment creation, webhook trigger, watchlist mutations                             | Required                                        |
+| PUT full-replace                                                                   | Recommended (defensive against partial retries) |
+| PATCH with idempotent semantics                                                    | Recommended                                     |
+| Read endpoints (GET, HEAD, DELETE)                                                 | Optional                                        |
 
 Requests to endpoints marked **Required** that lack a valid `Idempotency-Key` MUST return `400 Bad Request` with code `IDEMPOTENCY_KEY_REQUIRED`.
 
@@ -276,15 +276,15 @@ Methods have strict usage rules. Do not use GET for mutations, POST for idempote
 
 ### Semantics Table
 
-| Method | Safe | Idempotent | Cacheable | Typical Use |
-|--------|------|------------|-----------|-------------|
-| GET | Yes | Yes | Yes | Read resource or list |
-| HEAD | Yes | Yes | Yes | Resource metadata (size, last-modified) |
-| OPTIONS | Yes | Yes | Yes | CORS preflight |
-| POST | No | No | Only with explicit Cache-Control and ETag | Create resource; non-idempotent by default |
-| PUT | No | Yes | No | Full replace of a resource by ID |
-| PATCH | No | Yes (signed) | No | Partial update; MUST document idempotency |
-| DELETE | No | Yes | No | Soft or hard delete by ID |
+| Method  | Safe | Idempotent   | Cacheable                                 | Typical Use                                |
+| ------- | ---- | ------------ | ----------------------------------------- | ------------------------------------------ |
+| GET     | Yes  | Yes          | Yes                                       | Read resource or list                      |
+| HEAD    | Yes  | Yes          | Yes                                       | Resource metadata (size, last-modified)    |
+| OPTIONS | Yes  | Yes          | Yes                                       | CORS preflight                             |
+| POST    | No   | No           | Only with explicit Cache-Control and ETag | Create resource; non-idempotent by default |
+| PUT     | No   | Yes          | No                                        | Full replace of a resource by ID           |
+| PATCH   | No   | Yes (signed) | No                                        | Partial update; MUST document idempotency  |
+| DELETE  | No   | Yes          | No                                        | Soft or hard delete by ID                  |
 
 ### Rules
 
@@ -308,12 +308,12 @@ Read endpoints SHOULD support conditional requests via `ETag` and `If-None-Match
 
 Cache-Control directives:
 
-| Endpoint Type | Cache-Control |
-|--------------|---------------|
-| Public catalog detail | `public, max-age=300, stale-while-revalidate=60` |
-| Trending / homepage | `public, max-age=60, stale-while-revalidate=15` |
-| Authenticated user data | `private, max-age=0, must-revalidate` |
-| Me / profile | `private, max-age=0, must-revalidate` |
+| Endpoint Type           | Cache-Control                                    |
+| ----------------------- | ------------------------------------------------ |
+| Public catalog detail   | `public, max-age=300, stale-while-revalidate=60` |
+| Trending / homepage     | `public, max-age=60, stale-while-revalidate=15`  |
+| Authenticated user data | `private, max-age=0, must-revalidate`            |
+| Me / profile            | `private, max-age=0, must-revalidate`            |
 
 ### Mutation Endpoints
 
@@ -333,16 +333,16 @@ And MUST NOT emit `ETag`.
 
 The table below defines the minimum set of headers each category of endpoint requires.
 
-| Header | Read Endpoints | Authenticated Mutations | Public Writes (pre-auth) |
-|--------|:---:|:---:|:---:|
-| `User-Agent` | Required | Required | Required |
-| `Accept` (`application/json`) | Required | Required | Required |
-| `Content-Type` (for body) | N/A | Required | Required |
-| `Accept-Language` | Recommended | Recommended | Recommended |
-| `Authorization` (Bearer) | Optional (public read) | Required | N/A |
-| `Idempotency-Key` | No | Required | N/A |
-| `If-None-Match` | Optional | No | No |
-| `X-Client-Version` | Recommended | Recommended | Recommended |
+| Header                        |     Read Endpoints     | Authenticated Mutations | Public Writes (pre-auth) |
+| ----------------------------- | :--------------------: | :---------------------: | :----------------------: |
+| `User-Agent`                  |        Required        |        Required         |         Required         |
+| `Accept` (`application/json`) |        Required        |        Required         |         Required         |
+| `Content-Type` (for body)     |          N/A           |        Required         |         Required         |
+| `Accept-Language`             |      Recommended       |       Recommended       |       Recommended        |
+| `Authorization` (Bearer)      | Optional (public read) |        Required         |           N/A            |
+| `Idempotency-Key`             |           No           |        Required         |           N/A            |
+| `If-None-Match`               |        Optional        |           No            |            No            |
+| `X-Client-Version`            |      Recommended       |       Recommended       |       Recommended        |
 
 Requests without a valid `User-Agent` MUST be rejected with `400 Bad Request` and code `USER_AGENT_REQUIRED`.
 
@@ -362,37 +362,37 @@ Empty, generic, or spammy user agents (e.g. `curl/`, `python-requests/` without 
 
 Every response SHOULD include the following headers.
 
-| Header | Required | Description |
-|--------|----------|-------------|
-| `X-Request-Id` | Yes | UUID v4 unique per request. Returned in error responses for traceability. |
-| `X-Response-Time` | Recommended | End-to-end latency in milliseconds. |
-| `Content-Type` | Yes | `application/json; charset=utf-8` or multipart content type. |
-| `Content-Language` | When localized | Match the resolved language of the response body strings. |
-| `Cache-Control` | Yes | As defined in caching section. |
-| `ETag` | On reads | Hex hash of response body. |
-| `Vary` | Yes | At minimum `Accept-Language, Accept-Encoding, Authorization` on endpoints where response depends on these. |
+| Header             | Required       | Description                                                                                                |
+| ------------------ | -------------- | ---------------------------------------------------------------------------------------------------------- |
+| `X-Request-Id`     | Yes            | UUID v4 unique per request. Returned in error responses for traceability.                                  |
+| `X-Response-Time`  | Recommended    | End-to-end latency in milliseconds.                                                                        |
+| `Content-Type`     | Yes            | `application/json; charset=utf-8` or multipart content type.                                               |
+| `Content-Language` | When localized | Match the resolved language of the response body strings.                                                  |
+| `Cache-Control`    | Yes            | As defined in caching section.                                                                             |
+| `ETag`             | On reads       | Hex hash of response body.                                                                                 |
+| `Vary`             | Yes            | At minimum `Accept-Language, Accept-Encoding, Authorization` on endpoints where response depends on these. |
 
 ### Rate Limit Headers
 
 When rate limits are enforced, emit:
 
-| Header | Description |
-|--------|-------------|
-| `X-RateLimit-Limit` | Budget per window |
-| `X-RateLimit-Remaining` | Remaining tokens |
-| `X-RateLimit-Reset` | Seconds until window resets |
-| `Retry-After` | Present on 429 responses; seconds until retry is allowed |
+| Header                  | Description                                              |
+| ----------------------- | -------------------------------------------------------- |
+| `X-RateLimit-Limit`     | Budget per window                                        |
+| `X-RateLimit-Remaining` | Remaining tokens                                         |
+| `X-RateLimit-Reset`     | Seconds until window resets                              |
+| `Retry-After`           | Present on 429 responses; seconds until retry is allowed |
 
 ### Deprecation and Sunset Headers
 
 When an endpoint is deprecated or scheduled for removal (see Deprecation Policy):
 
-| Header | Description |
-|--------|-------------|
-| `Deprecation` | Date string in the format `@<RFC3339 date>` |
-| `Sunset` | RFC3339 date when endpoint will shut off |
-| `Link` | `<url>; rel="successor-version"` pointing to replacement endpoint |
-| `X-Env-Announcement` | Optional short deprecation message |
+| Header               | Description                                                       |
+| -------------------- | ----------------------------------------------------------------- |
+| `Deprecation`        | Date string in the format `@<RFC3339 date>`                       |
+| `Sunset`             | RFC3339 date when endpoint will shut off                          |
+| `Link`               | `<url>; rel="successor-version"` pointing to replacement endpoint |
+| `X-Env-Announcement` | Optional short deprecation message                                |
 
 ---
 
@@ -426,13 +426,13 @@ Summary:
 
 CORS is enforced via `next.config.ts` middleware. The application does NOT handle CORS at the route layer; it relies on configured rules.
 
-| Setting | Value |
-|---------|-------|
-| `Access-Control-Allow-Origin` | Origin allowlist for known clients (e.g. web app domain); NEVER `*` in production. |
-| `Access-Control-Allow-Methods` | `GET, POST, PUT, PATCH, DELETE, OPTIONS` |
-| `Access-Control-Allow-Headers` | `Content-Type, Accept, Accept-Language, Authorization, Idempotency-Key, X-Client-Version` |
-| `Access-Control-Expose-Headers` | `X-Request-Id, X-RateLimit-*, ETag, Content-Language, Deprecation, Sunset, Link` |
-| `Access-Control-Max-Age` | `86400` (24 hours) |
+| Setting                         | Value                                                                                     |
+| ------------------------------- | ----------------------------------------------------------------------------------------- |
+| `Access-Control-Allow-Origin`   | Origin allowlist for known clients (e.g. web app domain); NEVER `*` in production.        |
+| `Access-Control-Allow-Methods`  | `GET, POST, PUT, PATCH, DELETE, OPTIONS`                                                  |
+| `Access-Control-Allow-Headers`  | `Content-Type, Accept, Accept-Language, Authorization, Idempotency-Key, X-Client-Version` |
+| `Access-Control-Expose-Headers` | `X-Request-Id, X-RateLimit-*, ETag, Content-Language, Deprecation, Sunset, Link`          |
+| `Access-Control-Max-Age`        | `86400` (24 hours)                                                                        |
 
 Preflight responses MUST be returned for cross-origin requests with `204 No Content`. Credentials (cookies, Authorization) are allowed only from the allowlisted origin.
 
@@ -457,6 +457,7 @@ For domains where CSRF via XSS is a concern beyond the Auth.js defaults (e.g. pa
 - Server validates the token's signature, scope, and expiry before executing the action.
 
 Rules:
+
 - Tokens MUST be single-use: reuse of a consumed token MUST fail.
 - Failed immutability token responses return `403 Forbidden` with code `IMMUTABILITY_TOKEN_INVALID`.
 
@@ -464,11 +465,11 @@ Rules:
 
 ## 18. Payload Size Limits
 
-| Content Type | Max Body Size | Enforcement |
-|-------------|---------------|-------------|
-| `application/json` | 1 MB | Rejected with `413 Payload Too Large` and code `PAYLOAD_TOO_LARGE` |
-| `multipart/form-data` | 10 MB | Rejected with `413 Payload Too Large` |
-| Nested depth | Max 10 levels of nesting | Rejected with `VALIDATION_ERROR` |
+| Content Type          | Max Body Size            | Enforcement                                                        |
+| --------------------- | ------------------------ | ------------------------------------------------------------------ |
+| `application/json`    | 1 MB                     | Rejected with `413 Payload Too Large` and code `PAYLOAD_TOO_LARGE` |
+| `multipart/form-data` | 10 MB                    | Rejected with `413 Payload Too Large`                              |
+| Nested depth          | Max 10 levels of nesting | Rejected with `VALIDATION_ERROR`                                   |
 
 Requests that exceed these limits MUST be rejected before body parsing completes (e.g. via `bodyParser.sizeLimit` in Next.js route handlers). The error response MUST include:
 
@@ -542,26 +543,26 @@ Link: </api/v2/watchlist-items>; rel="successor-version"
 
 The table below lists HTTP codes referenced in this document. Full semantics live in [Errors.md](./Errors.md).
 
-| Code | HTTP Status | Usage |
-|------|-------------|-------|
-| `200 OK` | 200 | Standard success for reads and idempotent writes |
-| `201 Created` | 201 | Successful POST creating a new resource |
-| `204 No Content` | 204 | Successful DELETE or void action |
-| `304 Not Modified` | 304 | ETag-matched conditional read |
-| `400 Bad Request` | 400 | Malformed request, missing required header (User-Agent, Idempotency-Key) |
-| `401 Unauthorized` | 401 | Missing or invalid session/token |
-| `403 Forbidden` | 403 | Valid auth, insufficient scope, or invalid immutability token |
-| `404 Not Found` | 404 | Resource not found |
-| `405 Method Not Allowed` | 405 | Unsupported HTTP method for the endpoint |
-| `406 Not Acceptable` | 406 | Requested content type cannot be served |
-| `409 Conflict` | 409 | State conflict (e.g. duplicate create) |
-| `410 Gone` | 410 | Resource removed and no longer accessible |
-| `413 Payload Too Large` | 413 | Request body exceeds size limits |
-| `415 Unsupported Media Type` | 415 | Missing or invalid Content-Type for POST/PUT/PATCH |
-| `429 Too Many Requests` | 429 | Rate limit exceeded |
-| `500 Internal Server Error` | 500 | Unexpected server fault |
-| `502 Bad Gateway` | 502 | Upstream failure |
-| `503 Service Unavailable` | 503 | Planned maintenance or circuit-breaker open |
+| Code                         | HTTP Status | Usage                                                                    |
+| ---------------------------- | ----------- | ------------------------------------------------------------------------ |
+| `200 OK`                     | 200         | Standard success for reads and idempotent writes                         |
+| `201 Created`                | 201         | Successful POST creating a new resource                                  |
+| `204 No Content`             | 204         | Successful DELETE or void action                                         |
+| `304 Not Modified`           | 304         | ETag-matched conditional read                                            |
+| `400 Bad Request`            | 400         | Malformed request, missing required header (User-Agent, Idempotency-Key) |
+| `401 Unauthorized`           | 401         | Missing or invalid session/token                                         |
+| `403 Forbidden`              | 403         | Valid auth, insufficient scope, or invalid immutability token            |
+| `404 Not Found`              | 404         | Resource not found                                                       |
+| `405 Method Not Allowed`     | 405         | Unsupported HTTP method for the endpoint                                 |
+| `406 Not Acceptable`         | 406         | Requested content type cannot be served                                  |
+| `409 Conflict`               | 409         | State conflict (e.g. duplicate create)                                   |
+| `410 Gone`                   | 410         | Resource removed and no longer accessible                                |
+| `413 Payload Too Large`      | 413         | Request body exceeds size limits                                         |
+| `415 Unsupported Media Type` | 415         | Missing or invalid Content-Type for POST/PUT/PATCH                       |
+| `429 Too Many Requests`      | 429         | Rate limit exceeded                                                      |
+| `500 Internal Server Error`  | 500         | Unexpected server fault                                                  |
+| `502 Bad Gateway`            | 502         | Upstream failure                                                         |
+| `503 Service Unavailable`    | 503         | Planned maintenance or circuit-breaker open                              |
 
 ---
 

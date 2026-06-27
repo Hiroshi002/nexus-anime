@@ -4,7 +4,7 @@
 > **Status:** Accepted. Parts of this document are enforced by GitHub branch protection, pre-commit hooks, and CI; the rest by code review. Changes are proposed via PR against this file.
 > **Related:** [Coding Standards](./Coding-Standards.md) · [Naming Conventions](./Naming-Conventions.md) · [Folder Conventions](./Folder-Conventions.md) · [Repository Design §6–§8, §19–§24](../../REPOSITORY-DESIGN.md) · [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
-This document defines the end-to-end workflow from branch creation to merge. It is the operational companion to the design conventions: *what to name, where to branch, what a commit looks like, when to rebase, and how we ship a hotfix.*
+This document defines the end-to-end workflow from branch creation to merge. It is the operational companion to the design conventions: _what to name, where to branch, what a commit looks like, when to rebase, and how we ship a hotfix._
 
 ---
 
@@ -23,27 +23,28 @@ Why: continuous integration keeps branches small and mergeable. Long-lived branc
 
 ## 2. Branch Naming
 
-### 2.1 Canonical shape  (R)
+### 2.1 Canonical shape (R)
 
 ```
 <type>/<milestone>-<short-slug>
 ```
 
 Where:
+
 - `type` ∈ `feature`, `bugfix`, `chore`, `docs`, `refactor`, `hotfix`, `release`
 - `milestone` ∈ `m0..mN` (e.g. `m3`) — ties the branch to the roadmap
 - `slug` — kebab-case, ≤ 30 characters, descriptive of the change
 
-### 2.2 Examples  (P)
+### 2.2 Examples (P)
 
-| Branch | Meaning |
-|--------|---------|
-| `feature/m3-auth-oauth` | GitHub OAuth provider, milestone 3 |
-| `bugfix/m3-login-redirect` | Login redirect fix, milestone 3 |
-| `docs/repository-design` | Docs-only change (no milestone needed) |
-| `refactor/m2-cache-keys` | Cache key helper refactor, milestone 2 |
-| `hotfix/m2-cache-race` | Urgent M2 cache race fix (branched from tag) |
-| `release/v0.3.0` | Release preparation for 0.3.0 |
+| Branch                     | Meaning                                      |
+| -------------------------- | -------------------------------------------- |
+| `feature/m3-auth-oauth`    | GitHub OAuth provider, milestone 3           |
+| `bugfix/m3-login-redirect` | Login redirect fix, milestone 3              |
+| `docs/repository-design`   | Docs-only change (no milestone needed)       |
+| `refactor/m2-cache-keys`   | Cache key helper refactor, milestone 2       |
+| `hotfix/m2-cache-race`     | Urgent M2 cache race fix (branched from tag) |
+| `release/v0.3.0`           | Release preparation for 0.3.0                |
 
 ### 2.3 Rules
 
@@ -65,9 +66,9 @@ Where:
 
 ## 3. Commit Workflow
 
-### 3.1 Small, atomic commits  (P)
+### 3.1 Small, atomic commits (P)
 
-Each commit is a **complete, self-contained step** that leaves the project in a working state. Commits answer the question: *what single, small, observable change was made?*
+Each commit is a **complete, self-contained step** that leaves the project in a working state. Commits answer the question: _what single, small, observable change was made?_
 
 - One concern per commit. If a commit says "and" in its title, it is likely two commits.
 - Compile after every commit locally (`pnpm typecheck` passes before pushing).
@@ -83,7 +84,7 @@ git commit -m "feat: wire GitHub callback to session"
 git commit -m "test: cover GitHub callback error paths"
 ```
 
-### 3.2 Commit messages follow Conventional Commits  (R)
+### 3.2 Commit messages follow Conventional Commits (R)
 
 We use the [Conventional Commits](https://www.conventionalcommits.org/) spec, paired with [Semantic Versioning](https://semver.org/) as described in [Repository Design §9](../../REPOSITORY-DESIGN.md).
 
@@ -97,21 +98,22 @@ We use the [Conventional Commits](https://www.conventionalcommits.org/) spec, pa
 
 **Types:**
 
-| Prefix | Meaning | SemVer bump |
-|--------|---------|-------------|
-| `feat` | New feature | MINOR |
-| `fix` | Bug fix | PATCH |
-| `docs` | Documentation only | — |
-| `chore` | Maintenance, tooling, dependencies | — |
-| `refactor` | Code change that neither fixes a bug nor adds a feature | — |
-| `test` | Adding or correcting tests | — |
-| `BREAKING CHANGE` in body | Breaking change to a public API or data model | MAJOR |
+| Prefix                    | Meaning                                                 | SemVer bump |
+| ------------------------- | ------------------------------------------------------- | ----------- |
+| `feat`                    | New feature                                             | MINOR       |
+| `fix`                     | Bug fix                                                 | PATCH       |
+| `docs`                    | Documentation only                                      | —           |
+| `chore`                   | Maintenance, tooling, dependencies                      | —           |
+| `refactor`                | Code change that neither fixes a bug nor adds a feature | —           |
+| `test`                    | Adding or correcting tests                              | —           |
+| `BREAKING CHANGE` in body | Breaking change to a public API or data model           | MAJOR       |
 
 A `!` after the type/scope signals a breaking change: `feat!: redesign auth callback`.
 
 **Rules:**
+
 - The description is imperative, lowercase, no trailing period: `feat: add watchlist endpoint`, not `feat: Added watchlist endpoint.`
-- The body explains *why*, not *what*. Reference issues and ADRs: `Refs: ADR-003`, `Closes: #142`.
+- The body explains _why_, not _what_. Reference issues and ADRs: `Refs: ADR-003`, `Closes: #142`.
 - The footer carries metadata: `BREAKING CHANGE:`, `Refs:`, `Co-authored-by:`.
 
 **Examples:**
@@ -136,7 +138,7 @@ can redirect to login.
 Closes: #201
 ```
 
-### 3.3 PR title is the squash commit  (R)
+### 3.3 PR title is the squash commit (R)
 
 The PR title **must** follow Conventional Commits, because the squash-merge commit on `main` uses the PR title as its message. A bad PR title becomes a bad commit in `main` history.
 
@@ -144,11 +146,11 @@ The PR title **must** follow Conventional Commits, because the squash-merge comm
 
 ## 4. Syncing with `main`
 
-### 4.1 Keep your branch up to date  (R)
+### 4.1 Keep your branch up to date (R)
 
 Before opening a PR and before merging, your branch must be **up to date with `main`**. Branch protection enforces this.
 
-### 4.2 Rebase, do not merge `main` into your branch  (P)
+### 4.2 Rebase, do not merge `main` into your branch (P)
 
 To bring your branch up to date, **rebase onto `main`** rather than merging `main` into your branch. Rebasing replays your commits on top of the latest `main`, producing a linear history without merge commits.
 
@@ -160,11 +162,12 @@ git rebase origin/main
 
 If conflicts arise during rebase, resolve them in the affected files, `git add`, and `git rebase --continue`. Do not `git rebase --abort` and fall back to a merge commit — that defeats the purpose.
 
-### 4.3 Never rebase shared branches  (R)
+### 4.3 Never rebase shared branches (R)
 
 **Do not rebase any branch that another person is working on or that has been pushed for review without coordination.** Rebasing rewrites history; if someone else has based work on your branch, their local copy diverges.
 
 Rule of thumb:
+
 - **Local-only branches** (not pushed, or pushed but only you work on): rebase freely.
 - **Shared branches** (open PR with reviewers, or pair-programmed): coordinate before rebasing. Prefer merging `main` into the branch if a rebase would surprise others.
 
@@ -186,7 +189,7 @@ If a conflict is large or touches unfamiliar code, pair with the author of the o
 
 ## 6. Pull Request Workflow
 
-### 6.1 Opening a PR  (R)
+### 6.1 Opening a PR (R)
 
 1. Push your branch: `git push -u origin feature/m3-auth-oauth`.
 2. Open a PR against `main` using the template at `.github/PULL_REQUEST_TEMPLATE.md`.
@@ -194,36 +197,36 @@ If a conflict is large or touches unfamiliar code, pair with the author of the o
 4. Include **screenshots or screen recordings** for any UI change.
 5. Link related issues (`Closes #142`, `Refs #88`).
 
-### 6.2 Required CI gates  (R)
+### 6.2 Required CI gates (R)
 
 All five gates must pass before merge:
 
-| Gate | Command | What it gates |
-|------|---------|---------------|
-| `lint` | `pnpm lint` | Code style + correctness (ESLint) |
-| `typecheck` | `pnpm typecheck` | Type safety (TypeScript strict) |
-| `test` | `pnpm test` | Behavior (Vitest unit tests) |
-| `build` | `pnpm build` | Production build succeeds (Turborepo) |
-| `format` | `pnpm format:check` | Formatting conformance (Prettier) |
+| Gate        | Command             | What it gates                         |
+| ----------- | ------------------- | ------------------------------------- |
+| `lint`      | `pnpm lint`         | Code style + correctness (ESLint)     |
+| `typecheck` | `pnpm typecheck`    | Type safety (TypeScript strict)       |
+| `test`      | `pnpm test`         | Behavior (Vitest unit tests)          |
+| `build`     | `pnpm build`        | Production build succeeds (Turborepo) |
+| `format`    | `pnpm format:check` | Formatting conformance (Prettier)     |
 
-### 6.3 Review  (R)
+### 6.3 Review (R)
 
 - At least **one approving review** from a maintainer is required.
 - All review conversations must be resolved before merge.
 - Reviewers check: correctness, type safety, security, performance, adherence to conventions, and test coverage.
 - Authors respond to comments with code changes or clarifying comments; resolve the conversation when addressed.
 
-### 6.4 Merge strategy: squash by default  (R)
+### 6.4 Merge strategy: squash by default (R)
 
-| Strategy | When to use |
-|----------|-------------|
-| **Squash and merge** (default) | Most PRs — produces one clean commit on `main` per PR |
-| Create a merge commit | Multi-commit PRs that tell a coherent, reviewable story |
-| Rebase and merge | **Disabled** — avoids rewriting shared history |
+| Strategy                       | When to use                                             |
+| ------------------------------ | ------------------------------------------------------- |
+| **Squash and merge** (default) | Most PRs — produces one clean commit on `main` per PR   |
+| Create a merge commit          | Multi-commit PRs that tell a coherent, reviewable story |
+| Rebase and merge               | **Disabled** — avoids rewriting shared history          |
 
 The squash commit's title becomes the changelog entry, so the PR title must follow Conventional Commits.
 
-### 6.5 Post-merge cleanup  (R)
+### 6.5 Post-merge cleanup (R)
 
 - **Delete the feature branch** after merge (GitHub can do this automatically).
 - Verify the deployment (Vercel preview → production) if applicable.
@@ -281,13 +284,13 @@ Non-urgent fixes go through the normal PR flow.
 
 ### 8.1 Summary
 
-| Situation | Action |
-|-----------|--------|
-| Local branch, not pushed | Rebase freely |
+| Situation                              | Action                                                             |
+| -------------------------------------- | ------------------------------------------------------------------ |
+| Local branch, not pushed               | Rebase freely                                                      |
 | Local branch, pushed, only you work on | Rebase, then force-push with lease (`git push --force-with-lease`) |
-| Shared branch (open PR with reviewers) | Coordinate before rebase; prefer merge `main` into branch |
-| Bringing `main` into your branch | Rebase your branch onto `main` |
-| Merging your branch into `main` | Squash and merge (default) |
+| Shared branch (open PR with reviewers) | Coordinate before rebase; prefer merge `main` into branch          |
+| Bringing `main` into your branch       | Rebase your branch onto `main`                                     |
+| Merging your branch into `main`        | Squash and merge (default)                                         |
 
 ### 8.2 Why rebase local branches
 
@@ -309,14 +312,14 @@ git push --force-with-lease origin feature/m3-auth-oauth
 
 ## 9. Pre-Commit Hooks
 
-### 9.1 What runs on commit  (R)
+### 9.1 What runs on commit (R)
 
 Pre-commit hooks (via `lint-staged` + `simple-git-hooks` / `husky`) run on staged files before a commit is created:
 
-| Hook | What it does |
-|------|--------------|
+| Hook         | What it does                                          |
+| ------------ | ----------------------------------------------------- |
 | `pre-commit` | Runs `lint-staged`: ESLint + Prettier on staged files |
-| `pre-push` | Runs `pnpm typecheck` on the current package |
+| `pre-push`   | Runs `pnpm typecheck` on the current package          |
 
 These are **local** hooks. They catch the most common issues before they reach CI, but they are not a substitute for CI — CI is the source of truth.
 
@@ -326,7 +329,7 @@ These are **local** hooks. They catch the most common issues before they reach C
 - If a hook fails, read the error, fix the issue, re-stage, and re-commit.
 - Hooks are configured in the repo (`.git-hooks/` or `package.json` `simple-git-hooks` section). They apply to everyone; do not disable them locally.
 
-### 9.3 Typecheck on staged files  (P)
+### 9.3 Typecheck on staged files (P)
 
 The pre-push hook runs `pnpm typecheck` to catch type errors before they reach CI. This is a workspace-wide check — it may take a few seconds. If it fails, fix the type errors before pushing.
 
@@ -334,14 +337,14 @@ The pre-push hook runs `pnpm typecheck` to catch type errors before they reach C
 
 ## 10. Tagging & Releases
 
-### 10.1 Tag strategy  (R)
+### 10.1 Tag strategy (R)
 
 - Tags mark **releases only**: `v<semver>` (e.g. `v0.3.0`, `v0.3.1`, `v1.0.0`).
 - **Annotated tags** (`git tag -a v0.3.0 -m "release: v0.3.0"`) — record author, date, and release notes.
 - **Immutable** — never force-push a published tag. If a release is wrong, release a new patch version.
 - Tags are created from `main` (or from a `release/vX.Y.Z` branch during release prep).
 
-### 10.2 Pre-release suffixes  (P)
+### 10.2 Pre-release suffixes (P)
 
 During milestones, pre-release suffixes signal "not stable yet":
 
@@ -351,7 +354,7 @@ During milestones, pre-release suffixes signal "not stable yet":
 
 These are not considered production-ready.
 
-### 10.3 `v1.0.0`  (P)
+### 10.3 `v1.0.0` (P)
 
 The first stable public release, targeted at feature-complete launch (M7). Before `v1.0.0`, the API and data model are considered unstable and may change without a major version bump.
 
@@ -359,16 +362,16 @@ The first stable public release, targeted at feature-complete launch (M7). Befor
 
 ## 11. Do Not
 
-| Anti-pattern | Why | Fix |
-|--------------|-----|-----|
-| `git push origin main` directly | Branch protection rejects it; bypasses review | Open a PR |
-| `git commit -m "fix"` | Useless history | Conventional Commits with description |
-| `git merge main` into feature branch repeatedly | Clutters history with merge commits | Rebase onto `main` |
-| `git rebase` on a shared branch | Rewrites history others depend on | Coordinate or merge |
-| `git push --force` | Can silently overwrite others' work | `--force-with-lease` |
-| `git commit --no-verify` to bypass hooks | Defeats the purpose of hooks | Fix the underlying issue |
-| Long-lived feature branches | Diverge from `main`, accumulate conflicts | Short-lived branches, merged within days |
-| Force-pushing a published tag | Breaks downstream users who pinned the tag | Release a new patch version |
+| Anti-pattern                                    | Why                                           | Fix                                      |
+| ----------------------------------------------- | --------------------------------------------- | ---------------------------------------- |
+| `git push origin main` directly                 | Branch protection rejects it; bypasses review | Open a PR                                |
+| `git commit -m "fix"`                           | Useless history                               | Conventional Commits with description    |
+| `git merge main` into feature branch repeatedly | Clutters history with merge commits           | Rebase onto `main`                       |
+| `git rebase` on a shared branch                 | Rewrites history others depend on             | Coordinate or merge                      |
+| `git push --force`                              | Can silently overwrite others' work           | `--force-with-lease`                     |
+| `git commit --no-verify` to bypass hooks        | Defeats the purpose of hooks                  | Fix the underlying issue                 |
+| Long-lived feature branches                     | Diverge from `main`, accumulate conflicts     | Short-lived branches, merged within days |
+| Force-pushing a published tag                   | Breaks downstream users who pinned the tag    | Release a new patch version              |
 
 ---
 

@@ -17,75 +17,75 @@
 
 ### 2.1 Fields
 
-| Column | Type | Constraint | Description |
-|--------|------|------------|-------------|
-| `id` | `uuid` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key. |
-| `actor_id` | `uuid` | nullable FK → `users.id` | Who performed the action. `NULL` for system actions. |
-| `actor_context` | `jsonb` | `NOT NULL DEFAULT '{}'` | Snapshot of actor state (role, ip, session id) at action time. |
-| `action` | `text` | `NOT NULL` | Verb + resource. See §2.3. |
-| `resource_type` | `text` | `NOT NULL` | The entity type affected. See §2.4. |
-| `resource_id` | `uuid` | nullable | The affected entity's id. `NULL` for actions without a single target. |
-| `before` | `jsonb` | nullable | Snapshot of the entity before the change. |
-| `after` | `jsonb` | nullable | Snapshot of the entity after the change. |
-| `metadata` | `jsonb` | `NOT NULL DEFAULT '{}'` | Extra context (reason, source, correlation id). |
-| `ip_address` | `inet` | nullable | Source IP of the actor. |
-| `user_agent` | `text` | nullable | Client UA of the actor. |
-| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()` | When the action occurred. |
+| Column          | Type          | Constraint                              | Description                                                           |
+| --------------- | ------------- | --------------------------------------- | --------------------------------------------------------------------- |
+| `id`            | `uuid`        | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key.                                                        |
+| `actor_id`      | `uuid`        | nullable FK → `users.id`                | Who performed the action. `NULL` for system actions.                  |
+| `actor_context` | `jsonb`       | `NOT NULL DEFAULT '{}'`                 | Snapshot of actor state (role, ip, session id) at action time.        |
+| `action`        | `text`        | `NOT NULL`                              | Verb + resource. See §2.3.                                            |
+| `resource_type` | `text`        | `NOT NULL`                              | The entity type affected. See §2.4.                                   |
+| `resource_id`   | `uuid`        | nullable                                | The affected entity's id. `NULL` for actions without a single target. |
+| `before`        | `jsonb`       | nullable                                | Snapshot of the entity before the change.                             |
+| `after`         | `jsonb`       | nullable                                | Snapshot of the entity after the change.                              |
+| `metadata`      | `jsonb`       | `NOT NULL DEFAULT '{}'`                 | Extra context (reason, source, correlation id).                       |
+| `ip_address`    | `inet`        | nullable                                | Source IP of the actor.                                               |
+| `user_agent`    | `text`        | nullable                                | Client UA of the actor.                                               |
+| `created_at`    | `timestamptz` | `NOT NULL DEFAULT now()`                | When the action occurred.                                             |
 
 ### 2.2 Constraints
 
-| Name | Type | Definition |
-|------|------|------------|
-| `chk_audit_log_action_format` | check | `action ~ '^[a-z]+\.[a-z_]+$'` (e.g. `user.role_change`) |
-| `chk_audit_log_resource_type_range` | check | `resource_type IN ('user','user_account','anime','episode','season','comment','rating','bookmark','notification','studio','genre')` |
-| `chk_audit_log_before_after_not_both_null` | check | `before IS NOT NULL OR after IS NOT NULL` |
+| Name                                       | Type  | Definition                                                                                                                          |
+| ------------------------------------------ | ----- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `chk_audit_log_action_format`              | check | `action ~ '^[a-z]+\.[a-z_]+$'` (e.g. `user.role_change`)                                                                            |
+| `chk_audit_log_resource_type_range`        | check | `resource_type IN ('user','user_account','anime','episode','season','comment','rating','bookmark','notification','studio','genre')` |
+| `chk_audit_log_before_after_not_both_null` | check | `before IS NOT NULL OR after IS NOT NULL`                                                                                           |
 
 ### 2.3 Action Format
 
 Actions follow the `{resource}.{verb}` convention:
 
-| Action | Meaning |
-|--------|---------|
-| `user.create` | Account created. |
-| `user.role_change` | Role modified. |
-| `user.email_change` | Email modified. |
-| `user.soft_delete` / `user.restore` | Soft-deleted / restored. |
-| `user.hard_delete` | GDPR erasure. |
-| `user_account.link` / `user_account.unlink` | OAuth/credential linked/unlinked. |
-| `anime.create` / `anime.update` / `anime.soft_delete` / `anime.restore` | Catalog mutations. |
-| `episode.create` / `episode.update` / `episode.soft_delete` | Episode mutations. |
-| `comment.create` / `comment.update` / `comment.soft_delete` / `comment.hide` / `comment.pin` | Comment lifecycle + moderation. |
-| `rating.create` / `rating.update` / `rating.soft_delete` | Rating lifecycle. |
-| `bookmark.create` / `bookmark.update` / `bookmark.soft_delete` | Bookmark lifecycle. |
-| `notification.create` | Notification dispatched. |
-| `system.export` / `system.import` | Bulk operations. |
+| Action                                                                                       | Meaning                           |
+| -------------------------------------------------------------------------------------------- | --------------------------------- |
+| `user.create`                                                                                | Account created.                  |
+| `user.role_change`                                                                           | Role modified.                    |
+| `user.email_change`                                                                          | Email modified.                   |
+| `user.soft_delete` / `user.restore`                                                          | Soft-deleted / restored.          |
+| `user.hard_delete`                                                                           | GDPR erasure.                     |
+| `user_account.link` / `user_account.unlink`                                                  | OAuth/credential linked/unlinked. |
+| `anime.create` / `anime.update` / `anime.soft_delete` / `anime.restore`                      | Catalog mutations.                |
+| `episode.create` / `episode.update` / `episode.soft_delete`                                  | Episode mutations.                |
+| `comment.create` / `comment.update` / `comment.soft_delete` / `comment.hide` / `comment.pin` | Comment lifecycle + moderation.   |
+| `rating.create` / `rating.update` / `rating.soft_delete`                                     | Rating lifecycle.                 |
+| `bookmark.create` / `bookmark.update` / `bookmark.soft_delete`                               | Bookmark lifecycle.               |
+| `notification.create`                                                                        | Notification dispatched.          |
+| `system.export` / `system.import`                                                            | Bulk operations.                  |
 
 ### 2.4 Resource Types
 
-| Value | Entity |
-|-------|--------|
-| `user` | `users` |
+| Value          | Entity          |
+| -------------- | --------------- |
+| `user`         | `users`         |
 | `user_account` | `user_accounts` |
-| `anime` | `anime` |
-| `episode` | `episodes` |
-| `season` | `seasons` |
-| `comment` | `comments` |
-| `rating` | `ratings` |
-| `bookmark` | `bookmarks` |
+| `anime`        | `anime`         |
+| `episode`      | `episodes`      |
+| `season`       | `seasons`       |
+| `comment`      | `comments`      |
+| `rating`       | `ratings`       |
+| `bookmark`     | `bookmarks`     |
 | `notification` | `notifications` |
-| `studio` | `studios` |
-| `genre` | `genres` |
+| `studio`       | `studios`       |
+| `genre`        | `genres`        |
 
 ### 2.5 Indexes
 
-| Index | Type | Columns | Purpose |
-|-------|------|---------|---------|
-| `pk_audit_log` | btree (unique) | `id` | PK. |
-| `idx_audit_log_actor_created` | btree | `(actor_id, created_at DESC)` | "What did this user do?" |
-| `idx_audit_log_resource` | btree | `(resource_type, resource_id, created_at DESC)` | "History of this entity." |
-| `idx_audit_log_action` | btree | `(action, created_at DESC)` | "All role changes." |
-| `idx_audit_log_created_at` | btree | `created_at` | Retention/partition scans. |
-| `idx_audit_log_metadata` | GIN | `metadata` | Lookup by correlation id or arbitrary key. |
+| Index                         | Type           | Columns                                         | Purpose                                    |
+| ----------------------------- | -------------- | ----------------------------------------------- | ------------------------------------------ |
+| `pk_audit_log`                | btree (unique) | `id`                                            | PK.                                        |
+| `idx_audit_log_actor_created` | btree          | `(actor_id, created_at DESC)`                   | "What did this user do?"                   |
+| `idx_audit_log_resource`      | btree          | `(resource_type, resource_id, created_at DESC)` | "History of this entity."                  |
+| `idx_audit_log_action`        | btree          | `(action, created_at DESC)`                     | "All role changes."                        |
+| `idx_audit_log_created_at`    | btree          | `created_at`                                    | Retention/partition scans.                 |
+| `idx_audit_log_metadata`      | GIN            | `metadata`                                      | Lookup by correlation id or arbitrary key. |
 
 ### 2.6 Decisions & Rationale
 
@@ -100,14 +100,14 @@ Actions follow the `{resource}.{verb}` convention:
 
 ### 2.7 What Gets Audited
 
-| Always audited | Never audited |
-|----------------|---------------|
-| Role changes, email changes, account link/unlink | Read operations (viewing a page, listing anime) |
-| Soft-delete / restore of user-owned entities | Watch history inserts (too high-volume; sampled if needed) |
-| Comment moderation (hide, pin, delete) | Search history inserts (too high-volume) |
-| Rating value changes (affects aggregates) | Playback heartbeats |
-| Admin catalog edits | Cache reads/writes |
-| GDPR erasure events | |
+| Always audited                                   | Never audited                                              |
+| ------------------------------------------------ | ---------------------------------------------------------- |
+| Role changes, email changes, account link/unlink | Read operations (viewing a page, listing anime)            |
+| Soft-delete / restore of user-owned entities     | Watch history inserts (too high-volume; sampled if needed) |
+| Comment moderation (hide, pin, delete)           | Search history inserts (too high-volume)                   |
+| Rating value changes (affects aggregates)        | Playback heartbeats                                        |
+| Admin catalog edits                              | Cache reads/writes                                         |
+| GDPR erasure events                              |                                                            |
 
 The line is **security-sensitive or aggregate-affecting mutations**. High-volume, low-risk events (watch history, search) are excluded to keep the audit log manageable.
 
@@ -128,6 +128,6 @@ Immutability is enforced at **three layers**:
 
 ### 2.10 Relationship Recap
 
-- `users` 1 — * `audit_log` (one-to-many; as actor).
+- `users` 1 — \* `audit_log` (one-to-many; as actor).
 - `audit_log` references many entity types via `resource_type` + `resource_id` — but these are **not** foreign keys. The audit log must survive the deletion of the referenced entity, so we can't enforce FK constraints. The `resource_id` is a logical pointer, not a database constraint.
 - On user erasure: **audit rows are preserved**. The `actor_id` is retained (it's needed for the audit trail), but `actor_context` is scrubbed of PII (ip, session id) per GDPR. The action history is not the user's data — it's the platform's record.

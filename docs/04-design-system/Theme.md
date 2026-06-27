@@ -9,6 +9,7 @@
 The platform ships with a **single theme: Dark (codename: Midnight).** This is the primary identity — the "cinematic portal" aesthetic is fundamentally dark. A light theme is architecturally feasible (all tokens are semantic, not color-literal) but is not designed or implemented in the current milestone scope.
 
 **Why dark-only for v1?**
+
 - The brand identity is dark. A light theme would be a fundamentally different visual experience.
 - Designing two themes simultaneously doubles design effort and splits attention.
 - The anime streaming market skews dark (Crunchyroll, HIDIVE, AnimeLab all default to dark).
@@ -22,46 +23,46 @@ The platform ships with a **single theme: Dark (codename: Midnight).** This is t
 
 ### Surface Colors
 
-| Token | Value | Preview |
-|-------|-------|---------|
-| `surface-base` | `#0a0e1a` | ██████████ Deep void |
-| `surface-raised` | `#111627` | ██████████ Card surface |
-| `surface-overlay` | `#171d30` | ██████████ Modal surface |
+| Token              | Value     | Preview                               |
+| ------------------ | --------- | ------------------------------------- |
+| `surface-base`     | `#0a0e1a` | ██████████ Deep void                  |
+| `surface-raised`   | `#111627` | ██████████ Card surface               |
+| `surface-overlay`  | `#171d30` | ██████████ Modal surface              |
 | `surface-elevated` | `#1c2338` | █████████<arg_value> Dropdown surface |
-| `surface-floating` | `#222840` | ██████████ Floating panel |
-| `surface-sunken` | `#050810` | ██████████ Inset areas |
+| `surface-floating` | `#222840` | ██████████ Floating panel             |
+| `surface-sunken`   | `#050810` | ██████████ Inset areas                |
 
 ### Text Colors
 
-| Token | Value | On surface-base Contrast |
-|-------|-------|--------------------------|
-| `text-primary` | `#ecedf5` | 17.4:1 |
-| `text-secondary` | `#a3aac6` | 7.8:1 |
-| `text-tertiary` | `#747c9e` | 4.9:1 |
-| `text-placeholder` | `#505876` | 3.2:1 |
-| `text-disabled` | `#3a4160` | 2.1:1 (exempt) |
-| `text-on-accent` | `#0a0e1a` | — (on aether) |
-| `text-inverse` | `#0a0e1a` | — (on bright surfaces) |
+| Token              | Value     | On surface-base Contrast |
+| ------------------ | --------- | ------------------------ |
+| `text-primary`     | `#ecedf5` | 17.4:1                   |
+| `text-secondary`   | `#a3aac6` | 7.8:1                    |
+| `text-tertiary`    | `#747c9e` | 4.9:1                    |
+| `text-placeholder` | `#505876` | 3.2:1                    |
+| `text-disabled`    | `#3a4160` | 2.1:1 (exempt)           |
+| `text-on-accent`   | `#0a0e1a` | — (on aether)            |
+| `text-inverse`     | `#0a0e1a` | — (on bright surfaces)   |
 
 ### Accent Colors
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `action-primary-bg` | `#4199d8` | Primary buttons, links |
-| `action-primary-hover` | `#3380c4` | Button hover |
-| `action-primary-pressed` | `#2563a0` | Button pressed |
-| `action-primary-text` | `#0a0e1a` | Text on primary buttons |
-| `action-accent-bg` | `#da44bc` | Premium/upsell buttons |
-| `action-accent-text` | `#0a0e1a` | Text on accent buttons |
+| Token                    | Value     | Usage                   |
+| ------------------------ | --------- | ----------------------- |
+| `action-primary-bg`      | `#4199d8` | Primary buttons, links  |
+| `action-primary-hover`   | `#3380c4` | Button hover            |
+| `action-primary-pressed` | `#2563a0` | Button pressed          |
+| `action-primary-text`    | `#0a0e1a` | Text on primary buttons |
+| `action-accent-bg`       | `#da44bc` | Premium/upsell buttons  |
+| `action-accent-text`     | `#0a0e1a` | Text on accent buttons  |
 
 ### Border Colors
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `border-subtle` | `#2d3450` | Card edges, dividers |
-| `border-default` | `#3a4160` | Input borders |
-| `border-strong` | `#505876` | Emphasized borders |
-| `border-accent` | `#4199d8` | Focused, selected |
+| Token            | Value     | Usage                |
+| ---------------- | --------- | -------------------- |
+| `border-subtle`  | `#2d3450` | Card edges, dividers |
+| `border-default` | `#3a4160` | Input borders        |
+| `border-strong`  | `#505876` | Emphasized borders   |
+| `border-accent`  | `#4199d8` | Focused, selected    |
 
 ---
 
@@ -100,7 +101,8 @@ All theme values are expressed as CSS custom properties on `:root`. Components n
 Theme switching (when implemented) uses a `data-theme` attribute on `<html>`:
 
 ```css
-:root, [data-theme="midnight"] {
+:root,
+[data-theme="midnight"] {
   --nexus-surface-base: #0a0e1a;
   /* ... Midnight values ... */
 }
@@ -119,11 +121,11 @@ Theme switching (when implemented) uses a `data-theme` attribute on `<html>`:
 
 ## Theme Persistence
 
-| Storage | Purpose | Reason |
-|---------|---------|--------|
-| Cookie (`nexus-theme`) | Server-rendered theme class | Available on first request |
-| `prefers-color-scheme` | System preference fallback | If no cookie, follow OS preference |
-| localStorage | JS-accessible backup | For theme switcher UI that runs client-side |
+| Storage                | Purpose                     | Reason                                      |
+| ---------------------- | --------------------------- | ------------------------------------------- |
+| Cookie (`nexus-theme`) | Server-rendered theme class | Available on first request                  |
+| `prefers-color-scheme` | System preference fallback  | If no cookie, follow OS preference          |
+| localStorage           | JS-accessible backup        | For theme switcher UI that runs client-side |
 
 ### Preference Resolution Order
 
@@ -139,37 +141,37 @@ Cookie takes precedence (set by server). If no cookie, check localStorage (clien
 
 The Midnight theme's glass variants (see [Glassmorphism.md](Glassmorphism.md)):
 
-| Variant | Background | Border | Blur |
-|---------|-----------|-------|------|
-| Standard | `#111627 / 0.70` | `#505876 / 0.15` | 8px |
-| Frosted | `#171d30 / 0.85` | `#3a4160 / 0.20` | 16px |
-| Crystal | `#111627 / 0.50` | `#505876 / 0.10` | 4px |
-| Tinted | `#2563a0 / 0.15` | `#5bb2ea / 0.20` | 8px |
-| Nova | `#6b1a5e / 0.15` | `#ec66d4 / 0.25` | 8px |
+| Variant  | Background       | Border           | Blur |
+| -------- | ---------------- | ---------------- | ---- |
+| Standard | `#111627 / 0.70` | `#505876 / 0.15` | 8px  |
+| Frosted  | `#171d30 / 0.85` | `#3a4160 / 0.20` | 16px |
+| Crystal  | `#111627 / 0.50` | `#505876 / 0.10` | 4px  |
+| Tinted   | `#2563a0 / 0.15` | `#5bb2ea / 0.20` | 8px  |
+| Nova     | `#6b1a5e / 0.15` | `#ec66d4 / 0.25` | 8px  |
 
 ---
 
 ## Midnight Theme: Shadow Specifications
 
-| Elevation | Shadow CSS Value |
-|-----------|-----------------|
-| 0 | `none` |
-| 1 | `0 1px 2px 0 rgba(5,8,16,0.30), 0 1px 3px 0 rgba(5,8,16,0.15)` |
-| 2 | `0 2px 4px 0 rgba(5,8,16,0.35), 0 4px 8px 0 rgba(5,8,16,0.20)` |
-| 3 | `0 4px 6px 0 rgba(5,8,16,0.40), 0 8px 16px 0 rgba(5,8,16,0.25), 0 2px 4px 0 rgba(5,8,16,0.15)` |
-| 4 | `0 8px 12px 0 rgba(5,8,16,0.45), 0 16px 32px 0 rgba(5,8,16,0.30), 0 4px 8px 0 rgba(5,8,16,0.20)` |
+| Elevation | Shadow CSS Value                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------ |
+| 0         | `none`                                                                                           |
+| 1         | `0 1px 2px 0 rgba(5,8,16,0.30), 0 1px 3px 0 rgba(5,8,16,0.15)`                                   |
+| 2         | `0 2px 4px 0 rgba(5,8,16,0.35), 0 4px 8px 0 rgba(5,8,16,0.20)`                                   |
+| 3         | `0 4px 6px 0 rgba(5,8,16,0.40), 0 8px 16px 0 rgba(5,8,16,0.25), 0 2px 4px 0 rgba(5,8,16,0.15)`   |
+| 4         | `0 8px 12px 0 rgba(5,8,16,0.45), 0 16px 32px 0 rgba(5,8,16,0.30), 0 4px 8px 0 rgba(5,8,16,0.20)` |
 
 ---
 
 ## Midnight Theme: Gradient Specifications
 
-| Name | CSS Value |
-|------|-----------|
-| `gradient-surface` | `linear-gradient(180deg, #111627, #0a0e1a)` |
-| `gradient-hero` | `radial-gradient(ellipse at 50% 0%, rgba(91,178,234,0.15), transparent 70%)` |
-| `gradient-overlay` | `linear-gradient(180deg, transparent 50%, #0a0e1a)` |
-| `gradient-accent` | `linear-gradient(135deg, #4199d8, #da44bc)` |
-| `gradient-shine` | `linear-gradient(135deg, transparent 40%, rgba(237,237,245,0.05) 50%, transparent 60%)` |
+| Name               | CSS Value                                                                               |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| `gradient-surface` | `linear-gradient(180deg, #111627, #0a0e1a)`                                             |
+| `gradient-hero`    | `radial-gradient(ellipse at 50% 0%, rgba(91,178,234,0.15), transparent 70%)`            |
+| `gradient-overlay` | `linear-gradient(180deg, transparent 50%, #0a0e1a)`                                     |
+| `gradient-accent`  | `linear-gradient(135deg, #4199d8, #da44bc)`                                             |
+| `gradient-shine`   | `linear-gradient(135deg, transparent 40%, rgba(237,237,245,0.05) 50%, transparent 60%)` |
 
 ---
 
@@ -179,14 +181,14 @@ The Midnight theme's glass variants (see [Glassmorphism.md](Glassmorphism.md)):
 
 The Dawn theme would invert the Midnight palette:
 
-| Midnight Token | Dawn Concept |
-|----------------|--------------|
-| `surface-base` (#0a0e1a) | → Light gray-blue (#f8f9fc) |
-| `surface-raised` (#111627) | → White (#ffffff) |
-| `text-primary` (#ecedf5) | → Near-black (#1a1e2e) |
-| `text-secondary` (#a3aac6) | → Mid-gray (#5a6178) |
-| `action-primary-bg` (#4199d8) | → Same (accent color doesn't invert) |
-| Glass backgrounds | → Higher opacity (0.90+) with light tints |
+| Midnight Token                | Dawn Concept                              |
+| ----------------------------- | ----------------------------------------- |
+| `surface-base` (#0a0e1a)      | → Light gray-blue (#f8f9fc)               |
+| `surface-raised` (#111627)    | → White (#ffffff)                         |
+| `text-primary` (#ecedf5)      | → Near-black (#1a1e2e)                    |
+| `text-secondary` (#a3aac6)    | → Mid-gray (#5a6178)                      |
+| `action-primary-bg` (#4199d8) | → Same (accent color doesn't invert)      |
+| Glass backgrounds             | → Higher opacity (0.90+) with light tints |
 
 **Key challenge:** Glassmorphism in a light theme requires different opacity/color tuning. The blur effect over a light background produces a different visual than over a dark background. Dawn glass would need dedicated variant tuning.
 
@@ -198,14 +200,14 @@ The Dawn theme would invert the Midnight palette:
 
 For users who need maximum contrast (e.g., `prefers-contrast: more`):
 
-| Adjustment | Applied |
-|------------|---------|
-| Surface base | Darker → `#020408` |
-| Text primary | Brighter → `#ffffff` |
-| Text secondary | Brighter → `#c0c6dc` |
-| Border subtle | Brighter → `#505876` |
-| Focus ring | Wider → 3px, higher contrast → `#82c7f5` |
-| Glass backgrounds | More opaque → 0.95+ |
+| Adjustment        | Applied                                  |
+| ----------------- | ---------------------------------------- |
+| Surface base      | Darker → `#020408`                       |
+| Text primary      | Brighter → `#ffffff`                     |
+| Text secondary    | Brighter → `#c0c6dc`                     |
+| Border subtle     | Brighter → `#505876`                     |
+| Focus ring        | Wider → 3px, higher contrast → `#82c7f5` |
+| Glass backgrounds | More opaque → 0.95+                      |
 
 **Decision: Honor `prefers-contrast: more`.** Windows users with high-contrast mode enabled get these adjustments automatically. No opt-in required.
 

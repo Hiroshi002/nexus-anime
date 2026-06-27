@@ -10,11 +10,11 @@
 
 ### Why this style
 
-| Alternative | Why rejected |
-|-------------|-------------|
-| Microservices | Premature for a small-to-mid team with a single deployable. Adds network latency, operational overhead (service mesh, distributed tracing), and drift risk without clear scaling benefit at current traffic. |
-| Monolith without layers | Fast to build, but modules become tightly coupled over time. A change in video playback could silently break authentication. Layers enforce dependency direction and prevent circular imports. |
-| Micro-frontends | Gives team autonomy per surface, but adds complexity (shared shell, independent deploys, cross-app state). We have one UI surface (`apps/web`) and one team — micro-frontends solve a problem we don't have. |
+| Alternative             | Why rejected                                                                                                                                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Microservices           | Premature for a small-to-mid team with a single deployable. Adds network latency, operational overhead (service mesh, distributed tracing), and drift risk without clear scaling benefit at current traffic. |
+| Monolith without layers | Fast to build, but modules become tightly coupled over time. A change in video playback could silently break authentication. Layers enforce dependency direction and prevent circular imports.               |
+| Micro-frontends         | Gives team autonomy per surface, but adds complexity (shared shell, independent deploys, cross-app state). We have one UI surface (`apps/web`) and one team — micro-frontends solve a problem we don't have. |
 
 ### Layer diagram
 
@@ -61,19 +61,19 @@ nexus-anime/
 
 Each `@nexus/*` package has a **public API surface** exported from its `index.ts`. Internal modules are not importable by consumers.
 
-| Package | Public API | Internal (private) |
-|---------|-----------|-------------------|
-| `@nexus/ui` | Components, hooks, theme tokens | Internal Radix primitives, cn() helpers |
-| `@nexus/db` | `db` client, schema types, repository constructors | Raw Drizzle query implementations, migration runner |
-| `@nexus/cache` | Cache helpers, rate limiters, feature flag getters | Redis key construction, connection management |
+| Package        | Public API                                         | Internal (private)                                  |
+| -------------- | -------------------------------------------------- | --------------------------------------------------- |
+| `@nexus/ui`    | Components, hooks, theme tokens                    | Internal Radix primitives, cn() helpers             |
+| `@nexus/db`    | `db` client, schema types, repository constructors | Raw Drizzle query implementations, migration runner |
+| `@nexus/cache` | Cache helpers, rate limiters, feature flag getters | Redis key construction, connection management       |
 
 ### Why Turborepo over Nx
 
-| Criterion | Turborepo | Nx |
-|-----------|-----------|-----|
-| Config overhead | Low — `turbo.json` pipeline defs | High — generators, targeted deps, workspace config |
-| Caching | Remote caching free on Vercel | Requires Nx Cloud or self-hosted |
-| Learning curve | Minimal for pnpm workspace users | Steeper — task graph, affected commands |
+| Criterion         | Turborepo                                      | Nx                                                  |
+| ----------------- | ---------------------------------------------- | --------------------------------------------------- |
+| Config overhead   | Low — `turbo.json` pipeline defs               | High — generators, targeted deps, workspace config  |
+| Caching           | Remote caching free on Vercel                  | Requires Nx Cloud or self-hosted                    |
+| Learning curve    | Minimal for pnpm workspace users               | Steeper — task graph, affected commands             |
 | Fit for this repo | 3 packages + 1 app — Turborepo is proportional | Better at 10+ apps/packages with cross-cutting deps |
 
 ---
@@ -100,11 +100,11 @@ src/
 
 ### Why feature-based over type-based
 
-| Approach | Strength | Weakness |
-|----------|----------|----------|
-| **Feature-based** (chosen) | Cohesion — everything for "watchlist" is one `cd` away. Easy to delete a feature. | Some duplication (each feature may have its own error boundary). Tolerable at our scale. |
-| Type-based (`components/`, `hooks/`, `actions/`) | No duplication. Familiar to Rails-style developers. | Low cohesion — a change to watchlist touches 5 directories. Hard to delete a feature cleanly. |
-| Domain-driven design (aggregates, bounded contexts) | Formally correct for complex domains. | Overkill — our domain is a streaming catalog, not financial trading. The ceremony outweighs the benefit. |
+| Approach                                            | Strength                                                                          | Weakness                                                                                                 |
+| --------------------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **Feature-based** (chosen)                          | Cohesion — everything for "watchlist" is one `cd` away. Easy to delete a feature. | Some duplication (each feature may have its own error boundary). Tolerable at our scale.                 |
+| Type-based (`components/`, `hooks/`, `actions/`)    | No duplication. Familiar to Rails-style developers.                               | Low cohesion — a change to watchlist touches 5 directories. Hard to delete a feature cleanly.            |
+| Domain-driven design (aggregates, bounded contexts) | Formally correct for complex domains.                                             | Overkill — our domain is a streaming catalog, not financial trading. The ceremony outweighs the benefit. |
 
 ### Cross-feature imports rule
 
@@ -132,13 +132,13 @@ If `WatchlistButton` needs `Anime` types, the type moves to `shared/types/` or t
 
 ### Component categories
 
-| Category | Rendering | Examples | Package |
-|----------|-----------|----------|---------|
-| Primitives | Server | Button, Input, Card, Badge, Dialog | `@nexus/ui` |
-| Composites | Server | AnimeCard, EpisodeList, SearchBar | `features/*/components/` |
-| Interactive | Client | VideoPlayer, WatchlistToggle, ThemeSwitch | `features/*/components/` |
-| Layout | Server | AppShell, Sidebar, PageHeader | `shared/components/` |
-| Islands | Client (dynamic import) | Player, CommentEditor, PaymentForm | `features/*/components/` |
+| Category    | Rendering               | Examples                                  | Package                  |
+| ----------- | ----------------------- | ----------------------------------------- | ------------------------ |
+| Primitives  | Server                  | Button, Input, Card, Badge, Dialog        | `@nexus/ui`              |
+| Composites  | Server                  | AnimeCard, EpisodeList, SearchBar         | `features/*/components/` |
+| Interactive | Client                  | VideoPlayer, WatchlistToggle, ThemeSwitch | `features/*/components/` |
+| Layout      | Server                  | AppShell, Sidebar, PageHeader             | `shared/components/`     |
+| Islands     | Client (dynamic import) | Player, CommentEditor, PaymentForm        | `features/*/components/` |
 
 ### Why Server-first
 
@@ -151,7 +151,7 @@ Components are small and composed. Instead of a monolithic `<AnimePage>` that ta
 ```tsx
 // Server Component — no client JS
 export default async function AnimeDetailPage({ params }) {
-  const anime = await getAnime(params.id);       // cached server fetch
+  const anime = await getAnime(params.id); // cached server fetch
   return (
     <Suspense fallback={<AnimeDetailSkeleton />}>
       <AnimeHero anime={anime} />
@@ -191,13 +191,13 @@ features/player/
 
 ### Why Server Actions over REST for mutations
 
-| Criterion | Server Actions | REST API |
-|-----------|---------------|----------|
-| Boilerplate | Minimal — function + Zod validate | Route handler + request parse + response shape |
-| Type safety | End-to-end — same TypeScript context | Broken at the HTTP boundary |
-| Progressive enhancement | Works without JS (form submission) | Requires JS |
-| Revalidation | Built-in `revalidatePath` / `revalidateTag` | Manual cache invalidation |
-| Webhooks | Not suitable | Required for Stripe, Stream callbacks |
+| Criterion               | Server Actions                              | REST API                                       |
+| ----------------------- | ------------------------------------------- | ---------------------------------------------- |
+| Boilerplate             | Minimal — function + Zod validate           | Route handler + request parse + response shape |
+| Type safety             | End-to-end — same TypeScript context        | Broken at the HTTP boundary                    |
+| Progressive enhancement | Works without JS (form submission)          | Requires JS                                    |
+| Revalidation            | Built-in `revalidatePath` / `revalidateTag` | Manual cache invalidation                      |
+| Webhooks                | Not suitable                                | Required for Stripe, Stream callbacks          |
 
 **Decision:** Server Actions for all user-facing mutations. Route Handlers for webhooks, external integrations, and backward-compatible API endpoints.
 
@@ -221,11 +221,11 @@ packages/db/src/
 
 ### Why repositories
 
-| Alternative | Why rejected |
-|-------------|-------------|
-| Direct Drizzle calls in services | Ties service logic to query builder syntax. Hard to test (must mock Drizzle). Hard to swap DB engine. |
-| Active Record pattern | Couples data model to persistence. An `Anime` object that can `.save()` itself mixes domain and infrastructure concerns. |
-| Query objects / specifications | Flexible, but adds abstraction layers. Overkill when our queries are straightforward catalog lookups. |
+| Alternative                      | Why rejected                                                                                                             |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Direct Drizzle calls in services | Ties service logic to query builder syntax. Hard to test (must mock Drizzle). Hard to swap DB engine.                    |
+| Active Record pattern            | Couples data model to persistence. An `Anime` object that can `.save()` itself mixes domain and infrastructure concerns. |
+| Query objects / specifications   | Flexible, but adds abstraction layers. Overkill when our queries are straightforward catalog lookups.                    |
 
 ### Repository contract
 
@@ -282,6 +282,7 @@ apps/web/src/lib/clients/
 ### Contract
 
 Each client module:
+
 - Exports typed functions (no raw `fetch` calls in services).
 - Validates responses with Zod before returning (never trust upstream shape).
 - Handles retries with exponential backoff for transient failures.
@@ -330,11 +331,11 @@ app/
 
 ### Why Route Groups
 
-| Alternative | Why rejected |
-|-------------|-------------|
-| Flat route structure | All pages share one layout. Authenticated and public pages need different shells (sidebar vs. marketing header). |
+| Alternative                 | Why rejected                                                                                                                     |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Flat route structure        | All pages share one layout. Authenticated and public pages need different shells (sidebar vs. marketing header).                 |
 | Middleware-only auth checks | Middleware can redirect, but cannot inject different layouts. Route Groups give both layout switching and middleware-based auth. |
-| Separate apps | Overkill — the admin-vs-public split is a layout concern, not a deploy concern. |
+| Separate apps               | Overkill — the admin-vs-public split is a layout concern, not a deploy concern.                                                  |
 
 ---
 
@@ -402,10 +403,10 @@ Root error boundary (app/error.tsx)
 
 ### Why Metadata API over react-helmet
 
-| Alternative | Why rejected |
-|-------------|-------------|
-| react-helmet | Client-side — metadata is not available to crawlers on SSR. Deprecated in Next.js App Router. |
-| Manual `<head>` tags | Not streaming-compatible. Metadata API handles dedup and streaming. |
+| Alternative          | Why rejected                                                                                  |
+| -------------------- | --------------------------------------------------------------------------------------------- |
+| react-helmet         | Client-side — metadata is not available to crawlers on SSR. Deprecated in Next.js App Router. |
+| Manual `<head>` tags | Not streaming-compatible. Metadata API handles dedup and streaming.                           |
 
 ---
 
@@ -444,11 +445,11 @@ AAA requires 7:1 contrast ratio, which conflicts with the dark glassmorphism aes
 
 The architecture accommodates a future separate backend without restructuring:
 
-| Today (M0–M4) | Future (M6+) |
-|----------------|--------------|
-| Server Components → Services → Repositories → @nexus/db | Same services call HTTP API instead of repositories |
-| External APIs called from Next.js server | External APIs called from backend, proxied to Next.js |
-| Drizzle ORM in @nexus/db | Drizzle migrates to backend service; @nexus/db becomes API client |
+| Today (M0–M4)                                           | Future (M6+)                                                      |
+| ------------------------------------------------------- | ----------------------------------------------------------------- |
+| Server Components → Services → Repositories → @nexus/db | Same services call HTTP API instead of repositories               |
+| External APIs called from Next.js server                | External APIs called from backend, proxied to Next.js             |
+| Drizzle ORM in @nexus/db                                | Drizzle migrates to backend service; @nexus/db becomes API client |
 
 **Migration path:** Services are the seam. Today they call repositories; tomorrow they call API clients. The service interface stays the same; only the implementation changes. This is why the service layer exists — it is the application's protection against infrastructure changes.
 

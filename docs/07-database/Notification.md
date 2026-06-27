@@ -17,64 +17,64 @@ A `notification` is a **system-generated message** delivered to a user — a new
 
 ### 2.1 Fields
 
-| Column | Type | Constraint | Description |
-|--------|------|------------|-------------|
-| `id` | `uuid` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key. |
-| `user_id` | `uuid` | `NOT NULL` FK → `users.id` | Recipient. |
-| `type` | `text` | `NOT NULL` | Notification type. See §2.3. |
-| `channel` | `text` | `NOT NULL DEFAULT 'in_app'` | Delivery channel. See §2.4. |
-| `priority` | `text` | `NOT NULL DEFAULT 'normal'` | `'low'`, `'normal'`, `'high'`. |
-| `title` | `text` | `NOT NULL` | Short headline. |
-| `body` | `text` | nullable | Longer message text. |
-| `image_url` | `text` | nullable | Thumbnail/illustration URL. |
-| `action_url` | `text` | nullable | Deep link when tapped (e.g. `/anime/:slug`). |
-| `payload` | `jsonb` | `NOT NULL DEFAULT '{}'` | Type-specific data. GIN-indexed. |
-| `is_read` | `boolean` | `NOT NULL DEFAULT false` | Read flag (denormalized for fast filtering). |
-| `read_at` | `timestamptz` | nullable | When the user read it. |
-| `sent_at` | `timestamptz` | nullable | When it was dispatched to the channel (for push/email). |
-| `expires_at` | `timestamptz` | nullable | When it should no longer be shown. |
-| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()` | Creation time. |
+| Column       | Type          | Constraint                              | Description                                             |
+| ------------ | ------------- | --------------------------------------- | ------------------------------------------------------- |
+| `id`         | `uuid`        | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key.                                          |
+| `user_id`    | `uuid`        | `NOT NULL` FK → `users.id`              | Recipient.                                              |
+| `type`       | `text`        | `NOT NULL`                              | Notification type. See §2.3.                            |
+| `channel`    | `text`        | `NOT NULL DEFAULT 'in_app'`             | Delivery channel. See §2.4.                             |
+| `priority`   | `text`        | `NOT NULL DEFAULT 'normal'`             | `'low'`, `'normal'`, `'high'`.                          |
+| `title`      | `text`        | `NOT NULL`                              | Short headline.                                         |
+| `body`       | `text`        | nullable                                | Longer message text.                                    |
+| `image_url`  | `text`        | nullable                                | Thumbnail/illustration URL.                             |
+| `action_url` | `text`        | nullable                                | Deep link when tapped (e.g. `/anime/:slug`).            |
+| `payload`    | `jsonb`       | `NOT NULL DEFAULT '{}'`                 | Type-specific data. GIN-indexed.                        |
+| `is_read`    | `boolean`     | `NOT NULL DEFAULT false`                | Read flag (denormalized for fast filtering).            |
+| `read_at`    | `timestamptz` | nullable                                | When the user read it.                                  |
+| `sent_at`    | `timestamptz` | nullable                                | When it was dispatched to the channel (for push/email). |
+| `expires_at` | `timestamptz` | nullable                                | When it should no longer be shown.                      |
+| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()`                | Creation time.                                          |
 
 ### 2.2 Constraints
 
-| Name | Type | Definition |
-|------|------|------------|
-| `chk_notifications_type_range` | check | `type IN ('new_episode','reply','system','recommendation','achievement')` |
-| `chk_notifications_channel_range` | check | `channel IN ('in_app','email','push')` |
-| `chk_notifications_priority_range` | check | `priority IN ('low','normal','high')` |
-| `chk_notifications_read_requires_read_at` | check | `is_read = false OR read_at IS NOT NULL` |
-| `chk_notifications_sent_before_read` | check | `sent_at IS NULL OR read_at IS NULL OR read_at >= sent_at` |
+| Name                                      | Type  | Definition                                                                |
+| ----------------------------------------- | ----- | ------------------------------------------------------------------------- |
+| `chk_notifications_type_range`            | check | `type IN ('new_episode','reply','system','recommendation','achievement')` |
+| `chk_notifications_channel_range`         | check | `channel IN ('in_app','email','push')`                                    |
+| `chk_notifications_priority_range`        | check | `priority IN ('low','normal','high')`                                     |
+| `chk_notifications_read_requires_read_at` | check | `is_read = false OR read_at IS NOT NULL`                                  |
+| `chk_notifications_sent_before_read`      | check | `sent_at IS NULL OR read_at IS NULL OR read_at >= sent_at`                |
 
 ### 2.3 Type Values
 
-| Value | Meaning | Example `payload` |
-|-------|---------|-------------------|
-| `new_episode` | A bookmarked show got a new episode. | `{"anime_id": "...", "episode_id": "...", "episode_number": 5}` |
-| `reply` | Someone replied to the user's comment. | `{"anime_id": "...", "comment_id": "...", "replier_id": "..."}` |
-| `system` | Platform announcement. | `{"announcement_id": "..."}` |
-| `recommendation` | Personalized show suggestion. | `{"anime_id": "...", "reason": "because you watched X"}` |
-| `achievement` | Badge/milestone unlocked (future). | `{"achievement_id": "..."}` |
+| Value            | Meaning                                | Example `payload`                                               |
+| ---------------- | -------------------------------------- | --------------------------------------------------------------- |
+| `new_episode`    | A bookmarked show got a new episode.   | `{"anime_id": "...", "episode_id": "...", "episode_number": 5}` |
+| `reply`          | Someone replied to the user's comment. | `{"anime_id": "...", "comment_id": "...", "replier_id": "..."}` |
+| `system`         | Platform announcement.                 | `{"announcement_id": "..."}`                                    |
+| `recommendation` | Personalized show suggestion.          | `{"anime_id": "...", "reason": "because you watched X"}`        |
+| `achievement`    | Badge/milestone unlocked (future).     | `{"achievement_id": "..."}`                                     |
 
 ### 2.4 Channel Values
 
-| Value | Meaning |
-|-------|---------|
-| `in_app` | Stored in DB, shown in the in-app inbox. |
-| `email` | Sent via email (future — requires `sent_at` tracking). |
-| `push` | Push notification (future — requires device tokens, stored elsewhere). |
+| Value    | Meaning                                                                |
+| -------- | ---------------------------------------------------------------------- |
+| `in_app` | Stored in DB, shown in the in-app inbox.                               |
+| `email`  | Sent via email (future — requires `sent_at` tracking).                 |
+| `push`   | Push notification (future — requires device tokens, stored elsewhere). |
 
 > **M3 scope:** only `in_app` is implemented. `email` and `push` are future channels; the column is pre-provisioned so the schema doesn't change when they arrive.
 
 ### 2.5 Indexes
 
-| Index | Type | Columns | Purpose |
-|-------|------|---------|---------|
-| `pk_notifications` | btree (unique) | `id` | PK. |
-| `idx_notifications_user_created` | btree | `(user_id, created_at DESC)` | Inbox feed (paginated). |
-| `idx_notifications_user_unread` | btree | `(user_id, created_at DESC)` `WHERE is_read = false` | Unread notifications + badge count. |
-| `idx_notifications_expires_at` | btree | `expires_at` `WHERE expires_at IS NOT NULL` | TTL purge job. |
-| `idx_notifications_type` | btree | `(user_id, type)` `WHERE is_read = false` | "Any unread new_episode alerts?" |
-| `idx_notifications_payload` | GIN | `payload` | Lookup by payload key (e.g. all notifications for an anime). |
+| Index                            | Type           | Columns                                              | Purpose                                                      |
+| -------------------------------- | -------------- | ---------------------------------------------------- | ------------------------------------------------------------ |
+| `pk_notifications`               | btree (unique) | `id`                                                 | PK.                                                          |
+| `idx_notifications_user_created` | btree          | `(user_id, created_at DESC)`                         | Inbox feed (paginated).                                      |
+| `idx_notifications_user_unread`  | btree          | `(user_id, created_at DESC)` `WHERE is_read = false` | Unread notifications + badge count.                          |
+| `idx_notifications_expires_at`   | btree          | `expires_at` `WHERE expires_at IS NOT NULL`          | TTL purge job.                                               |
+| `idx_notifications_type`         | btree          | `(user_id, type)` `WHERE is_read = false`            | "Any unread new_episode alerts?"                             |
+| `idx_notifications_payload`      | GIN            | `payload`                                            | Lookup by payload key (e.g. all notifications for an anime). |
 
 ### 2.6 Decisions & Rationale
 
@@ -102,5 +102,5 @@ When a new episode is published:
 
 ### 2.9 Relationship Recap
 
-- `users` 1 — * `notifications` (one-to-many).
+- `users` 1 — \* `notifications` (one-to-many).
 - `payload` may reference `anime`, `episodes`, `comments`, `users` — but these are **not** foreign keys. The payload is a snapshot, not a live reference. If the referenced entity is deleted, the notification still renders (with a fallback like "this anime is no longer available").

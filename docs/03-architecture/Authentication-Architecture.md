@@ -10,22 +10,22 @@
 
 ### Why Auth.js v5 over alternatives
 
-| Alternative | Why rejected |
-|-------------|-------------|
+| Alternative     | Why rejected                                                                                                                                                                                    |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Custom JWT auth | Manual implementation of token signing, rotation, revocation, CSRF. Every edge case (expired token during request, concurrent refresh, session fixation) must be handled. Auth.js solves these. |
-| Clerk | Hosted auth service — adds a third-party dependency for a core feature. Vendor lock-in for user data (Clerk owns the user table). Free tier limits: 10K MAU. |
-| Supabase Auth | Tied to Supabase's Postgres — we use Neon. Migration would require exporting users. |
-| Lucia | Good library, but smaller community. Auth.js is the de facto Next.js standard with first-class App Router support. |
+| Clerk           | Hosted auth service — adds a third-party dependency for a core feature. Vendor lock-in for user data (Clerk owns the user table). Free tier limits: 10K MAU.                                    |
+| Supabase Auth   | Tied to Supabase's Postgres — we use Neon. Migration would require exporting users.                                                                                                             |
+| Lucia           | Good library, but smaller community. Auth.js is the de facto Next.js standard with first-class App Router support.                                                                              |
 
 ---
 
 ## 2. Auth Providers
 
-| Provider | Type | When | Why |
-|----------|------|------|-----|
-| **Credentials** | Email + password | Primary — always available | Universal; works without third-party OAuth setup. Users who don't want Google/GitHub linkage need this. |
-| **Google** | OAuth 2.0 | Recommended — reduces friction | Most users have Google accounts. OIDC gives verified email automatically. |
-| **GitHub** | OAuth 2.0 | Optional — for developer audience | Niche but aligns with the gaming-crossover audience. Secondary OAuth option. |
+| Provider        | Type             | When                              | Why                                                                                                     |
+| --------------- | ---------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Credentials** | Email + password | Primary — always available        | Universal; works without third-party OAuth setup. Users who don't want Google/GitHub linkage need this. |
+| **Google**      | OAuth 2.0        | Recommended — reduces friction    | Most users have Google accounts. OIDC gives verified email automatically.                               |
+| **GitHub**      | OAuth 2.0        | Optional — for developer audience | Niche but aligns with the gaming-crossover audience. Secondary OAuth option.                            |
 
 ### Why credentials + OAuth, not OAuth-only
 
@@ -33,11 +33,11 @@ OAuth-only excludes users without Google/GitHub accounts (rare, but real). It al
 
 ### Why not Magic Links (email-only)
 
-| Pros | Cons |
-|------|------|
+| Pros                    | Cons                                                     |
+| ----------------------- | -------------------------------------------------------- |
 | No password to remember | Requires email delivery infrastructure (Resend/SendGrid) |
-| No password reset flow | Email delivery is unreliable (spam filters, delays) |
-| Simpler mental model | Not familiar to all users — some expect password login |
+| No password reset flow  | Email delivery is unreliable (spam filters, delays)      |
+| Simpler mental model    | Not familiar to all users — some expect password login   |
 
 Magic links are considered for a future enhancement (M4+), but credentials + OAuth covers the M3 auth requirement without adding email delivery complexity.
 
@@ -49,13 +49,13 @@ Magic links are considered for a future enhancement (M4+), but credentials + OAu
 
 ### Why database sessions over stateless JWT
 
-| Criterion | Database sessions | Stateless JWT |
-|-----------|-----------------|---------------|
-| Immediate revocation | Delete session row → revoked instantly | Must wait for token expiry (or implement blocklist) |
-| Session listing | Query DB → user sees all active sessions | JWT is opaque — can't list sessions without a store |
-| Session metadata | Store IP, user-agent, last-active in session row | JWT payload is limited (size, public) |
-| Performance | One DB query per request (mitigated by session cookie caching) | Zero DB queries (fast) |
-| Scalability | Scales with Neon (serverless Postgres, connection pooling) | Better at extreme scale (zero DB) |
+| Criterion            | Database sessions                                              | Stateless JWT                                       |
+| -------------------- | -------------------------------------------------------------- | --------------------------------------------------- |
+| Immediate revocation | Delete session row → revoked instantly                         | Must wait for token expiry (or implement blocklist) |
+| Session listing      | Query DB → user sees all active sessions                       | JWT is opaque — can't list sessions without a store |
+| Session metadata     | Store IP, user-agent, last-active in session row               | JWT payload is limited (size, public)               |
+| Performance          | One DB query per request (mitigated by session cookie caching) | Zero DB queries (fast)                              |
+| Scalability          | Scales with Neon (serverless Postgres, connection pooling)     | Better at extreme scale (zero DB)                   |
 
 **Decision:** Database sessions for revocability. The DB query cost is mitigated by Auth.js v5's session cookie strategy — it verifies the session cookie's signature first, and only queries the DB when the cookie is fresh or expired. This gives near-JWT performance with revocability.
 
@@ -68,7 +68,9 @@ Magic links are considered for a future enhancement (M4+), but credentials + OAu
 export const sessions = pgTable("sessions", {
   id: uuid("id").primaryKey().defaultRandom(),
   sessionToken: text("session_token").notNull().unique(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   // Audit fields
@@ -85,10 +87,10 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   emailVerified: timestamp("email_verified", { withTimezone: true }),
   name: text("name"),
-  image: text("image"),  // Avatar URL (R2)
+  image: text("image"), // Avatar URL (R2)
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-  deletedAt: timestamp("deleted_at", { withTimezone: true }),  // Soft delete
+  deletedAt: timestamp("deleted_at", { withTimezone: true }), // Soft delete
 });
 ```
 
@@ -97,9 +99,11 @@ export const users = pgTable("users", {
 ```ts
 export const accounts = pgTable("accounts", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  type: text("type").notNull(),          // "oauth" or "email"
-  provider: text("provider").notNull(),   // "google", "github"
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // "oauth" or "email"
+  provider: text("provider").notNull(), // "google", "github"
   providerAccountId: text("provider_account_id").notNull(),
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
@@ -144,7 +148,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientSecret: process.env.AUTH_GITHUB_SECRET,
     }),
   ],
-  session: { strategy: "database", maxAge: 30 * 24 * 60 * 60 },  // 30 days
+  session: { strategy: "database", maxAge: 30 * 24 * 60 * 60 }, // 30 days
   pages: {
     signIn: "/login",
     signOut: "/login",
@@ -180,19 +184,19 @@ export const { GET, POST } = handlers;
 
 ### Password validation rules
 
-| Rule | Why |
-|------|-----|
-| Minimum 8 characters | Below 8 is trivially brute-forceable |
-| Maximum 128 characters | Prevents DoS via long input; bcrypt has a 72-byte limit anyway |
+| Rule                                                                | Why                                                                                                    |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Minimum 8 characters                                                | Below 8 is trivially brute-forceable                                                                   |
+| Maximum 128 characters                                              | Prevents DoS via long input; bcrypt has a 72-byte limit anyway                                         |
 | No complexity rules (no "must contain uppercase + number + symbol") | NIST SP 800-63B recommends against forced complexity — it encourages predictable patterns (Password1!) |
 
 ### Why bcrypt over argon2
 
-| Criterion | bcrypt | argon2 |
-|-----------|--------|--------|
+| Criterion     | bcrypt                                  | argon2                                              |
+| ------------- | --------------------------------------- | --------------------------------------------------- |
 | Compatibility | Pure JS (bcryptjs) — works in Edge/Node | Native addon — requires libargon2, may fail in Edge |
-| Security | Adequate for web auth | Superior (memory-hard) |
-| Performance | ~200ms hash (work factor 12) | ~50ms hash (tuned) |
+| Security      | Adequate for web auth                   | Superior (memory-hard)                              |
+| Performance   | ~200ms hash (work factor 12)            | ~50ms hash (tuned)                                  |
 
 Argon2 is better but adds a native dependency that complicates serverless deployment (Vercel Edge/Node may not support the addon). bcrypt is the pragmatic choice for a Vercel-deployed app.
 
@@ -253,27 +257,35 @@ Manual linking requires the user to remember they have an account and navigate t
 
 ### Role-based access control (RBAC)
 
-| Role | Permissions | Assigned to |
-|------|-------------|-------------|
-| `user` | Browse catalog, manage watchlist, update profile, stream video | All authenticated users |
-| `subscriber` | All `user` permissions + premium content, HD/UHD streaming | Paid subscribers |
-| `admin` | All permissions + admin panel, user management, content management | Admin users (seeded, never self-assigned) |
+| Role         | Permissions                                                        | Assigned to                               |
+| ------------ | ------------------------------------------------------------------ | ----------------------------------------- |
+| `user`       | Browse catalog, manage watchlist, update profile, stream video     | All authenticated users                   |
+| `subscriber` | All `user` permissions + premium content, HD/UHD streaming         | Paid subscribers                          |
+| `admin`      | All permissions + admin panel, user management, content management | Admin users (seeded, never self-assigned) |
 
 ### Role schema
 
 ```ts
 export const roles = pgTable("roles", {
   id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull().unique(),  // "user", "subscriber", "admin"
+  name: text("name").notNull().unique(), // "user", "subscriber", "admin"
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
-export const userRoles = pgTable("user_roles", {
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  roleId: uuid("role_id").notNull().references(() => roles.id, { onDelete: "cascade" }),
-}, (t) => ({
-  pk: primaryKey({ columns: [t.userId, t.roleId] }),
-}));
+export const userRoles = pgTable(
+  "user_roles",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    roleId: uuid("role_id")
+      .notNull()
+      .references(() => roles.id, { onDelete: "cascade" }),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.roleId] }),
+  }),
+);
 ```
 
 ### Why RBAC over ABAC
@@ -313,14 +325,14 @@ Middleware runs before the page renders, avoiding a flash of unauthenticated con
 
 ## 11. Session Lifecycle
 
-| Event | Action |
-|-------|--------|
-| Login | Create session row in DB, set session cookie, set CSRF cookie |
-| Request | Auth.js verifies cookie signature, checks DB session (if cookie is stale), updates last-active |
-| Logout | Delete session row from DB, clear cookies |
-| Expiry | Session row deleted by cron job (runs daily, deletes `expiresAt < now()`) |
-| Password change | Delete all sessions for the user (force re-login on all devices) |
-| Account deletion | Delete user + cascade: sessions, accounts, watchlist, progress |
+| Event            | Action                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------- |
+| Login            | Create session row in DB, set session cookie, set CSRF cookie                                  |
+| Request          | Auth.js verifies cookie signature, checks DB session (if cookie is stale), updates last-active |
+| Logout           | Delete session row from DB, clear cookies                                                      |
+| Expiry           | Session row deleted by cron job (runs daily, deletes `expiresAt < now()`)                      |
+| Password change  | Delete all sessions for the user (force re-login on all devices)                               |
+| Account deletion | Delete user + cascade: sessions, accounts, watchlist, progress                                 |
 
 ### Session TTL
 
@@ -341,9 +353,9 @@ Middleware runs before the page renders, avoiding a flash of unauthenticated con
 
 ## 13. Future Enhancements
 
-| Enhancement | Milestone | Why |
-|-------------|-----------|-----|
-| Two-factor authentication (TOTP) | M5+ | Required for payment account security |
-| Passkeys (WebAuthn) | M6+ | Passwordless login; better UX on mobile |
-| Session management UI | M4 | "Sign out of all devices" in settings |
-| Impersonation (admin-as-user) | M7 | Customer support tool |
+| Enhancement                      | Milestone | Why                                     |
+| -------------------------------- | --------- | --------------------------------------- |
+| Two-factor authentication (TOTP) | M5+       | Required for payment account security   |
+| Passkeys (WebAuthn)              | M6+       | Passwordless login; better UX on mobile |
+| Session management UI            | M4        | "Sign out of all devices" in settings   |
+| Impersonation (admin-as-user)    | M7        | Customer support tool                   |

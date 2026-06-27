@@ -120,15 +120,15 @@ This reverts commit 7a3b2f1 due to token leakage in server logs.
 
 Scopes declare **what part of the monorepo** the commit touches. Use them when a consumer needs to filter the changelog by subsystem. The canonical scopes are declared in `.commitlintrc.ts` and reviewed a new package is added.
 
-| Scope | Owning package / area |
-|-------|----------------------|
-| `ui` | `@nexus/ui` components, tokens, theme, Tailwind config |
-| `db` | `@nexus/db`, schema, migrations, Drizzle queries |
-| `cache` | `@nexus/cache`, Redis schema, Feature flags |
-| `auth` | Auth.js config, providers, middleware, session shape |
-| `api` | Route Handlers, Server Actions, envelope types |
-| `docs` | `docs/` site, ADRs, guides |
-| _(none)_ | Top-level config, Turborepo, CI, root scripts |
+| Scope    | Owning package / area                                  |
+| -------- | ------------------------------------------------------ |
+| `ui`     | `@nexus/ui` components, tokens, theme, Tailwind config |
+| `db`     | `@nexus/db`, schema, migrations, Drizzle queries       |
+| `cache`  | `@nexus/cache`, Redis schema, Feature flags            |
+| `auth`   | Auth.js config, providers, middleware, session shape   |
+| `api`    | Route Handlers, Server Actions, envelope types         |
+| `docs`   | `docs/` site, ADRs, guides                             |
+| _(none)_ | Top-level config, Turborepo, CI, root scripts          |
 
 Prefer the narrower scope. A change to the watchlist route handler in `apps/web/src/app/api/watchlist/route.ts` is scoped `api`, not `(none)`.
 
@@ -266,13 +266,13 @@ As a rough heuristic: if you need to use "and" in the subject line, split the co
 
 Schema is Conventional Commits 1.0.0 with the Angular default set extended for our scopes. The repository uses `semantic-release` with the `conventionalcommits` preset to derive version numbers from the commit log since the last tag.
 
-| Footer / marker | Type constraint | Version bump |
-|-----------------|-----------------|--------------|
-| `BREAKING CHANGE` or trailing `!` | any | MAJOR |
-| `feat` | — | MINOR |
-| `fix` | — | PATCH |
-| `perf` | — | PATCH |
-| `docs`, `style`, `chore`, `ci`, `build` | — | _(omitted from changelog by default)_ |
+| Footer / marker                         | Type constraint | Version bump                          |
+| --------------------------------------- | --------------- | ------------------------------------- |
+| `BREAKING CHANGE` or trailing `!`       | any             | MAJOR                                 |
+| `feat`                                  | —               | MINOR                                 |
+| `fix`                                   | —               | PATCH                                 |
+| `perf`                                  | —               | PATCH                                 |
+| `docs`, `style`, `chore`, `ci`, `build` | —               | _(omitted from changelog by default)_ |
 
 Feature and fix commits land in the changelog grouped under "Features" and "Bug Fixes". Each entry includes the scope and links to the PR.
 

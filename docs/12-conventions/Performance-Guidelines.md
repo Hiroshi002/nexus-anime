@@ -8,22 +8,22 @@
 
 Production targets measured from real users (Vercel Analytics RUM), not Lighthouse lab scores.
 
-| Metric | Our Target | Google "Good" | What it measures |
-|--------|-----------|---------------|-----------------|
-| **LCP** | < 1.0s | < 2.5s | Perceived load speed — largest visible content |
-| **INP** | < 150ms | < 200ms | Responsiveness to user interactions |
-| **CLS** | < 0.05 | < 0.1 | Visual stability during page load |
+| Metric  | Our Target | Google "Good" | What it measures                               |
+| ------- | ---------- | ------------- | ---------------------------------------------- |
+| **LCP** | < 1.0s     | < 2.5s        | Perceived load speed — largest visible content |
+| **INP** | < 150ms    | < 200ms       | Responsiveness to user interactions            |
+| **CLS** | < 0.05     | < 0.1         | Visual stability during page load              |
 
 Targets are ~20% tighter than "good" thresholds. A premium streaming platform must feel faster than average.
 
 ### Server-side targets
 
-| Metric | Target | Context |
-|--------|--------|---------|
-| TTFB (cached) | < 200ms | ISR page served from Edge |
-| TTFB (uncached) | < 500ms | Full server render |
-| DB query p95 | < 50ms | Neon serverless + connection pooling |
-| Redis cache p95 | < 5ms | Upstash REST API (no TCP overhead) |
+| Metric           | Target  | Context                              |
+| ---------------- | ------- | ------------------------------------ |
+| TTFB (cached)    | < 200ms | ISR page served from Edge            |
+| TTFB (uncached)  | < 500ms | Full server render                   |
+| DB query p95     | < 50ms  | Neon serverless + connection pooling |
+| Redis cache p95  | < 5ms   | Upstash REST API (no TCP overhead)   |
 | TMDB/AniList p95 | < 500ms | External network + their API latency |
 
 ---
@@ -32,21 +32,21 @@ Targets are ~20% tighter than "good" thresholds. A premium streaming platform mu
 
 Choose the correct strategy per route. The wrong strategy is the most common performance regression.
 
-| Strategy | When to use | TTFB impact |
-|----------|------------|-------------|
-| **ISR** | Catalog pages with high read traffic (home, anime detail, season) | < 50ms from Edge cache |
-| **SSR** | Personalized or real-time data (watchlist, profile, settings) | 200–500ms |
-| **Streaming** | Mixed-latency data on one page (fast hero + slow reviews) | Fast content visible immediately |
-| **Static** | Truly immutable content (legal, about, privacy) | ~0ms from CDN |
+| Strategy      | When to use                                                       | TTFB impact                      |
+| ------------- | ----------------------------------------------------------------- | -------------------------------- |
+| **ISR**       | Catalog pages with high read traffic (home, anime detail, season) | < 50ms from Edge cache           |
+| **SSR**       | Personalized or real-time data (watchlist, profile, settings)     | 200–500ms                        |
+| **Streaming** | Mixed-latency data on one page (fast hero + slow reviews)         | Fast content visible immediately |
+| **Static**    | Truly immutable content (legal, about, privacy)                   | ~0ms from CDN                    |
 
 ### ISR revalidation
 
-| Page | `revalidate` | Rationale |
-|------|-------------|-----------|
-| Home (trending) | 60s | Trending shifts frequently |
-| Anime detail | 300s | Metadata changes rarely |
-| Season listing | 600s | Season structure is stable |
-| Episode list | 300s | New episodes appear weekly |
+| Page            | `revalidate` | Rationale                  |
+| --------------- | ------------ | -------------------------- |
+| Home (trending) | 60s          | Trending shifts frequently |
+| Anime detail    | 300s         | Metadata changes rarely    |
+| Season listing  | 600s         | Season structure is stable |
+| Episode list    | 300s         | New episodes appear weekly |
 
 Do not over-revalidate (wastes compute) or under-revalidate (stale data).
 
@@ -69,11 +69,11 @@ Use `"use client"` **only** when the component needs state, effects, browser API
 
 ### Dynamic imports for heavy islands
 
-| Component | Est. size | Strategy |
-|-----------|----------|----------|
-| Video player (HLS.js) | ~200KB | `dynamic(() => import("./PlayerIsland"), { ssr: false })` |
-| Stripe checkout | ~80KB | `dynamic(() => import("./CheckoutIsland"), { ssr: false })` |
-| Comment/rich editor | ~50KB | `dynamic(() => import("./EditorIsland"), { ssr: false })` |
+| Component             | Est. size | Strategy                                                    |
+| --------------------- | --------- | ----------------------------------------------------------- |
+| Video player (HLS.js) | ~200KB    | `dynamic(() => import("./PlayerIsland"), { ssr: false })`   |
+| Stripe checkout       | ~80KB     | `dynamic(() => import("./CheckoutIsland"), { ssr: false })` |
+| Comment/rich editor   | ~50KB     | `dynamic(() => import("./EditorIsland"), { ssr: false })`   |
 
 Always provide a `loading` skeleton so the UI does not flash blank.
 
@@ -118,22 +118,22 @@ Use Drizzle's query builder with joins or `with` (relations) to fetch related da
 
 ### Performance budgets
 
-| Budget | Value | Enforcement |
-|--------|-------|-------------|
-| Initial JS (gzipped) | < 200KB | `next build` + CI check |
-| Initial CSS (gzipped) | < 50KB | Tailwind purge + CI check |
-| Total page weight | < 1MB | Lighthouse CI |
-| Per-route JS delta | < 10KB (on PR) | PR bundle diff flagged if exceeded |
+| Budget                | Value          | Enforcement                        |
+| --------------------- | -------------- | ---------------------------------- |
+| Initial JS (gzipped)  | < 200KB        | `next build` + CI check            |
+| Initial CSS (gzipped) | < 50KB         | Tailwind purge + CI check          |
+| Total page weight     | < 1MB          | Lighthouse CI                      |
+| Per-route JS delta    | < 10KB (on PR) | PR bundle diff flagged if exceeded |
 
 ### Route-level JS targets
 
-| Route | JS budget (gzipped) |
-|-------|---------------------|
-| Home (browse) | < 80KB (mostly Server Components) |
-| Anime detail | < 100KB (watchlist toggle + episode list) |
-| Watchlist | < 60KB (grid + React Query) |
-| Player | < 50KB initial + 200KB lazy (HLS.js) |
-| Checkout | < 50KB initial + 80KB lazy (Stripe Elements) |
+| Route         | JS budget (gzipped)                          |
+| ------------- | -------------------------------------------- |
+| Home (browse) | < 80KB (mostly Server Components)            |
+| Anime detail  | < 100KB (watchlist toggle + episode list)    |
+| Watchlist     | < 60KB (grid + React Query)                  |
+| Player        | < 50KB initial + 200KB lazy (HLS.js)         |
+| Checkout      | < 50KB initial + 80KB lazy (Stripe Elements) |
 
 ### Tree-shaking
 
@@ -204,12 +204,12 @@ content: [
 
 ### Cache layers and TTLs
 
-| Cache | Key / Scope | TTL | Invalidation |
-|-------|------------|-----|-------------|
-| Vercel Edge (ISR) | Per-route | Page `revalidate` value | On deploy (full), on revalidate (background) |
-| Redis | `nexus:{entity}:{id}:{view}` | 60s (volatile) / 15min (catalog) | On mutation (explicit) |
-| Next.js fetch cache | Per-request URL | Route default | `revalidateTag` / `revalidatePath` |
-| Browser | Asset hashes | Immutable (1 year) | New deploy = new hash |
+| Cache               | Key / Scope                  | TTL                              | Invalidation                                 |
+| ------------------- | ---------------------------- | -------------------------------- | -------------------------------------------- |
+| Vercel Edge (ISR)   | Per-route                    | Page `revalidate` value          | On deploy (full), on revalidate (background) |
+| Redis               | `nexus:{entity}:{id}:{view}` | 60s (volatile) / 15min (catalog) | On mutation (explicit)                       |
+| Next.js fetch cache | Per-request URL              | Route default                    | `revalidateTag` / `revalidatePath`           |
+| Browser             | Asset hashes                 | Immutable (1 year)               | New deploy = new hash                        |
 
 ### Redis key examples
 
@@ -233,6 +233,7 @@ nexus:search:query-hash     → 5min (search results)
 ### Indexing requirements
 
 Every migration that adds a table or column must include indexes for:
+
 - **Foreign keys** — Drizzle does not auto-index FKs.
 - **Columns in `WHERE` clauses** and **`ORDER BY` clauses**.
 - **Composite indexes** for frequent multi-column queries.
@@ -259,11 +260,11 @@ Static assets and ISR pages are served from Vercel's global Edge Network. Cache 
 
 ### Cache headers
 
-| Asset type | Cache-Control |
-|-----------|--------------|
+| Asset type              | Cache-Control                         |
+| ----------------------- | ------------------------------------- |
 | Static (JS, CSS, fonts) | `public, max-age=31536000, immutable` |
-| ISR pages | Managed by Next.js |
-| API responses | `private, no-store` or `s-maxage=60` |
+| ISR pages               | Managed by Next.js                    |
+| API responses           | `private, no-store` or `s-maxage=60`  |
 
 ### Preconnect hints
 
@@ -275,28 +276,28 @@ Add `<link rel="preconnect">` for origins loaded on initial render (R2 images, S
 
 ### Development
 
-| Tool | When | What |
-|------|------|------|
-| Chrome DevTools Performance | During dev | Render time, layout shifts, long tasks |
-| React DevTools Profiler | Component optimization | Unnecessary re-renders |
-| `next build` output | Before deploy | Bundle sizes per route |
-| `@next/bundle-analyzer` | Investigating bundle size | Treemap of route JS dependencies |
+| Tool                        | When                      | What                                   |
+| --------------------------- | ------------------------- | -------------------------------------- |
+| Chrome DevTools Performance | During dev                | Render time, layout shifts, long tasks |
+| React DevTools Profiler     | Component optimization    | Unnecessary re-renders                 |
+| `next build` output         | Before deploy             | Bundle sizes per route                 |
+| `@next/bundle-analyzer`     | Investigating bundle size | Treemap of route JS dependencies       |
 
 ### CI/CD
 
-| Check | Threshold | Action on failure |
-|-------|-----------|-------------------|
-| Bundle size | New route adds < 10KB gzipped | Comment on PR |
-| Lighthouse CI | LCP < 2.5s, CLS < 0.1, INP < 200ms | Block merge |
-| `pnpm typecheck` + `pnpm build` | Must pass | Block merge |
+| Check                           | Threshold                          | Action on failure |
+| ------------------------------- | ---------------------------------- | ----------------- |
+| Bundle size                     | New route adds < 10KB gzipped      | Comment on PR     |
+| Lighthouse CI                   | LCP < 2.5s, CLS < 0.1, INP < 200ms | Block merge       |
+| `pnpm typecheck` + `pnpm build` | Must pass                          | Block merge       |
 
 ### Production
 
-| Tool | Alert condition |
-|------|----------------|
-| Vercel Analytics (RUM) | p75 LCP > 2.5s for 10 min |
-| Vercel Speed Insights | Route CWV regression > 20% |
-| Custom Pino metrics | p95 > threshold for 5 min |
+| Tool                   | Alert condition            |
+| ---------------------- | -------------------------- |
+| Vercel Analytics (RUM) | p75 LCP > 2.5s for 10 min  |
+| Vercel Speed Insights  | Route CWV regression > 20% |
+| Custom Pino metrics    | p95 > threshold for 5 min  |
 
 Lab data (Lighthouse) is synthetic. RUM from Vercel Analytics is the ground truth for performance.
 
@@ -304,12 +305,12 @@ Lab data (Lighthouse) is synthetic. RUM from Vercel Analytics is the ground trut
 
 ## 13. Performance Budget Enforcement
 
-| Budget | Value | Measurement |
-|--------|-------|-------------|
-| Initial JS (gzipped) | < 200KB | `next build` output |
-| Initial CSS (gzipped) | < 50KB | `next build` output |
-| Total page weight | < 1MB | Lighthouse CI |
-| Third-party JS | Only Stripe + Cloudflare Embed | CSP enforcement |
+| Budget                | Value                          | Measurement         |
+| --------------------- | ------------------------------ | ------------------- |
+| Initial JS (gzipped)  | < 200KB                        | `next build` output |
+| Initial CSS (gzipped) | < 50KB                         | `next build` output |
+| Total page weight     | < 1MB                          | Lighthouse CI       |
+| Third-party JS        | Only Stripe + Cloudflare Embed | CSP enforcement     |
 
 When a budget is exceeded: identify the regressor, determine if it can be lazy-loaded, optimize if it must remain in the initial bundle. If the budget cannot be met, document the rationale and get team lead approval. Do not silently exceed budgets.
 
@@ -327,34 +328,34 @@ When a budget is exceeded: identify the regressor, determine if it can be lazy-l
 
 ### Bottleneck diagnosis
 
-| Symptom | Likely bottleneck | First check |
-|---------|------------------|-------------|
-| Slow TTFB | Rendering strategy | Should this page be ISR? |
-| Slow TTFB | Cache miss | Is Redis populated? ISR cached? |
-| Slow TTFB | DB query | Query plan, missing indexes |
-| Slow LCP | Large JS bundle | Heavy component in initial bundle? Make dynamic. |
-| Slow LCP | Unoptimized image | `priority` on LCP image? `sizes` correct? |
-| Slow LCP | Font loading | `display: "swap"`? `preload: true`? |
-| High CLS | Image dimensions | `width`/`height` on all images? |
-| High CLS | Dynamic content | Skeletons the right size? |
-| High INP | Expensive handler | Profile the handler |
-| High INP | Unnecessary re-renders | Component re-rendering on every interaction? |
-| Slow API | Upstream latency | Cache, retry, backoff |
+| Symptom   | Likely bottleneck      | First check                                      |
+| --------- | ---------------------- | ------------------------------------------------ |
+| Slow TTFB | Rendering strategy     | Should this page be ISR?                         |
+| Slow TTFB | Cache miss             | Is Redis populated? ISR cached?                  |
+| Slow TTFB | DB query               | Query plan, missing indexes                      |
+| Slow LCP  | Large JS bundle        | Heavy component in initial bundle? Make dynamic. |
+| Slow LCP  | Unoptimized image      | `priority` on LCP image? `sizes` correct?        |
+| Slow LCP  | Font loading           | `display: "swap"`? `preload: true`?              |
+| High CLS  | Image dimensions       | `width`/`height` on all images?                  |
+| High CLS  | Dynamic content        | Skeletons the right size?                        |
+| High INP  | Expensive handler      | Profile the handler                              |
+| High INP  | Unnecessary re-renders | Component re-rendering on every interaction?     |
+| Slow API  | Upstream latency       | Cache, retry, backoff                            |
 
 ### Anti-patterns
 
-| Anti-pattern | Correct approach |
-|-------------|-----------------|
-| `useState` + `useEffect` fetch | Server Component fetch or TanStack Query |
-| Blocking page on one slow section | `<Suspense>` with streaming |
-| `SELECT *` from DB | Select only needed columns |
-| Images without `width`/`height` | Always set explicit dimensions |
-| Heavy client component in initial bundle | `next/dynamic` with `ssr: false` |
-| Synchronous font loading | `font-display: swap` |
-| No `sizes` prop on `<Image>` | Set `sizes` for responsive loading |
-| Premature memoization | Only when profiling shows benefit |
-| Client-side search index | Server-side search (TMDB API, DB fulltext) |
-| Offset-based pagination | Cursor-based pagination |
+| Anti-pattern                             | Correct approach                           |
+| ---------------------------------------- | ------------------------------------------ |
+| `useState` + `useEffect` fetch           | Server Component fetch or TanStack Query   |
+| Blocking page on one slow section        | `<Suspense>` with streaming                |
+| `SELECT *` from DB                       | Select only needed columns                 |
+| Images without `width`/`height`          | Always set explicit dimensions             |
+| Heavy client component in initial bundle | `next/dynamic` with `ssr: false`           |
+| Synchronous font loading                 | `font-display: swap`                       |
+| No `sizes` prop on `<Image>`             | Set `sizes` for responsive loading         |
+| Premature memoization                    | Only when profiling shows benefit          |
+| Client-side search index                 | Server-side search (TMDB API, DB fulltext) |
+| Offset-based pagination                  | Cursor-based pagination                    |
 
 ### Premature vs. justified optimization
 

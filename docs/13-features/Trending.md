@@ -9,7 +9,7 @@
 
 ## 1. Purpose
 
-Show anime ranked by recent popularity over configurable time windows (today, this week, all-time). Trending helps users discover what the community is watching *right now* and surfaces climbing titles that may not appear in all-time popular rankings. This is distinct from "popular" which is all-time — trending is time-bound and more dynamic.
+Show anime ranked by recent popularity over configurable time windows (today, this week, all-time). Trending helps users discover what the community is watching _right now_ and surfaces climbing titles that may not appear in all-time popular rankings. This is distinct from "popular" which is all-time — trending is time-bound and more dynamic.
 
 ## 2. Business Goals
 
@@ -84,47 +84,47 @@ Show anime ranked by recent popularity over configurable time windows (today, th
 
 ## 7. UI Components
 
-| Component | Responsibility | Reusable? | Package |
-|-----------|---------------|-----------|---------|
-| `TrendingPage` | Page shell with header, toolbar, and list | No | `apps/web` |
-| `TrendingToolbar` | Sticky toolbar containing filter and sort controls | No | `apps/web` |
-| `SegmentedControl` | Single-select control for time window | Yes | `@nexus/ui` |
-| `FilterChipGroup` | Multi-select chip group for type filter | Yes | `@nexus/ui` |
-| `SortDropdown` | Dropdown for sort options | Yes | `@nexus/ui` |
-| `TrendingList` | Vertical list of trending rows with stagger animation | No | `apps/web` |
-| `TrendingRow` | Single row: rank + indicator + thumbnail + meta + actions | No | `apps/web` |
-| `RankBadge` | Large rank number with up/down/flat chevron | Yes | `@nexus/ui` |
-| `AnimeCardHorizontal` | Compact horizontal anime card (thumbnail + meta) | Yes | `@nexus/ui` |
-| `TrendingActions` | Watch button + watchlist toggle for each row | Yes | `apps/web` |
-| `LoadMoreButton` | Client-side pagination trigger | Yes | `@nexus/ui` |
-| `TrendingSkeleton` | Placeholder skeleton matching row layout | Yes | `@nexus/ui` |
-| `EmptyState` | Illustration + message for zero-results state | Yes | `@nexus/ui` |
+| Component             | Responsibility                                            | Reusable? | Package     |
+| --------------------- | --------------------------------------------------------- | --------- | ----------- |
+| `TrendingPage`        | Page shell with header, toolbar, and list                 | No        | `apps/web`  |
+| `TrendingToolbar`     | Sticky toolbar containing filter and sort controls        | No        | `apps/web`  |
+| `SegmentedControl`    | Single-select control for time window                     | Yes       | `@nexus/ui` |
+| `FilterChipGroup`     | Multi-select chip group for type filter                   | Yes       | `@nexus/ui` |
+| `SortDropdown`        | Dropdown for sort options                                 | Yes       | `@nexus/ui` |
+| `TrendingList`        | Vertical list of trending rows with stagger animation     | No        | `apps/web`  |
+| `TrendingRow`         | Single row: rank + indicator + thumbnail + meta + actions | No        | `apps/web`  |
+| `RankBadge`           | Large rank number with up/down/flat chevron               | Yes       | `@nexus/ui` |
+| `AnimeCardHorizontal` | Compact horizontal anime card (thumbnail + meta)          | Yes       | `@nexus/ui` |
+| `TrendingActions`     | Watch button + watchlist toggle for each row              | Yes       | `apps/web`  |
+| `LoadMoreButton`      | Client-side pagination trigger                            | Yes       | `@nexus/ui` |
+| `TrendingSkeleton`    | Placeholder skeleton matching row layout                  | Yes       | `@nexus/ui` |
+| `EmptyState`          | Illustration + message for zero-results state             | Yes       | `@nexus/ui` |
 
 ## 8. API Dependencies
 
-| Endpoint | Method | Auth Required | Rate Limit | Cache |
-|----------|--------|---------------|------------|-------|
-| `/api/anime/trending` | GET | No | 100/min per IP | ISR 300s |
-| `/api/anime/{id}/watchlist` | POST / DELETE | Yes | 30/min per user | None |
+| Endpoint                    | Method        | Auth Required | Rate Limit      | Cache    |
+| --------------------------- | ------------- | ------------- | --------------- | -------- |
+| `/api/anime/trending`       | GET           | No            | 100/min per IP  | ISR 300s |
+| `/api/anime/{id}/watchlist` | POST / DELETE | Yes           | 30/min per user | None     |
 
 Query parameters for `/api/anime/trending`:
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `window` | `today` \| `week` \| `all` | `week` | Time window for trending calculation |
-| `type` | `all` \| `tv` \| `movie` \| `ova` | `all` | Anime type filter |
-| `sort` | `rank` \| `change` \| `rating` | `rank` | Sort order |
-| `limit` | integer (1-50) | `20` | Page size |
-| `cursor` | string | — | Cursor for pagination |
+| Parameter | Type                              | Default | Description                          |
+| --------- | --------------------------------- | ------- | ------------------------------------ |
+| `window`  | `today` \| `week` \| `all`        | `week`  | Time window for trending calculation |
+| `type`    | `all` \| `tv` \| `movie` \| `ova` | `all`   | Anime type filter                    |
+| `sort`    | `rank` \| `change` \| `rating`    | `rank`  | Sort order                           |
+| `limit`   | integer (1-50)                    | `20`    | Page size                            |
+| `cursor`  | string                            | —       | Cursor for pagination                |
 
 ## 9. Database Dependencies
 
-| Table / View | Operation | Index / Query Notes |
-|--------------|-----------|---------------------|
-| `anime` | SELECT | Indexed on `id`; `trending_score_7d`, `trending_score_30d` materialized columns |
-| `watch_history` | SELECT (aggregate) | Indexed on `(anime_id, created_at)` for time-windowed view counts |
-| `watchlist` | SELECT (aggregate) | Indexed on `(anime_id, created_at)` for time-windowed add counts |
-| `trending_materialized_view` | SELECT | Materialized view refreshed every 5 minutes; indexed on `(window_type, score DESC)` |
+| Table / View                 | Operation          | Index / Query Notes                                                                 |
+| ---------------------------- | ------------------ | ----------------------------------------------------------------------------------- |
+| `anime`                      | SELECT             | Indexed on `id`; `trending_score_7d`, `trending_score_30d` materialized columns     |
+| `watch_history`              | SELECT (aggregate) | Indexed on `(anime_id, created_at)` for time-windowed view counts                   |
+| `watchlist`                  | SELECT (aggregate) | Indexed on `(anime_id, created_at)` for time-windowed add counts                    |
+| `trending_materialized_view` | SELECT             | Materialized view refreshed every 5 minutes; indexed on `(window_type, score DESC)` |
 
 ## 10. Edge Cases
 
@@ -141,26 +141,26 @@ Query parameters for `/api/anime/trending`:
 
 ## 11. Error Handling
 
-| Error Condition | User-Facing Message | Recovery Action | Log Level |
-|-----------------|---------------------|-----------------|-----------|
-| Trending API failure (origin) | ISR serves stale cached data | Stale data warning banner shown | warn |
-| Trending API failure (client refresh) | "Couldn't load trending. Retry." | Inline retry button | warn |
-| Filter produces 0 results | "No anime match these filters." | "Reset filters" button | info |
-| Watchlist toggle failure | "Couldn't update watchlist. Try again." | Revert toggle state, show toast | warn |
-| Stale cache (> 10 min) | "Trending data may be slightly outdated." | Page still renders | warn |
-| Invalid query parameter | Default value used | Silent fallback | info |
+| Error Condition                       | User-Facing Message                       | Recovery Action                 | Log Level |
+| ------------------------------------- | ----------------------------------------- | ------------------------------- | --------- |
+| Trending API failure (origin)         | ISR serves stale cached data              | Stale data warning banner shown | warn      |
+| Trending API failure (client refresh) | "Couldn't load trending. Retry."          | Inline retry button             | warn      |
+| Filter produces 0 results             | "No anime match these filters."           | "Reset filters" button          | info      |
+| Watchlist toggle failure              | "Couldn't update watchlist. Try again."   | Revert toggle state, show toast | warn      |
+| Stale cache (> 10 min)                | "Trending data may be slightly outdated." | Page still renders              | warn      |
+| Invalid query parameter               | Default value used                        | Silent fallback                 | info      |
 
 ## 12. Analytics Events
 
-| Event Name | Trigger | Properties | Surface |
-|------------|---------|------------|---------|
-| `trending_page_view` | Page loads | `{ window, type, sort }` | Server |
-| `trending_filter_change` | User changes filter | `{ filter: 'window' | 'type' | 'sort', value }` | Client |
-| `trending_row_click` | User clicks an anime row | `{ anime_id, rank, window }` | Client |
-| `trending_watch_click` | User clicks "Watch" on a row | `{ anime_id, rank }` | Client |
-| `trending_watchlist_toggle` | User toggles watchlist | `{ anime_id, action: 'add' | 'remove' }` | Client |
-| `trending_load_more` | User clicks "Load more" | `{ page, window }` | Client |
-| `trending_rank_explanation_view` | User clicks "Why is this ranked?" (future) | `{ anime_id, rank }` | Client |
+| Event Name                       | Trigger                                    | Properties                   | Surface     |
+| -------------------------------- | ------------------------------------------ | ---------------------------- | ----------- | ---------------- | ------ |
+| `trending_page_view`             | Page loads                                 | `{ window, type, sort }`     | Server      |
+| `trending_filter_change`         | User changes filter                        | `{ filter: 'window'          | 'type'      | 'sort', value }` | Client |
+| `trending_row_click`             | User clicks an anime row                   | `{ anime_id, rank, window }` | Client      |
+| `trending_watch_click`           | User clicks "Watch" on a row               | `{ anime_id, rank }`         | Client      |
+| `trending_watchlist_toggle`      | User toggles watchlist                     | `{ anime_id, action: 'add'   | 'remove' }` | Client           |
+| `trending_load_more`             | User clicks "Load more"                    | `{ page, window }`           | Client      |
+| `trending_rank_explanation_view` | User clicks "Why is this ranked?" (future) | `{ anime_id, rank }`         | Client      |
 
 ## 13. Security Considerations
 

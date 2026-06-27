@@ -10,12 +10,12 @@
 
 ### Why Pino over alternatives
 
-| Alternative | Why rejected |
-|-------------|-------------|
-| `console.log` | Unstructured, no log levels, no context enrichment, not JSON-parseable by log aggregators |
-| Winston | Feature-rich but slower (5–10x vs Pino). Unnecessary transports — we use Vercel's built-in log aggregation. |
-| Bunyan | Good but unmaintained. Pino is the spiritual successor. |
-| Next.js built-in logger | No structured logging, no custom transports, no log level control. |
+| Alternative             | Why rejected                                                                                                |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `console.log`           | Unstructured, no log levels, no context enrichment, not JSON-parseable by log aggregators                   |
+| Winston                 | Feature-rich but slower (5–10x vs Pino). Unnecessary transports — we use Vercel's built-in log aggregation. |
+| Bunyan                  | Good but unmaintained. Pino is the spiritual successor.                                                     |
+| Next.js built-in logger | No structured logging, no custom transports, no log level control.                                          |
 
 Pino is the fastest Node.js logger (asynchronous by default), produces structured JSON, and integrates with Vercel's log aggregation.
 
@@ -42,40 +42,40 @@ Every log entry is JSON with consistent fields:
 
 ### Required fields
 
-| Field | Type | Source | Why |
-|-------|------|--------|-----|
-| `level` | `trace`/`debug`/`info`/`warn`/`error`/`fatal` | Pino | Filter and alert by severity |
-| `time` | ISO 8601 or epoch | Pino (automatic) | Timestamp for ordering and correlation |
-| `msg` | string | Application code | Human-readable summary |
-| `requestId` | UUID | `x-request-id` header or generated | Correlate all logs for a single request |
-| `service` | string | Application code | Identify which service/module produced the log |
-| `environment` | string | `NODE_ENV` | Filter production vs. staging logs |
+| Field         | Type                                          | Source                             | Why                                            |
+| ------------- | --------------------------------------------- | ---------------------------------- | ---------------------------------------------- |
+| `level`       | `trace`/`debug`/`info`/`warn`/`error`/`fatal` | Pino                               | Filter and alert by severity                   |
+| `time`        | ISO 8601 or epoch                             | Pino (automatic)                   | Timestamp for ordering and correlation         |
+| `msg`         | string                                        | Application code                   | Human-readable summary                         |
+| `requestId`   | UUID                                          | `x-request-id` header or generated | Correlate all logs for a single request        |
+| `service`     | string                                        | Application code                   | Identify which service/module produced the log |
+| `environment` | string                                        | `NODE_ENV`                         | Filter production vs. staging logs             |
 
 ### Optional context fields
 
-| Field | When |
-|-------|------|
-| `userId` | Authenticated requests |
-| `animeId`, `episodeId` | Catalog operations |
-| `cacheHit` | Cache reads |
-| `duration` | Timed operations (DB queries, upstream calls) |
-| `upstream` | External API calls (name + status) |
-| `statusCode` | HTTP responses |
-| `errorCode` | AppError code |
-| `featureFlag` | Feature flag evaluations |
+| Field                  | When                                          |
+| ---------------------- | --------------------------------------------- |
+| `userId`               | Authenticated requests                        |
+| `animeId`, `episodeId` | Catalog operations                            |
+| `cacheHit`             | Cache reads                                   |
+| `duration`             | Timed operations (DB queries, upstream calls) |
+| `upstream`             | External API calls (name + status)            |
+| `statusCode`           | HTTP responses                                |
+| `errorCode`            | AppError code                                 |
+| `featureFlag`          | Feature flag evaluations                      |
 
 ---
 
 ## 3. Log Levels
 
-| Level | When | Example |
-|-------|------|---------|
-| `fatal` | Unrecoverable system failure | Database unreachable, config missing |
-| `error` | Operation failed, needs attention | Auth failure, upstream API 5xx, unhandled exception |
-| `warn` | Unexpected but recoverable | Cache miss on expected hit, rate limit hit, deprecated API usage |
-| `info` | Normal operation, business-significant | User login, anime viewed, watchlist updated, checkout started |
-| `debug` | Detailed diagnostics (dev only) | Query SQL, cache key, request headers |
-| `trace` | Very verbose (dev only) | Function entry/exit, variable values |
+| Level   | When                                   | Example                                                          |
+| ------- | -------------------------------------- | ---------------------------------------------------------------- |
+| `fatal` | Unrecoverable system failure           | Database unreachable, config missing                             |
+| `error` | Operation failed, needs attention      | Auth failure, upstream API 5xx, unhandled exception              |
+| `warn`  | Unexpected but recoverable             | Cache miss on expected hit, rate limit hit, deprecated API usage |
+| `info`  | Normal operation, business-significant | User login, anime viewed, watchlist updated, checkout started    |
+| `debug` | Detailed diagnostics (dev only)        | Query SQL, cache key, request headers                            |
+| `trace` | Very verbose (dev only)                | Function entry/exit, variable values                             |
 
 ### Production log level: `info`
 
@@ -177,13 +177,16 @@ async function timedQuery<T>(label: string, fn: () => Promise<T>, threshold = 20
 External API calls log their duration for SLO monitoring:
 
 ```ts
-requestLogger.info({
-  upstream: "tmdb",
-  operation: "searchAnime",
-  duration: 320,
-  statusCode: 200,
-  cacheHit: false,
-}, "Upstream API call");
+requestLogger.info(
+  {
+    upstream: "tmdb",
+    operation: "searchAnime",
+    duration: 320,
+    statusCode: 200,
+    cacheHit: false,
+  },
+  "Upstream API call",
+);
 ```
 
 ### Why duration logging
@@ -196,14 +199,14 @@ Latency is the #1 observability signal for a streaming platform. If TMDB respons
 
 Certain operations require an immutable audit trail for compliance and debugging:
 
-| Event | Fields logged |
-|-------|--------------|
-| User signup | `userId`, `email`, `provider`, `ipAddress` |
-| User login | `userId`, `provider`, `ipAddress` |
-| Password change | `userId`, `ipAddress` |
-| Account deletion | `userId`, `ipAddress` |
+| Event               | Fields logged                                        |
+| ------------------- | ---------------------------------------------------- |
+| User signup         | `userId`, `email`, `provider`, `ipAddress`           |
+| User login          | `userId`, `provider`, `ipAddress`                    |
+| Password change     | `userId`, `ipAddress`                                |
+| Account deletion    | `userId`, `ipAddress`                                |
 | Subscription change | `userId`, `planId`, `action` (create/cancel/upgrade) |
-| Admin action | `adminUserId`, `targetUserId`, `action` |
+| Admin action        | `adminUserId`, `targetUserId`, `action`              |
 
 ### Why separate audit log concept
 
@@ -226,8 +229,8 @@ import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 0.1,  // 10% of transactions
-  replaysSessionSampleRate: 0.01,  // 1% of sessions
+  tracesSampleRate: 0.1, // 10% of transactions
+  replaysSessionSampleRate: 0.01, // 1% of sessions
 });
 ```
 
@@ -243,9 +246,7 @@ In development, logs are pretty-printed for readability:
 
 ```ts
 const logger = pino({
-  transport: process.env.NODE_ENV === "development"
-    ? { target: "pino-pretty" }
-    : undefined,
+  transport: process.env.NODE_ENV === "development" ? { target: "pino-pretty" } : undefined,
 });
 ```
 

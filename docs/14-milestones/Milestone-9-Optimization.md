@@ -142,16 +142,16 @@ A dated report in `docs/reports/m9-cwv-baseline.md` containing per-route LCP, IN
 
 ## Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| **Index migration locks the production table** | Medium | High | Use `CREATE INDEX CONCURRENTLY` (Drizzle `concurrently: true`); run during low-traffic window; test on a staging clone first. |
-| **Cache key collision after schema change** | Low | High | Version cache keys (`nexus:v2:anime:{id}:detail`); old keys expire naturally; no hot-path code references old keys. |
-| **Font self-hosting increases build output size** | Low | Medium | Subset fonts to Latin + common CJK ranges; use woff2 (30-50% smaller than ttf); measure before/after. |
-| **CSP nonce breaks existing inline scripts** | Medium | High | Audit all inline scripts before enabling nonce; add nonce to each; test in staging before production. |
-| **Accessibility fixes break existing layout** | Low | Medium | Run a11y audit early; fix incrementally; visual regression tests (if available) catch layout regressions. |
-| **Performance optimization introduces rendering bugs** | Medium | Medium | Every optimization is a separate PR with before/after metrics; revert if CWV degrades. |
-| **Monitoring alert fatigue** | Medium | Low | Start with conservative thresholds; tune after 1 week of baseline; group related alerts. |
-| **Mobile testing on real devices unavailable** | Medium | Medium | Use BrowserStack free tier for critical tests; supplement with Chrome DevTools device emulation. |
+| Risk                                                   | Likelihood | Impact | Mitigation                                                                                                                    |
+| ------------------------------------------------------ | ---------- | ------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Index migration locks the production table**         | Medium     | High   | Use `CREATE INDEX CONCURRENTLY` (Drizzle `concurrently: true`); run during low-traffic window; test on a staging clone first. |
+| **Cache key collision after schema change**            | Low        | High   | Version cache keys (`nexus:v2:anime:{id}:detail`); old keys expire naturally; no hot-path code references old keys.           |
+| **Font self-hosting increases build output size**      | Low        | Medium | Subset fonts to Latin + common CJK ranges; use woff2 (30-50% smaller than ttf); measure before/after.                         |
+| **CSP nonce breaks existing inline scripts**           | Medium     | High   | Audit all inline scripts before enabling nonce; add nonce to each; test in staging before production.                         |
+| **Accessibility fixes break existing layout**          | Low        | Medium | Run a11y audit early; fix incrementally; visual regression tests (if available) catch layout regressions.                     |
+| **Performance optimization introduces rendering bugs** | Medium     | Medium | Every optimization is a separate PR with before/after metrics; revert if CWV degrades.                                        |
+| **Monitoring alert fatigue**                           | Medium     | Low    | Start with conservative thresholds; tune after 1 week of baseline; group related alerts.                                      |
+| **Mobile testing on real devices unavailable**         | Medium     | Medium | Use BrowserStack free tier for critical tests; supplement with Chrome DevTools device emulation.                              |
 
 ## Acceptance Criteria
 
@@ -195,37 +195,37 @@ A dated report in `docs/reports/m9-cwv-baseline.md` containing per-route LCP, IN
 
 ## Estimated Tasks
 
-| # | Task | Estimate | Owner | Dependencies |
-|---|------|----------|-------|--------------|
-| T1 | Set up Lighthouse CI in GitHub Actions workflow | 2h | Frontend | None |
-| T2 | Enable Vercel Analytics and Speed Insights | 1h | DevOps | Vercel Pro plan |
-| T3 | Run baseline CWV audit across all routes; document in `docs/reports/m9-cwv-baseline.md` | 3h | Frontend | T2 |
-| T4 | Set up `@next/bundle-analyzer`; generate per-route bundle report | 2h | Frontend | None |
-| T5 | Audit and fix JS bundle overages (code splitting, dynamic imports, dependency swaps) | 8h | Frontend | T4 |
-| T6 | Audit and fix image optimization (width/height, sizes, priority, format) | 4h | Frontend | None |
-| T7 | Audit and fix font loading (self-host, swap, preload) | 3h | Frontend | None |
-| T8 | Verify Tailwind v4 content globs; measure CSS bundle size | 1h | Frontend | None |
-| T9 | Run axe-core scan; fix all serious/critical violations | 6h | Frontend | None |
-| T10 | Manual keyboard + screen reader test pass | 3h | QA / Frontend | T9 |
-| T11 | Cross-browser testing (Chrome, Firefox, Safari, Edge) | 4h | QA | None |
-| T12 | Mobile performance testing on mid-tier device (Moto G Power or equivalent) | 3h | Frontend | T3 |
-| T13 | Analyze slow DB queries from Neon logs; identify missing indexes | 2h | Backend | None |
-| T14 | Write Drizzle migration for new indexes (`CREATE INDEX CONCURRENTLY`) | 2h | Backend | T13 |
-| T15 | Eliminate N+1 queries (add `React.cache()` or batch loading) | 4h | Backend | T13 |
-| T16 | Audit all repository modules for `SELECT *`; replace with column selection | 2h | Backend | None |
-| T17 | Extend Redis cache coverage to all hot paths | 4h | Backend | None |
-| T18 | Tune TTLs per entity volatility; wire invalidation hooks | 2h | Backend | T17 |
-| T19 | Verify graceful degradation on cache miss (no errors, falls through to DB) | 1h | Backend | T18 |
-| T20 | Audit and tighten `Cache-Control` headers in `next.config.ts` | 2h | DevOps | None |
-| T21 | Verify security headers (CSP, HSTS, etc.); fix any gaps | 2h | DevOps | None |
-| T22 | Add preconnect hints for R2 and TMDB origins | 1h | DevOps | T20 |
-| T23 | Audit all async error handling; add try/catch where missing | 4h | Full-stack | None |
-| T24 | Add error boundaries to all major client component trees | 2h | Frontend | T23 |
-| T25 | Set up Pino serializers for secret redaction (if not already present) | 1h | Backend | None |
-| T26 | Configure alert thresholds and destination (Discord / PagerDuty / email) | 2h | DevOps | T2 |
-| T27 | Write monitoring runbook `docs/reports/m9-runbook.md` | 3h | DevOps | T26 |
-| T28 | Run full regression test suite on staging | 2h | QA | All above |
-| T29 | Final CWV re-audit; compare with baseline; document improvements | 2h | Frontend | T3, T5-T12 |
+| #   | Task                                                                                    | Estimate | Owner         | Dependencies    |
+| --- | --------------------------------------------------------------------------------------- | -------- | ------------- | --------------- |
+| T1  | Set up Lighthouse CI in GitHub Actions workflow                                         | 2h       | Frontend      | None            |
+| T2  | Enable Vercel Analytics and Speed Insights                                              | 1h       | DevOps        | Vercel Pro plan |
+| T3  | Run baseline CWV audit across all routes; document in `docs/reports/m9-cwv-baseline.md` | 3h       | Frontend      | T2              |
+| T4  | Set up `@next/bundle-analyzer`; generate per-route bundle report                        | 2h       | Frontend      | None            |
+| T5  | Audit and fix JS bundle overages (code splitting, dynamic imports, dependency swaps)    | 8h       | Frontend      | T4              |
+| T6  | Audit and fix image optimization (width/height, sizes, priority, format)                | 4h       | Frontend      | None            |
+| T7  | Audit and fix font loading (self-host, swap, preload)                                   | 3h       | Frontend      | None            |
+| T8  | Verify Tailwind v4 content globs; measure CSS bundle size                               | 1h       | Frontend      | None            |
+| T9  | Run axe-core scan; fix all serious/critical violations                                  | 6h       | Frontend      | None            |
+| T10 | Manual keyboard + screen reader test pass                                               | 3h       | QA / Frontend | T9              |
+| T11 | Cross-browser testing (Chrome, Firefox, Safari, Edge)                                   | 4h       | QA            | None            |
+| T12 | Mobile performance testing on mid-tier device (Moto G Power or equivalent)              | 3h       | Frontend      | T3              |
+| T13 | Analyze slow DB queries from Neon logs; identify missing indexes                        | 2h       | Backend       | None            |
+| T14 | Write Drizzle migration for new indexes (`CREATE INDEX CONCURRENTLY`)                   | 2h       | Backend       | T13             |
+| T15 | Eliminate N+1 queries (add `React.cache()` or batch loading)                            | 4h       | Backend       | T13             |
+| T16 | Audit all repository modules for `SELECT *`; replace with column selection              | 2h       | Backend       | None            |
+| T17 | Extend Redis cache coverage to all hot paths                                            | 4h       | Backend       | None            |
+| T18 | Tune TTLs per entity volatility; wire invalidation hooks                                | 2h       | Backend       | T17             |
+| T19 | Verify graceful degradation on cache miss (no errors, falls through to DB)              | 1h       | Backend       | T18             |
+| T20 | Audit and tighten `Cache-Control` headers in `next.config.ts`                           | 2h       | DevOps        | None            |
+| T21 | Verify security headers (CSP, HSTS, etc.); fix any gaps                                 | 2h       | DevOps        | None            |
+| T22 | Add preconnect hints for R2 and TMDB origins                                            | 1h       | DevOps        | T20             |
+| T23 | Audit all async error handling; add try/catch where missing                             | 4h       | Full-stack    | None            |
+| T24 | Add error boundaries to all major client component trees                                | 2h       | Frontend      | T23             |
+| T25 | Set up Pino serializers for secret redaction (if not already present)                   | 1h       | Backend       | None            |
+| T26 | Configure alert thresholds and destination (Discord / PagerDuty / email)                | 2h       | DevOps        | T2              |
+| T27 | Write monitoring runbook `docs/reports/m9-runbook.md`                                   | 3h       | DevOps        | T26             |
+| T28 | Run full regression test suite on staging                                               | 2h       | QA            | All above       |
+| T29 | Final CWV re-audit; compare with baseline; document improvements                        | 2h       | Frontend      | T3, T5-T12      |
 
 **Total estimate: ~74 engineer-hours** (approximately 2 weeks for a single engineer, or 1 week for two engineers working in parallel).
 

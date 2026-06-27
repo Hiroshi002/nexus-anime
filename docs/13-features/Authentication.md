@@ -92,47 +92,47 @@ Define the end-to-end authentication and authorization system for Nexus Anime, c
 
 ## 7. UI Components
 
-| Component | Responsibility | Reusable? | Package |
-|-----------|---------------|-----------|---------|
-| `CenteredAuthLayout` | Full-screen vertical + horizontal centering with orb backdrop | Yes | `apps/web` |
-| `AuthCard` | Max-width 440px glassmorphism card containing auth forms | Yes | `apps/web` |
-| `AuthHeader` | Title + subtitle above the form | Yes | `apps/web` |
-| `FormField` | Label + input + inline error, linked via `aria-describedby` | Yes | `@nexus/ui` |
-| `PasswordToggle` | Show/hide password button with `aria-pressed` | Yes | `@nexus/ui` |
-| `PasswordStrengthMeter` | 4-bar strength indicator (signup only) | Yes | `@nexus/ui` |
-| `OAuthButton` | Full-width outline button for Google/GitHub | Yes | `@nexus/ui` |
-| `RememberMeCheckbox` | Persist session preference (login only) | Yes | `@nexus/ui` |
-| `InlineFormError` | `aria-live` region for form-level errors | Yes | `@nexus/ui` |
-| `Divider` | Visual separator with "or continue with" text | Yes | `@nexus/ui` |
-| `AlternateFlowLink` | Switch between signin/signup | Yes | `apps/web` |
-| `VerifyEmailInterstitial` | "Check your email" post-signup page with resend | No | `apps/web` |
-| `ForgotPasswordForm` | Email-only form for initiating reset | No | `apps/web` |
-| `ResetPasswordForm` | New password + confirm fields | No | `apps/web` |
+| Component                 | Responsibility                                                | Reusable? | Package     |
+| ------------------------- | ------------------------------------------------------------- | --------- | ----------- |
+| `CenteredAuthLayout`      | Full-screen vertical + horizontal centering with orb backdrop | Yes       | `apps/web`  |
+| `AuthCard`                | Max-width 440px glassmorphism card containing auth forms      | Yes       | `apps/web`  |
+| `AuthHeader`              | Title + subtitle above the form                               | Yes       | `apps/web`  |
+| `FormField`               | Label + input + inline error, linked via `aria-describedby`   | Yes       | `@nexus/ui` |
+| `PasswordToggle`          | Show/hide password button with `aria-pressed`                 | Yes       | `@nexus/ui` |
+| `PasswordStrengthMeter`   | 4-bar strength indicator (signup only)                        | Yes       | `@nexus/ui` |
+| `OAuthButton`             | Full-width outline button for Google/GitHub                   | Yes       | `@nexus/ui` |
+| `RememberMeCheckbox`      | Persist session preference (login only)                       | Yes       | `@nexus/ui` |
+| `InlineFormError`         | `aria-live` region for form-level errors                      | Yes       | `@nexus/ui` |
+| `Divider`                 | Visual separator with "or continue with" text                 | Yes       | `@nexus/ui` |
+| `AlternateFlowLink`       | Switch between signin/signup                                  | Yes       | `apps/web`  |
+| `VerifyEmailInterstitial` | "Check your email" post-signup page with resend               | No        | `apps/web`  |
+| `ForgotPasswordForm`      | Email-only form for initiating reset                          | No        | `apps/web`  |
+| `ResetPasswordForm`       | New password + confirm fields                                 | No        | `apps/web`  |
 
 ## 8. API Dependencies
 
-| Endpoint | Method | Auth Required | Rate Limit | Cache |
-|----------|--------|---------------|------------|-------|
-| `/api/auth/callback/credentials` | POST | No | 10/min per IP | None |
-| `/api/auth/callback/google` | GET | No | None (redirect flow) | None |
-| `/api/auth/callback/github` | GET | No | None (redirect flow) | None |
-| `/api/auth/signout` | POST | Yes (CSRF) | None | None |
-| `/api/auth/verify` | GET | No | 30/min per IP | None |
-| `/api/auth/verify/resend` | POST | Yes | 3/hour per user | None |
-| `/api/auth/forgot` | POST | No | 5/min per IP | None |
-| `/api/auth/reset` | POST | No | 10/min per IP | None |
-| `/api/auth/session` | GET | No | None | None |
-| `/api/auth/csrf` | GET | No | None | None |
+| Endpoint                         | Method | Auth Required | Rate Limit           | Cache |
+| -------------------------------- | ------ | ------------- | -------------------- | ----- |
+| `/api/auth/callback/credentials` | POST   | No            | 10/min per IP        | None  |
+| `/api/auth/callback/google`      | GET    | No            | None (redirect flow) | None  |
+| `/api/auth/callback/github`      | GET    | No            | None (redirect flow) | None  |
+| `/api/auth/signout`              | POST   | Yes (CSRF)    | None                 | None  |
+| `/api/auth/verify`               | GET    | No            | 30/min per IP        | None  |
+| `/api/auth/verify/resend`        | POST   | Yes           | 3/hour per user      | None  |
+| `/api/auth/forgot`               | POST   | No            | 5/min per IP         | None  |
+| `/api/auth/reset`                | POST   | No            | 10/min per IP        | None  |
+| `/api/auth/session`              | GET    | No            | None                 | None  |
+| `/api/auth/csrf`                 | GET    | No            | None                 | None  |
 
 ## 9. Database Dependencies
 
-| Table / View | Operation | Index / Query Notes |
-|--------------|-----------|---------------------|
-| `users` | SELECT, INSERT | PK `id`; partial unique index on `email WHERE deleted_at IS NULL` |
-| `user_accounts` | SELECT, INSERT | FK `user_id`; unique on `(provider, provider_account_id)`; indexed on `email` for credential lookup |
-| `user_sessions` | SELECT, INSERT, DELETE | PK `id`; unique on `session_token_hash` (lookup on every request); indexed on `user_id` (session listing); indexed on `expires_at` (purge job) |
-| `verification_tokens` | SELECT, INSERT, DELETE | PK `id`; unique on `token_hash`; indexed on `user_id`; expires at 24h (email verify) or 1h (password reset) |
-| `audit_log` | INSERT | Records `user.login`, `user.logout`, `user.password_change`, `user.role_change` |
+| Table / View          | Operation              | Index / Query Notes                                                                                                                            |
+| --------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`               | SELECT, INSERT         | PK `id`; partial unique index on `email WHERE deleted_at IS NULL`                                                                              |
+| `user_accounts`       | SELECT, INSERT         | FK `user_id`; unique on `(provider, provider_account_id)`; indexed on `email` for credential lookup                                            |
+| `user_sessions`       | SELECT, INSERT, DELETE | PK `id`; unique on `session_token_hash` (lookup on every request); indexed on `user_id` (session listing); indexed on `expires_at` (purge job) |
+| `verification_tokens` | SELECT, INSERT, DELETE | PK `id`; unique on `token_hash`; indexed on `user_id`; expires at 24h (email verify) or 1h (password reset)                                    |
+| `audit_log`           | INSERT                 | Records `user.login`, `user.logout`, `user.password_change`, `user.role_change`                                                                |
 
 ## 10. Edge Cases
 
@@ -151,32 +151,32 @@ Define the end-to-end authentication and authorization system for Nexus Anime, c
 
 ## 11. Error Handling
 
-| Error Condition | User-Facing Message | Recovery Action | Log Level |
-|-----------------|---------------------|-----------------|-----------|
-| Invalid credentials | "Invalid email or password." | Stay on form, clear password field | warn (rate-limited) |
-| Email not verified | "Please verify your email before continuing." | Redirect to `/auth/verify` interstitial | info |
-| Rate-limited login | "Too many attempts. Try again in N minutes." | Show countdown, disable submit | warn |
-| Expired session | "Your session has expired. Please sign in again." | Redirect to `/auth/signin?reason=expired` | info |
-| Invalid/expired reset token | "This reset link is invalid or expired." | Offer to resend reset email | warn |
-| OAuth scope denied | "GitHub must share your email. Please grant the 'user:email' scope." | Re-initiate OAuth with corrected scope | info |
-| Network failure | "Could not reach the server. Check your connection." | Inline snackbar, retry button | error |
-| CSRF mismatch | "Your session expired. Please try again." | Refresh page, re-submit | error |
-| Account locked | "Too many attempts. Try again in N minutes." | Same as rate-limited (no enumeration) | warn |
+| Error Condition             | User-Facing Message                                                  | Recovery Action                           | Log Level           |
+| --------------------------- | -------------------------------------------------------------------- | ----------------------------------------- | ------------------- |
+| Invalid credentials         | "Invalid email or password."                                         | Stay on form, clear password field        | warn (rate-limited) |
+| Email not verified          | "Please verify your email before continuing."                        | Redirect to `/auth/verify` interstitial   | info                |
+| Rate-limited login          | "Too many attempts. Try again in N minutes."                         | Show countdown, disable submit            | warn                |
+| Expired session             | "Your session has expired. Please sign in again."                    | Redirect to `/auth/signin?reason=expired` | info                |
+| Invalid/expired reset token | "This reset link is invalid or expired."                             | Offer to resend reset email               | warn                |
+| OAuth scope denied          | "GitHub must share your email. Please grant the 'user:email' scope." | Re-initiate OAuth with corrected scope    | info                |
+| Network failure             | "Could not reach the server. Check your connection."                 | Inline snackbar, retry button             | error               |
+| CSRF mismatch               | "Your session expired. Please try again."                            | Refresh page, re-submit                   | error               |
+| Account locked              | "Too many attempts. Try again in N minutes."                         | Same as rate-limited (no enumeration)     | warn                |
 
 ## 12. Analytics Events
 
-| Event Name | Trigger | Properties | Surface |
-|------------|---------|------------|---------|
-| `auth_signup_start` | User submits signup form | `{ provider: 'credentials' | 'google' | 'github' }` | Server |
-| `auth_signup_success` | Account created | `{ provider, user_id }` | Server |
-| `auth_signin_success` | Session created | `{ provider, user_id }` | Server |
-| `auth_signout` | Session destroyed | `{ user_id }` | Server |
-| `auth_email_verified` | Email verification successful | `{ user_id }` | Server |
-| `auth_password_reset_request` | Forgot password submitted | `{ email_hash }` (no raw email) | Server |
-| `auth_password_reset_complete` | Password reset successful | `{ user_id }` | Server |
-| `auth_oauth_callback` | OAuth callback received | `{ provider, is_new_user, is_linked }` | Server |
-| `auth_session_expired` | Expired session detected | `{ user_id? }` | Server |
-| `auth_rate_limited` | Rate limit triggered | `{ action, ip_hash }` | Server |
+| Event Name                     | Trigger                       | Properties                             | Surface  |
+| ------------------------------ | ----------------------------- | -------------------------------------- | -------- | ----------- | ------ |
+| `auth_signup_start`            | User submits signup form      | `{ provider: 'credentials'             | 'google' | 'github' }` | Server |
+| `auth_signup_success`          | Account created               | `{ provider, user_id }`                | Server   |
+| `auth_signin_success`          | Session created               | `{ provider, user_id }`                | Server   |
+| `auth_signout`                 | Session destroyed             | `{ user_id }`                          | Server   |
+| `auth_email_verified`          | Email verification successful | `{ user_id }`                          | Server   |
+| `auth_password_reset_request`  | Forgot password submitted     | `{ email_hash }` (no raw email)        | Server   |
+| `auth_password_reset_complete` | Password reset successful     | `{ user_id }`                          | Server   |
+| `auth_oauth_callback`          | OAuth callback received       | `{ provider, is_new_user, is_linked }` | Server   |
+| `auth_session_expired`         | Expired session detected      | `{ user_id? }`                         | Server   |
+| `auth_rate_limited`            | Rate limit triggered          | `{ action, ip_hash }`                  | Server   |
 
 ## 13. Security Considerations
 

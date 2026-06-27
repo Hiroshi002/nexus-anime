@@ -8,12 +8,12 @@
 
 Nexus Anime must scale across four independent dimensions:
 
-| Dimension | Current scale | Target scale (v1.0) | Bottleneck today |
-|-----------|--------------|---------------------|-----------------|
-| **Traffic** | < 1K DAU | 100K DAU | Single Vercel deploy, single DB |
-| **Data** | < 10K anime | 500K anime + 1M episodes | Single Neon database |
-| **Team** | 1–3 engineers | 5–10 engineers | Monorepo with no team boundaries |
-| **Features** | 6 features | 15+ features | Feature coupling risk |
+| Dimension    | Current scale | Target scale (v1.0)      | Bottleneck today                 |
+| ------------ | ------------- | ------------------------ | -------------------------------- |
+| **Traffic**  | < 1K DAU      | 100K DAU                 | Single Vercel deploy, single DB  |
+| **Data**     | < 10K anime   | 500K anime + 1M episodes | Single Neon database             |
+| **Team**     | 1–3 engineers | 5–10 engineers           | Monorepo with no team boundaries |
+| **Features** | 6 features    | 15+ features             | Feature coupling risk            |
 
 ---
 
@@ -63,26 +63,27 @@ Upstash Redis is accessed over HTTP (REST API), not TCP. This is compatible with
 
 Neon supports database branching — instant, copy-on-write clones of the production database. Each PR can have its own branch for schema migrations, without affecting production.
 
-| Data volume | Strategy |
-|-------------|----------|
-| < 100K rows per table | Standard indexes sufficient |
-| 100K–1M rows | Add composite indexes for common query patterns; consider partitioning for `watch-progress` (partition by month) |
-| > 1M rows | Partition large tables; add read replicas if read latency increases |
+| Data volume           | Strategy                                                                                                         |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| < 100K rows per table | Standard indexes sufficient                                                                                      |
+| 100K–1M rows          | Add composite indexes for common query patterns; consider partitioning for `watch-progress` (partition by month) |
+| > 1M rows             | Partition large tables; add read replicas if read latency increases                                              |
 
 ### Table growth estimates
 
-| Table | Growth rate | Size at v1.0 | Index strategy |
-|-------|-----------|-------------|---------------|
-| `anime` | ~10K/year (new titles) | ~50K rows | B-tree on `id`, `slug`, `rating` |
-| `episodes` | ~100K/year | ~500K rows | B-tree on `animeId`, `seasonNumber` |
-| `users` | Grows with signups | ~100K rows | B-tree on `email` |
-| `watchlist` | Grows with users | ~500K rows | Composite on `(userId, animeId)`, `(userId, position)` |
-| `watch-progress` | Grows with views | ~1M rows | Composite on `(userId, episodeId)`; partition by month |
-| `sessions` | Churn (30-day expiry) | ~50K active rows | B-tree on `sessionToken`, `userId` |
+| Table            | Growth rate            | Size at v1.0     | Index strategy                                         |
+| ---------------- | ---------------------- | ---------------- | ------------------------------------------------------ |
+| `anime`          | ~10K/year (new titles) | ~50K rows        | B-tree on `id`, `slug`, `rating`                       |
+| `episodes`       | ~100K/year             | ~500K rows       | B-tree on `animeId`, `seasonNumber`                    |
+| `users`          | Grows with signups     | ~100K rows       | B-tree on `email`                                      |
+| `watchlist`      | Grows with users       | ~500K rows       | Composite on `(userId, animeId)`, `(userId, position)` |
+| `watch-progress` | Grows with views       | ~1M rows         | Composite on `(userId, episodeId)`; partition by month |
+| `sessions`       | Churn (30-day expiry)  | ~50K active rows | B-tree on `sessionToken`, `userId`                     |
 
 ### Full-text search
 
 Anime search uses a combination of:
+
 1. **PostgreSQL `tsvector`** for title/synopsis search (fast, in-database).
 2. **TMDB search API** as a secondary source (for titles not in our DB yet).
 
@@ -96,12 +97,12 @@ At > 100K titles, consider migrating to a dedicated search service (Meilisearch 
 
 The `@nexus/*` packages define ownership boundaries. As the team grows:
 
-| Team | Owns | Can modify |
-|------|------|-----------|
-| Design systems | `@nexus/ui` | Component APIs, theme tokens |
-| Platform | `@nexus/db`, `@nexus/cache` | Schema, migrations, Redis helpers |
-| Backend | `services/`, `actions/`, Route Handlers | Business logic, API surface |
-| Frontend | `features/`, `shared/` | UI, user flows |
+| Team           | Owns                                    | Can modify                        |
+| -------------- | --------------------------------------- | --------------------------------- |
+| Design systems | `@nexus/ui`                             | Component APIs, theme tokens      |
+| Platform       | `@nexus/db`, `@nexus/cache`             | Schema, migrations, Redis helpers |
+| Backend        | `services/`, `actions/`, Route Handlers | Business logic, API surface       |
+| Frontend       | `features/`, `shared/`                  | UI, user flows                    |
 
 ### Feature module isolation
 
@@ -159,12 +160,12 @@ Branch-based deployment ("deploy the feature branch to staging") requires mainta
 
 ADR-001 defines when to extract a module from the monolith:
 
-| Signal | Action | Example |
-|--------|--------|---------|
-| **Independent deploy cadence** | Extract to separate app/service | Video transcoding worker needs its own deploy cycle |
-| **Performance isolation** | Extract to separate compute | Player service consuming too much memory, affecting catalog |
-| **Team ownership** | Extract when a team exclusively owns a module | Admin panel maintained by a separate team |
-| **Technology divergence** | Extract when a module needs different runtime | ML recommendation service in Python |
+| Signal                         | Action                                        | Example                                                     |
+| ------------------------------ | --------------------------------------------- | ----------------------------------------------------------- |
+| **Independent deploy cadence** | Extract to separate app/service               | Video transcoding worker needs its own deploy cycle         |
+| **Performance isolation**      | Extract to separate compute                   | Player service consuming too much memory, affecting catalog |
+| **Team ownership**             | Extract when a team exclusively owns a module | Admin panel maintained by a separate team                   |
+| **Technology divergence**      | Extract when a module needs different runtime | ML recommendation service in Python                         |
 
 ### Extraction path
 
@@ -178,7 +179,7 @@ ADR-001 defines when to extract a module from the monolith:
 
 ### Why plan for extraction but not execute
 
-Extraction without need adds complexity (inter-service auth, network failures, deploy coordination). The modular monolith is simpler and sufficient. But the architecture must make extraction *cheap* when needed — that's why we have the service layer (extraction seam) and package boundaries (ownership boundaries).
+Extraction without need adds complexity (inter-service auth, network failures, deploy coordination). The modular monolith is simpler and sufficient. But the architecture must make extraction _cheap_ when needed — that's why we have the service layer (extraction seam) and package boundaries (ownership boundaries).
 
 ---
 
@@ -208,12 +209,12 @@ Running the application in multiple regions (EKS in us-east + eu-west) is expens
 
 See [API-Layer.md](API-Layer.md) for implementation details. At scale:
 
-| Tier | Limit | Purpose |
-|------|-------|---------|
-| Anonymous | 60 req/min per IP | Prevent abuse; generous for normal browsing |
-| Authenticated | 120 req/min per user | Higher limit for logged-in users |
-| Subscriber | 200 req/min per user | Premium users get higher limits |
-| API (mobile) | 1000 req/min per API key | Machine access |
+| Tier          | Limit                    | Purpose                                     |
+| ------------- | ------------------------ | ------------------------------------------- |
+| Anonymous     | 60 req/min per IP        | Prevent abuse; generous for normal browsing |
+| Authenticated | 120 req/min per user     | Higher limit for logged-in users            |
+| Subscriber    | 200 req/min per user     | Premium users get higher limits             |
+| API (mobile)  | 1000 req/min per API key | Machine access                              |
 
 Rate limits use Upstash Redis's sliding-window algorithm, which is O(1) per check and scales to millions of requests.
 
@@ -223,10 +224,10 @@ Rate limits use Upstash Redis's sliding-window algorithm, which is O(1) per chec
 
 ### Estimated costs at scale (Vercel Pro + Neon Pro + Upstash)
 
-| DAU | Vercel | Neon | Upstash | Total |
-|-----|--------|------|---------|-------|
-| 1K | $20/mo | $19/mo | $10/mo | ~$50/mo |
-| 10K | $20/mo | $19/mo | $30/mo | ~$70/mo |
+| DAU  | Vercel | Neon   | Upstash | Total    |
+| ---- | ------ | ------ | ------- | -------- |
+| 1K   | $20/mo | $19/mo | $10/mo  | ~$50/mo  |
+| 10K  | $20/mo | $19/mo | $30/mo  | ~$70/mo  |
 | 100K | $20/mo | $70/mo | $100/mo | ~$190/mo |
 
 **Why Vercel cost stays flat:** ISR cache hits don't invoke serverless functions. Vercel Pro's included bandwidth (1TB/month) covers 100K DAU easily. Serverless function invocations (SSR) are a small fraction of total requests.
@@ -241,12 +242,12 @@ Rate limits use Upstash Redis's sliding-window algorithm, which is O(1) per chec
 
 When facing a scaling problem, apply this decision matrix:
 
-| Problem | First response | Escalation |
-|---------|---------------|-----------|
-| Slow page load | Add/extend ISR cache | Consider Edge runtime for SSR |
-| Slow DB query | Add index, optimize query | Consider read replica or caching layer |
-| Slow external API | Extend Next.js fetch cache TTL | Mirror data in our DB |
-| High serverless invocations | Increase ISR cache hit rate | Consider persistent server (Vercel Fluid) |
-| Connection exhaustion | Verify Neon pooling is active | Add connection pooler (PgBouncer) |
-| Feature coupling | Enforce cross-feature import rule | Extract to separate package |
-| Team conflict | Tighten CODEOWNERS | Extract to separate app |
+| Problem                     | First response                    | Escalation                                |
+| --------------------------- | --------------------------------- | ----------------------------------------- |
+| Slow page load              | Add/extend ISR cache              | Consider Edge runtime for SSR             |
+| Slow DB query               | Add index, optimize query         | Consider read replica or caching layer    |
+| Slow external API           | Extend Next.js fetch cache TTL    | Mirror data in our DB                     |
+| High serverless invocations | Increase ISR cache hit rate       | Consider persistent server (Vercel Fluid) |
+| Connection exhaustion       | Verify Neon pooling is active     | Add connection pooler (PgBouncer)         |
+| Feature coupling            | Enforce cross-feature import rule | Extract to separate package               |
+| Team conflict               | Tighten CODEOWNERS                | Extract to separate app                   |

@@ -5,9 +5,11 @@
 ---
 
 ## 1. Purpose
+
 A dedicated notification center where authenticated users can view, manage, and navigate to relevant updates across the platform.
 
 ## 2. User Goals
+
 - See new episodes available for followed anime
 - Discover personalized recommendations
 - Review system announcements and service alerts
@@ -15,11 +17,13 @@ A dedicated notification center where authenticated users can view, manage, and 
 - Navigate directly to the relevant content from a notification
 
 ## 3. Entry Points
+
 - Bell icon in the global navigation header (with unread count badge)
 - Direct route: `/notifications`
 - Post-action toasts that link to `/notifications?notificationId=:id`
 
 ## 4. Layout Structure
+
 ```
 ┌──────────────────────────────────────────────────────────┐
 │  Header (surface-raised)                                 │
@@ -43,6 +47,7 @@ A dedicated notification center where authenticated users can view, manage, and 
 ```
 
 ## 5. Component Hierarchy
+
 - `NotificationsPage`
   - `NotificationsHeader`
     - `PageTitle` — "Notifications" (Space Grotesk, 22px)
@@ -62,6 +67,7 @@ A dedicated notification center where authenticated users can view, manage, and 
   - `LoadMoreButton` — ghost variant, centered
 
 ## 6. Desktop Layout (≥1024px)
+
 - Max-width container: 720px, centered
 - Header: sticky at top, 64px height, surface-raised with 1px border-bottom (surface-overlay)
 - Notification list: 16px vertical gap between items
@@ -72,12 +78,14 @@ A dedicated notification center where authenticated users can view, manage, and 
 - Infinite scroll sentinel: 200px before viewport edge triggers next page fetch
 
 ## 7. Tablet Layout (768–1023px)
+
 - Container: full width with 24px horizontal padding
 - Header: same as desktop
 - Notification cards: same as desktop
 - "Load more" button: full-width, ghost variant
 
 ## 8. Mobile Layout (<768px)
+
 - Container: full width with 16px horizontal padding
 - Header: stacked — title + badge on first row, "Mark all as read" on second row, right-aligned
 - Notification cards: 12px padding, same structure
@@ -87,30 +95,35 @@ A dedicated notification center where authenticated users can view, manage, and 
 - Infinite scroll sentinel: 100px before viewport edge
 
 ## 9. Navigation Behavior
+
 - Clicking a `NotificationItem` marks it as read (optimistic update) and navigates to `linkUrl`
 - `linkUrl` targets: `/anime/:slug` (episode/recommendation), `/system/:id` (system), `/user/:id` (social)
 - "Mark all as read" sends a POST to `/api/notifications/read-all`; optimistic UI clears all accent bars
 - Back button returns to the page the user came from (history state preserved)
 
 ## 10. Scroll Behavior
+
 - Page does not reset scroll position on refocus
 - Infinite scroll: IntersectionObserver watches a sentinel `<li>` at the end of the list; when visible, fetch next page (cursor-based, 20 items per page)
 - New page results append to the list; sentinel re-repositions
 - No virtualization for lists under 200 items; virtualize beyond that
 
 ## 11. Motion & Animation
+
 - New notification items: fade-in + 8px slide-up, 200ms ease-out
 - Mark-as-read transition: accent bar fades to transparent over 300ms
 - "Mark all as read": button shows a brief loading spinner (12px) for 300ms minimum to avoid flash
 - Empty state illustration: subtle float animation, 3s loop, ease-in-out
 
 ## 12. Loading Experience
+
 - Initial load: skeleton list of 6 placeholder cards (animated shimmer on surface-raised)
 - Skeleton per row: left accent placeholder, 2-line text placeholder (title 60% width, body 90% width), time placeholder (30% width)
 - "Load more" button: shows spinner while fetching next page
 - Header unread count: populated from initial API response; no separate skeleton
 
 ## 13. Empty States
+
 - Trigger: user has zero notifications
 - Illustration: bell with "no new messages" visual (64px × 64px, accent-success outline)
 - Title: "You're all caught up!" — Space Grotesk 18px, text-primary
@@ -118,6 +131,7 @@ A dedicated notification center where authenticated users can view, manage, and 
 - No CTA button — user has nothing to act on
 
 ## 14. Error Handling
+
 - API failure on initial load: full-page error state with retry button (ghost variant)
 - API failure on "Load more": inline error toast below the list with retry button
 - API failure on "Mark all as read": revert optimistic update, show error toast, retain unread badges
@@ -125,6 +139,7 @@ A dedicated notification center where authenticated users can view, manage, and 
 - Invalid `notificationId` in query param: silently ignore, do not highlight any item
 
 ## 15. SEO Metadata Requirements
+
 - `<title>Notifications — Nexus Anime</title>`
 - `<meta name="description" content="View and manage your notifications on Nexus Anime.">`
 - `<meta name="robots" content="noindex">`
@@ -135,6 +150,7 @@ A dedicated notification center where authenticated users can view, manage, and 
 - No JSON-LD (private, user-specific page)
 
 ## 16. Accessibility Requirements
+
 - Unread count badge wrapped in `aria-live="polite"` region so screen readers announce changes
 - `NotificationList` is a `<ul>` with `role="list"`; each item is a `<li>`
 - Each `NotificationItem` has `aria-label="{type}: {title}, {read status}, {time ago}"`
@@ -146,6 +162,7 @@ A dedicated notification center where authenticated users can view, manage, and 
 - Infinite scroll sentinel: `aria-busy="true"` during fetch, `aria-live="polite"` for result count announcement
 
 ## 17. Future Enhancements
+
 - Filter tabs: All / Episodes / Recommendations / System / Social
 - Push notification opt-in with browser Notification API
 - Real-time delivery via Server-Sent Events (SSE) for new notifications

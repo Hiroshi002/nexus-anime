@@ -21,6 +21,7 @@ The Episode Player is the core viewing experience — the most interactive and l
 ## 3. Functional Requirements
 
 ### 3.1 Happy Path
+
 1. User navigates to `/watch/{animeSlug}/{episodeNumber}` from an anime detail page, continue-watching card, or auto-next overlay.
 2. System fetches a signed Cloudflare Stream URL (5-minute expiry) and renders the video player.
 3. Playback begins automatically (muted autoplay where browser policy allows) or on user click.
@@ -30,12 +31,14 @@ The Episode Player is the core viewing experience — the most interactive and l
 7. User clicks "Next" or countdown expires; player navigates to the next episode URL without full page reload.
 
 ### 3.2 Alternate Flows
+
 1. User is a returning viewer with watch history; player seeks to the saved resume position on load.
 2. User switches episodes via the episode sidebar; player loads the new episode with a new signed URL.
 3. User enters fullscreen or theater mode; layout adjusts while playback continues uninterrupted.
 4. User adjusts playback speed (0.5x, 0.75x, 1x, 1.25x, 1.5x, 2x); speed persists across episodes within the session.
 
 ### 3.3 Edge Cases
+
 1. Episode not available in user's region — geo-blocked overlay rendered.
 2. Video manifest expired (signed URL past 5-minute TTL) — silent refresh of signed URL.
 3. Network interruption during playback — player buffers and auto-resumes; progress is saved up to the last checkpoint.
@@ -76,30 +79,30 @@ The Episode Player is the core viewing experience — the most interactive and l
 
 ## 7. UI Components
 
-| Component | Responsibility | Reusable? | Package |
-|-----------|---------------|-----------|---------|
-| `EpisodePlayerPage` | Page shell — SSR for signed URL, Suspense boundary | No | `apps/web` |
-| `PlayerTopBar` | Back button, anime title, episode number, "Up Next" countdown | Yes | `apps/web` |
-| `PlayerContainer` | Server Component — fetches signed URL, renders PlayerIsland | No | `apps/web` |
-| `PlayerIsland` | Client Component — Cloudflare Stream embed + custom controls | No | `apps/web` |
-| `PlayerControls` | Play/pause, seek, volume, quality, speed, fullscreen, theater | No | `apps/web` |
-| `QualitySelector` | Video quality dropdown (auto, 1080p, 720p, 480p, 360p) | Yes | `@nexus/ui` |
-| `PlaybackSpeedSelector` | Speed picker (0.5x–2x) | Yes | `@nexus/ui` |
-| `SubtitleSelector` | Subtitle track language picker | Yes | `@nexus/ui` |
-| `UpNextOverlay` | Next episode countdown with thumbnail and title | Yes | `@nexus/ui` |
-| `EpisodeSidebar` | Season selector + scrollable episode list | Yes | `apps/web` |
-| `EpisodeDescription` | Episode synopsis, metadata, tags | Yes | `@nexus/ui` |
-| `GeoBlockOverlay` | Region-unavailable message | Yes | `@nexus/ui` |
-| `PaywallOverlay` | Premium upgrade CTA | Yes | `@nexus/ui` |
+| Component               | Responsibility                                                | Reusable? | Package     |
+| ----------------------- | ------------------------------------------------------------- | --------- | ----------- |
+| `EpisodePlayerPage`     | Page shell — SSR for signed URL, Suspense boundary            | No        | `apps/web`  |
+| `PlayerTopBar`          | Back button, anime title, episode number, "Up Next" countdown | Yes       | `apps/web`  |
+| `PlayerContainer`       | Server Component — fetches signed URL, renders PlayerIsland   | No        | `apps/web`  |
+| `PlayerIsland`          | Client Component — Cloudflare Stream embed + custom controls  | No        | `apps/web`  |
+| `PlayerControls`        | Play/pause, seek, volume, quality, speed, fullscreen, theater | No        | `apps/web`  |
+| `QualitySelector`       | Video quality dropdown (auto, 1080p, 720p, 480p, 360p)        | Yes       | `@nexus/ui` |
+| `PlaybackSpeedSelector` | Speed picker (0.5x–2x)                                        | Yes       | `@nexus/ui` |
+| `SubtitleSelector`      | Subtitle track language picker                                | Yes       | `@nexus/ui` |
+| `UpNextOverlay`         | Next episode countdown with thumbnail and title               | Yes       | `@nexus/ui` |
+| `EpisodeSidebar`        | Season selector + scrollable episode list                     | Yes       | `apps/web`  |
+| `EpisodeDescription`    | Episode synopsis, metadata, tags                              | Yes       | `@nexus/ui` |
+| `GeoBlockOverlay`       | Region-unavailable message                                    | Yes       | `@nexus/ui` |
+| `PaywallOverlay`        | Premium upgrade CTA                                           | Yes       | `@nexus/ui` |
 
 ## 8. API Dependencies
 
-| Endpoint | Method | Auth Required | Rate Limit | Cache |
-|----------|--------|---------------|------------|-------|
-| `/api/v1/watch/{episodeId}` | GET | Yes | 30/min per user | No |
-| `/api/v1/watch/progress` | POST | Yes | 6/min per user | No |
-| `/api/v1/watch/{episodeId}/manifest` | GET | Yes | 10/min per user | No |
-| `/api/v1/episodes/{id}` | GET | No | 60/min per IP | 15 min CDN |
+| Endpoint                             | Method | Auth Required | Rate Limit      | Cache      |
+| ------------------------------------ | ------ | ------------- | --------------- | ---------- |
+| `/api/v1/watch/{episodeId}`          | GET    | Yes           | 30/min per user | No         |
+| `/api/v1/watch/progress`             | POST   | Yes           | 6/min per user  | No         |
+| `/api/v1/watch/{episodeId}/manifest` | GET    | Yes           | 10/min per user | No         |
+| `/api/v1/episodes/{id}`              | GET    | No            | 60/min per IP   | 15 min CDN |
 
 `/api/v1/watch/{episodeId}` returns episode metadata plus a signed Cloudflare Stream URL with geo-restriction and 5-minute expiry. Requires authentication; returns 401 for anonymous users on premium content.
 
@@ -109,14 +112,14 @@ The Episode Player is the core viewing experience — the most interactive and l
 
 ## 9. Database Dependencies
 
-| Table / View | Operation | Index / Query Notes |
-|--------------|-----------|---------------------|
-| `episodes` | SELECT | Lookup by `id` or `(anime_id, number)`; index on `id` and `(anime_id, number)` |
-| `anime` | SELECT (join) | Parent anime metadata for top bar; index on `slug` |
-| `seasons` | SELECT (join) | Season data for sidebar; index on `anime_id` |
-| `watch_history` | SELECT / UPSERT | Resume position; index on `(user_id, episode_id)` unique; upsert on progress save |
-| `video_manifests` | SELECT | Video quality levels, subtitle track URLs; index on `episode_id` |
-| `bookmarks` | SELECT | Watchlist presence for sidebar episode rows; index on `(user_id, anime_id)` |
+| Table / View      | Operation       | Index / Query Notes                                                               |
+| ----------------- | --------------- | --------------------------------------------------------------------------------- |
+| `episodes`        | SELECT          | Lookup by `id` or `(anime_id, number)`; index on `id` and `(anime_id, number)`    |
+| `anime`           | SELECT (join)   | Parent anime metadata for top bar; index on `slug`                                |
+| `seasons`         | SELECT (join)   | Season data for sidebar; index on `anime_id`                                      |
+| `watch_history`   | SELECT / UPSERT | Resume position; index on `(user_id, episode_id)` unique; upsert on progress save |
+| `video_manifests` | SELECT          | Video quality levels, subtitle track URLs; index on `episode_id`                  |
+| `bookmarks`       | SELECT          | Watchlist presence for sidebar episode rows; index on `(user_id, anime_id)`       |
 
 ## 10. Edge Cases
 
@@ -132,31 +135,31 @@ The Episode Player is the core viewing experience — the most interactive and l
 
 ## 11. Error Handling
 
-| Error Condition | User-Facing Message | Recovery Action | Log Level |
-|-----------------|---------------------|-----------------|-----------|
-| Signed URL fetch 500 | "Video could not be loaded." | "Retry" button | error |
-| Signed URL fetch 403 (geo-blocked) | "This episode is not available in your region." | "Back to Anime" CTA | warn |
-| Signed URL fetch 402 (premium) | "This episode requires a premium subscription." | "Upgrade" CTA | info |
-| Progress POST fails | No user-facing message (silent fail) | Retry on next 10-second interval | warn |
-| Playback error (player internal) | "Something went wrong during playback." | "Retry" button + "Report a problem" link | error |
-| Network offline > 60s | "Connection lost. Reconnecting..." | Auto-retry; success message "Connected!" | warn |
-| Manifest fetch fails | Player renders without quality selector / subtitle tracks | Degraded playback; no user message for cosmetic features | warn |
+| Error Condition                    | User-Facing Message                                       | Recovery Action                                          | Log Level |
+| ---------------------------------- | --------------------------------------------------------- | -------------------------------------------------------- | --------- |
+| Signed URL fetch 500               | "Video could not be loaded."                              | "Retry" button                                           | error     |
+| Signed URL fetch 403 (geo-blocked) | "This episode is not available in your region."           | "Back to Anime" CTA                                      | warn      |
+| Signed URL fetch 402 (premium)     | "This episode requires a premium subscription."           | "Upgrade" CTA                                            | info      |
+| Progress POST fails                | No user-facing message (silent fail)                      | Retry on next 10-second interval                         | warn      |
+| Playback error (player internal)   | "Something went wrong during playback."                   | "Retry" button + "Report a problem" link                 | error     |
+| Network offline > 60s              | "Connection lost. Reconnecting..."                        | Auto-retry; success message "Connected!"                 | warn      |
+| Manifest fetch fails               | Player renders without quality selector / subtitle tracks | Degraded playback; no user message for cosmetic features | warn      |
 
 ## 12. Analytics Events
 
-| Event Name | Trigger | Properties | Surface |
-|------------|---------|------------|---------|
-| `episode_play_start` | Playback begins (after buffer) | `{ anime_id, episode_id, is_resume, quality, speed }` | Client |
-| `episode_play_pause` | User pauses playback | `{ anime_id, episode_id, position_seconds }` | Client |
-| `episode_play_seek` | User seeks to a position | `{ anime_id, episode_id, from_seconds, to_seconds }` | Client |
-| `episode_quality_change` | Quality selector value changed | `{ anime_id, episode_id, from_quality, to_quality }` | Client |
-| `episode_speed_change` | Playback speed changed | `{ anime_id, episode_id, from_speed, to_speed }` | Client |
-| `episode_progress_save` | Progress POST succeeds | `{ anime_id, episode_id, position_seconds, duration_seconds, percent_complete }` | Server |
-| `episode_complete` | Playback reaches end of episode | `{ anime_id, episode_id, duration_seconds }` | Client |
-| `episode_auto_next` | Auto-next countdown completes | `{ anime_id, from_episode_id, to_episode_id }` | Client |
-| `episode_up_next_cancel` | User cancels auto-next countdown | `{ anime_id, episode_id }` | Client |
-| `episode_playback_error` | Player encounters an error | `{ anime_id, episode_id, error_code, position_seconds }` | Client |
-| `episode_subtitle_toggle` | Subtitle track selected or disabled | `{ anime_id, episode_id, subtitle_language }` | Client |
+| Event Name                | Trigger                             | Properties                                                                       | Surface |
+| ------------------------- | ----------------------------------- | -------------------------------------------------------------------------------- | ------- |
+| `episode_play_start`      | Playback begins (after buffer)      | `{ anime_id, episode_id, is_resume, quality, speed }`                            | Client  |
+| `episode_play_pause`      | User pauses playback                | `{ anime_id, episode_id, position_seconds }`                                     | Client  |
+| `episode_play_seek`       | User seeks to a position            | `{ anime_id, episode_id, from_seconds, to_seconds }`                             | Client  |
+| `episode_quality_change`  | Quality selector value changed      | `{ anime_id, episode_id, from_quality, to_quality }`                             | Client  |
+| `episode_speed_change`    | Playback speed changed              | `{ anime_id, episode_id, from_speed, to_speed }`                                 | Client  |
+| `episode_progress_save`   | Progress POST succeeds              | `{ anime_id, episode_id, position_seconds, duration_seconds, percent_complete }` | Server  |
+| `episode_complete`        | Playback reaches end of episode     | `{ anime_id, episode_id, duration_seconds }`                                     | Client  |
+| `episode_auto_next`       | Auto-next countdown completes       | `{ anime_id, from_episode_id, to_episode_id }`                                   | Client  |
+| `episode_up_next_cancel`  | User cancels auto-next countdown    | `{ anime_id, episode_id }`                                                       | Client  |
+| `episode_playback_error`  | Player encounters an error          | `{ anime_id, episode_id, error_code, position_seconds }`                         | Client  |
+| `episode_subtitle_toggle` | Subtitle track selected or disabled | `{ anime_id, episode_id, subtitle_language }`                                    | Client  |
 
 ## 13. Security Considerations
 

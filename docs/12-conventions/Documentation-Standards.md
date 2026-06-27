@@ -79,20 +79,25 @@ Do **not** write an ADR for trivial choices (library X vs library Y for a one-of
 # ADR-XXX: [Title]
 
 ## Status
+
 Proposed | Accepted | Superseded by ADR-YYY | Deprecated
 
 ## Context
+
 What is the issue we are deciding on? What forces are at play (technical, organizational, timeline)?
 What constraints exist? Be specific — cite the relevant code, ADRs, or docs.
 
 ## Decision
+
 What did we decide? State it clearly and unambiguously. This is the binding part.
 
 ## Consequences
+
 What becomes easier? What becomes harder? What do we need to watch out of?
 What follow-up work does this create? Be honest about the downsides — that is the point.
 
 ## References
+
 - Related ADRs
 - Relevant docs
 - Links to the PR that implemented the decision
@@ -119,18 +124,22 @@ Milestone specs define the scope and acceptance criteria for a milestone. They l
 # M[N]: [Milestone Name]
 
 ## Objective
+
 One sentence on what this milestone achieves and why it matters.
 
 ## Scope
+
 What is in and what is out. Be explicit — scope creep is the default, so name the boundaries.
 
 ## Deliverables
+
 Numbered list of concrete deliverables. Each should be independently verifiable.
 
 1. [Deliverable] — [brief description]
 2. ...
 
 ## Acceptance Criteria
+
 How we know the milestone is done. These should be testable.
 
 - [ ] Criterion 1
@@ -138,9 +147,11 @@ How we know the milestone is done. These should be testable.
 - ...
 
 ## Risks and Mitigations
+
 What could go wrong and how we handle it.
 
 ## Dependencies
+
 What must be true before this milestone can start.
 ```
 
@@ -156,18 +167,23 @@ Every package and feature module has a README. The README is the entry point —
 One-line purpose.
 
 ## What It Does
+
 Two to three sentences on responsibility and boundaries.
 
 ## Installation / Setup
+
 How to use it from another package in the monorepo.
 
 ## Public API
+
 List of the main exports with one-line descriptions. Link to TSDoc for detail.
 
 ## Conventions
+
 Any package-specific rules (naming, file layout, key schema).
 
 ## Testing
+
 How to run tests for this package.
 ```
 
@@ -179,15 +195,19 @@ How to run tests for this package.
 What this feature does and who owns it.
 
 ## Components / Actions / Hooks
+
 List of the main pieces with one-line descriptions.
 
 ## Data Flow
+
 How data moves through this feature (server → client, cache → UI).
 
 ## Edge Cases and Gotchas
+
 What bites people. Update this as you learn.
 
 ## Related Docs
+
 Links to ADRs, milestone specs, and relevant docs.
 ```
 
@@ -216,6 +236,7 @@ export async function getAnimeDetail(id: number): Promise<AnimeDetail | null> {
 ```
 
 TSDoc should cover:
+
 - What the function does (one sentence).
 - Non-obvious behavior (caching, side effects, error conditions).
 - Parameter descriptions (especially when the name isn't self-explanatory).
@@ -227,12 +248,14 @@ TSDoc should cover:
 Use inline comments for **non-obvious logic only**. If the code is clear without a comment, don't add one.
 
 Good:
+
 ```typescript
 // TMDB returns runtime in minutes; convert to hours for display.
 const hours = Math.round(runtime / 60);
 ```
 
 Bad:
+
 ```typescript
 // Convert runtime to hours.
 const hours = Math.round(runtime / 60);

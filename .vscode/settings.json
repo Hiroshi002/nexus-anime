@@ -1,0 +1,49 @@
+{
+  // VS Code workspace settings — Nexus Anime monorepo
+  // These settings apply to everyone opening the repo in VS Code; they
+  // keep editor behavior consistent with the toolchain in package.json.
+
+  // --- Formatting ---
+  // Prettier on save — it is the single source of truth for formatting.
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  // Do NOT auto-format with Prettier for TS/TSX on save — ESLint handles
+  // that via its `codeActionsOnSave` channel so that auto-fixes from
+  // eslint-plugin-unused-imports etc. apply too.
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  // --- Linting ---
+  // ESLint validates TS/TSX using the flat config in each app/package.
+  "eslint.validate": ["typescript", "typescriptreact"],
+  "eslint.useFlatConfig": true,
+  // Apply ESLint auto-fixes on save so unused imports etc. are handled
+  // without a separate `lint:fix` invocation.
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "never"
+  },
+
+  // --- TypeScript ---
+  // Use the workspace version of TypeScript, not VS Code's built-in.
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  // --- EditorConfig ---
+  // Honors .editorconfig — ensures indent style, final newline, etc.
+  "editor.formatOnSaveMode": "modificationsIfAvailable",
+  "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+
+  // --- File associations ---
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
+}

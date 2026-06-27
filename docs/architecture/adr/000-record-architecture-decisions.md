@@ -17,12 +17,12 @@ ADRs are immutable records. When a decision is reversed or evolved, write a new 
 
 ## Index
 
-| ADR | Title | Status |
-|-----|-------|--------|
-| 001 | [Modular monolith with Next.js App Router](001-modular-monolith-nextjs.md) | accepted |
-| 002 | [State Management Strategy](../../15-decisions/ADR-002-State-Management.md) | accepted |
-| 003 | [Tailwind CSS 4 with Semantic Theme Tokens](../../15-decisions/ADR-003-Styling.md) | accepted |
-| 004 | [Turborepo + pnpm Workspaces](../../15-decisions/ADR-004-Monorepo.md) | accepted |
+| ADR | Title                                                                                      | Status   |
+| --- | ------------------------------------------------------------------------------------------ | -------- |
+| 001 | [Modular monolith with Next.js App Router](001-modular-monolith-nextjs.md)                 | accepted |
+| 002 | [State Management Strategy](../../15-decisions/ADR-002-State-Management.md)                | accepted |
+| 003 | [Tailwind CSS 4 with Semantic Theme Tokens](../../15-decisions/ADR-003-Styling.md)         | accepted |
+| 004 | [Turborepo + pnpm Workspaces](../../15-decisions/ADR-004-Monorepo.md)                      | accepted |
 | 005 | [Server Actions + Route Handlers API Strategy](../../15-decisions/ADR-005-API-Strategy.md) | accepted |
 
 ## How to propose a new ADR

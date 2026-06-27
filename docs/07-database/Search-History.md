@@ -17,44 +17,44 @@
 
 ### 2.1 Fields
 
-| Column | Type | Constraint | Description |
-|--------|------|------------|-------------|
-| `id` | `uuid` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key. |
-| `user_id` | `uuid` | `NOT NULL` FK → `users.id` | Searcher. |
-| `query` | `text` | `NOT NULL` | The raw query text (trimmed, lowercased at the app layer). |
-| `query_normalized` | `text` | `NOT NULL` | Normalized form for dedupe (lowercased, trimmed, collapsed whitespace). |
-| `result_count` | `integer` | nullable | Number of results returned (analytics). |
-| `clicked_anime_id` | `uuid` | nullable FK → `anime.id` | Which result the user clicked (if any). |
-| `source` | `text` | `NOT NULL DEFAULT 'search_bar'` | Where the search originated. See §2.3. |
-| `searched_at` | `timestamptz` | `NOT NULL DEFAULT now()` | When the search occurred. |
-| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()` | Insert time. |
+| Column             | Type          | Constraint                              | Description                                                             |
+| ------------------ | ------------- | --------------------------------------- | ----------------------------------------------------------------------- |
+| `id`               | `uuid`        | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key.                                                          |
+| `user_id`          | `uuid`        | `NOT NULL` FK → `users.id`              | Searcher.                                                               |
+| `query`            | `text`        | `NOT NULL`                              | The raw query text (trimmed, lowercased at the app layer).              |
+| `query_normalized` | `text`        | `NOT NULL`                              | Normalized form for dedupe (lowercased, trimmed, collapsed whitespace). |
+| `result_count`     | `integer`     | nullable                                | Number of results returned (analytics).                                 |
+| `clicked_anime_id` | `uuid`        | nullable FK → `anime.id`                | Which result the user clicked (if any).                                 |
+| `source`           | `text`        | `NOT NULL DEFAULT 'search_bar'`         | Where the search originated. See §2.3.                                  |
+| `searched_at`      | `timestamptz` | `NOT NULL DEFAULT now()`                | When the search occurred.                                               |
+| `created_at`       | `timestamptz` | `NOT NULL DEFAULT now()`                | Insert time.                                                            |
 
 ### 2.2 Constraints
 
-| Name | Type | Definition |
-|------|------|------------|
-| `chk_search_history_query_length` | check | `char_length(query) BETWEEN 1 AND 200` |
-| `chk_search_history_source_range` | check | `source IN ('search_bar','voice','suggestion','deep_link')` |
-| `chk_search_history_result_count_positive` | check | `result_count IS NULL OR result_count >= 0` |
+| Name                                       | Type  | Definition                                                  |
+| ------------------------------------------ | ----- | ----------------------------------------------------------- |
+| `chk_search_history_query_length`          | check | `char_length(query) BETWEEN 1 AND 200`                      |
+| `chk_search_history_source_range`          | check | `source IN ('search_bar','voice','suggestion','deep_link')` |
+| `chk_search_history_result_count_positive` | check | `result_count IS NULL OR result_count >= 0`                 |
 
 ### 2.3 Source Values
 
-| Value | Meaning |
-|-------|---------|
-| `search_bar` | Typed in the search bar. |
-| `voice` | Voice search (future). |
-| `suggestion` | Clicked a suggested query. |
-| `deep_link` | Search triggered from a deep link. |
+| Value        | Meaning                            |
+| ------------ | ---------------------------------- |
+| `search_bar` | Typed in the search bar.           |
+| `voice`      | Voice search (future).             |
+| `suggestion` | Clicked a suggested query.         |
+| `deep_link`  | Search triggered from a deep link. |
 
 ### 2.4 Indexes
 
-| Index | Type | Columns | Purpose |
-|-------|------|---------|---------|
-| `pk_search_history` | btree (unique) | `id` | PK. |
-| `idx_search_history_user_searched_at` | btree | `(user_id, searched_at DESC)` | "Recent searches" dropdown (per user). |
-| `idx_search_history_user_normalized` | btree | `(user_id, query_normalized)` | Dedupe: "have I searched this exact query recently?" |
-| `idx_search_history_searched_at` | btree | `searched_at` | Retention purge scans. |
-| `idx_search_history_clicked_anime_id` | btree | `clicked_anime_id` | "Which searches led to this anime?" (analytics). |
+| Index                                 | Type           | Columns                       | Purpose                                              |
+| ------------------------------------- | -------------- | ----------------------------- | ---------------------------------------------------- |
+| `pk_search_history`                   | btree (unique) | `id`                          | PK.                                                  |
+| `idx_search_history_user_searched_at` | btree          | `(user_id, searched_at DESC)` | "Recent searches" dropdown (per user).               |
+| `idx_search_history_user_normalized`  | btree          | `(user_id, query_normalized)` | Dedupe: "have I searched this exact query recently?" |
+| `idx_search_history_searched_at`      | btree          | `searched_at`                 | Retention purge scans.                               |
+| `idx_search_history_clicked_anime_id` | btree          | `clicked_anime_id`            | "Which searches led to this anime?" (analytics).     |
 
 ### 2.5 Decisions & Rationale
 
@@ -83,6 +83,6 @@
 
 ### 2.8 Relationship Recap
 
-- `users` 1 — * `search_history` (one-to-many).
-- `anime` 1 — * `search_history` (one-to-many; the clicked result, if any).
+- `users` 1 — \* `search_history` (one-to-many).
+- `anime` 1 — \* `search_history` (one-to-many; the clicked result, if any).
 - On user erasure: **hard-delete** all the user's search history rows.

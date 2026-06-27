@@ -23,19 +23,19 @@ Do not invent ad-hoc codes in individual handlers. If a new failure mode is miss
 
 Every error response follows the same envelope. `code` is the only field clients should branch on; `message` is for display; `details` is structured context.
 
-
 // Failure envelope — returned from every API surface.
 {
-  error: {
-    message: string,    // Human-readable summary (safe to display)
-    code: string,       // Machine-readable code from this registry
-    details?: unknown,  // Structured context — shape depends on `code`
-  },
-  meta: {
-    requestId: string,  // Correlation ID for support tickets
-  },
+error: {
+message: string, // Human-readable summary (safe to display)
+code: string, // Machine-readable code from this registry
+details?: unknown, // Structured context — shape depends on `code`
+},
+meta: {
+requestId: string, // Correlation ID for support tickets
+},
 }
-```
+
+````
 
 | Field       | Type     | Required |invariant                                           |
 | :---------- | :------- | :------- | :------------------------------------------------ |
@@ -126,7 +126,7 @@ Each subtype is a **standalone `code`** in the error envelope. Servers MUST emit
     expected?: string,      // description of expected shape, e.g. "email"
   }>
 }
-```
+````
 
 Constraints:
 
@@ -163,14 +163,14 @@ export function fromZodError(zodError: ZodError): ApiError {
 
 Mapping rules:
 
-| Zod issue code     | Result `code`    | Notes                                              |
-| :----------------- | :--------------- | :------------------------------------------------- |
-| `invalid_type` with `received === undefined` | `FIELD_REQUIRED`        | Missing required field                   |
-| `invalid_type` otherwise | `FIELD_INVALID` | Type mismatch                              |
-| `too_small` / `too_big` | `FIELD_INVALID` | Length/range violation                |
-| `invalid_string` with format check | `FIELD_INVALID` | e.g. email, url                          |
-| `invalid_union`    | `FIELD_INVALID` | Ambiguous union match                              |
-| custom `.refine()` failures | `FIELD_INVALID` | With refine message propagated into `message` |
+| Zod issue code                               | Result `code`    | Notes                                         |
+| :------------------------------------------- | :--------------- | :-------------------------------------------- |
+| `invalid_type` with `received === undefined` | `FIELD_REQUIRED` | Missing required field                        |
+| `invalid_type` otherwise                     | `FIELD_INVALID`  | Type mismatch                                 |
+| `too_small` / `too_big`                      | `FIELD_INVALID`  | Length/range violation                        |
+| `invalid_string` with format check           | `FIELD_INVALID`  | e.g. email, url                               |
+| `invalid_union`                              | `FIELD_INVALID`  | Ambiguous union match                         |
+| custom `.refine()` failures                  | `FIELD_INVALID`  | With refine message propagated into `message` |
 
 Multiple Zod issues on the same field each produce their own entry — callers cannot assume one error per field.
 
@@ -224,10 +224,7 @@ export async function deleteComment(commentId: string) {
 ```ts
 import { error } from "@nexus/api/responses";
 
-export async function DELETE(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   // helper parses + validates; throws ApiError("VALIDATION_ERROR", ...) on bad input
   const commentId = parseCommentId(id);
@@ -307,17 +304,17 @@ Rules:
 
 Hard prohibitions. Violations block merge.
 
-| # | Rule                                                                 | Rationale                                                       |
-| :- | :------------------------------------------------------------------- | :-------------------------------------------------------------- |
-| 1 | **No stack traces** in client responses.                             | Prevents file-path disclosure and internal layout discovery.    |
-| 2 | **No internal URLs** in client responses.                            | Internal hostnames reveal infrastructure.                       |
-| 3 | **No leaked tokens, API keys, or secrets** in client responses.      | Keys in messages are a live credential leak.                    |
-| 4 | **No raw upstream error bodies** in client responses.                | Upstream bodies often contain internal stack traces or URLs.    |
-| 5 | **No sensitive field values** in `details.received`.                 | Passwords, tokens, and full PANs must never be echoed back.     |
-| 6 | **No ad-hoc `code` strings** not registered in this document.         | Prevents client-side branching drift.                            |
-| 7 | **No throwing raw `Error`** from Server Actions. Use `ApiError`.       | Raw errors are collapsed to `INTERNAL_ERROR` at the boundary.   |
-| 8 | **No 200-with-error** responses.                                     | Errors must carry their correct HTTP status for caching/proxy.   |
-| 9 | **No parsing `message` in client code**. Branch on `code`.            | Messages are localized and evolve independently of semantics.    |
+| #   | Rule                                                             | Rationale                                                      |
+| :-- | :--------------------------------------------------------------- | :------------------------------------------------------------- |
+| 1   | **No stack traces** in client responses.                         | Prevents file-path disclosure and internal layout discovery.   |
+| 2   | **No internal URLs** in client responses.                        | Internal hostnames reveal infrastructure.                      |
+| 3   | **No leaked tokens, API keys, or secrets** in client responses.  | Keys in messages are a live credential leak.                   |
+| 4   | **No raw upstream error bodies** in client responses.            | Upstream bodies often contain internal stack traces or URLs.   |
+| 5   | **No sensitive field values** in `details.received`.             | Passwords, tokens, and full PANs must never be echoed back.    |
+| 6   | **No ad-hoc `code` strings** not registered in this document.    | Prevents client-side branching drift.                          |
+| 7   | **No throwing raw `Error`** from Server Actions. Use `ApiError`. | Raw errors are collapsed to `INTERNAL_ERROR` at the boundary.  |
+| 8   | **No 200-with-error** responses.                                 | Errors must carry their correct HTTP status for caching/proxy. |
+| 9   | **No parsing `message` in client code**. Branch on `code`.       | Messages are localized and evolve independently of semantics.  |
 
 ---
 
@@ -325,19 +322,19 @@ Hard prohibitions. Violations block merge.
 
 These codes are **reserved** — do not repurpose them. They will be promoted to active use by the milestone indicated.
 
-| Code                       | Reserved For        | Milestone | Notes                                        |
-| :------------------------- | :------------------ | :-------- | :------------------------------------------- |
-| `MFA_REQUIRED`             | Auth                | M3        | User must complete MFA challenge             |
-| `ACCOUNT_LOCKED`           | Auth                | M3        | Temp lock after brute-force                  |
-| `TOKEN_EXPIRED`            | Auth                | M3        | Auth.js refresh failure                      |
-| `SUBSCRIPTION_EXPIRED`     | Billing             | M4        | Lapsed plan blocks premium content           |
-| `REGION_BLOCKED`           | Licensing           | M4        | Geo-rights enforcement                       |
-| `VIDEO_UNAVAILABLE`        | Video Playback      | M5        | Signed URL expired or content geo-blocked    |
-| `PLAYER_TOKEN_INVALID`     | Video Playback      | M5        | Signed URL signature mismatch                |
-| `CONCURRENT_STREAM_LIMIT`  | Video Playback      | M5        | Too many simultaneous streams                 |
-| `SEARCH_TIMEOUT`           | Search              | M6        | Search backend overloaded, cache-aside miss  |
-| `CONTENT_FLAGGED`          | Moderation          | M6        | User-generated content flagged by automated review |
-| `EXPORT_FAILED`            | GDPR / Data export  | M7        | Account data export failed                   |
+| Code                      | Reserved For       | Milestone | Notes                                              |
+| :------------------------ | :----------------- | :-------- | :------------------------------------------------- |
+| `MFA_REQUIRED`            | Auth               | M3        | User must complete MFA challenge                   |
+| `ACCOUNT_LOCKED`          | Auth               | M3        | Temp lock after brute-force                        |
+| `TOKEN_EXPIRED`           | Auth               | M3        | Auth.js refresh failure                            |
+| `SUBSCRIPTION_EXPIRED`    | Billing            | M4        | Lapsed plan blocks premium content                 |
+| `REGION_BLOCKED`          | Licensing          | M4        | Geo-rights enforcement                             |
+| `VIDEO_UNAVAILABLE`       | Video Playback     | M5        | Signed URL expired or content geo-blocked          |
+| `PLAYER_TOKEN_INVALID`    | Video Playback     | M5        | Signed URL signature mismatch                      |
+| `CONCURRENT_STREAM_LIMIT` | Video Playback     | M5        | Too many simultaneous streams                      |
+| `SEARCH_TIMEOUT`          | Search             | M6        | Search backend overloaded, cache-aside miss        |
+| `CONTENT_FLAGGED`         | Moderation         | M6        | User-generated content flagged by automated review |
+| `EXPORT_FAILED`           | GDPR / Data export | M7        | Account data export failed                         |
 
 ---
 
@@ -525,20 +522,20 @@ async function handleResult<T>(result: ApiResult<T>): Promise<T> {
 
 **Retry semantics**:
 
-| Retry-safe | Client action                                            |
-| :--------- | :------------------------------------------------------- |
+| Retry-safe                           | Client action                                                                                   |
+| :----------------------------------- | :---------------------------------------------------------------------------------------------- |
 | Y (`RATE_LIMITED`, `UPSTREAM_ERROR`) | Back off using `details.retryAfter` or `Retry-After` header, then replay the identical request. |
-| N          | Never replay. Show user-facing message or redirect.      |
+| N                                    | Never replay. Show user-facing message or redirect.                                             |
 
 ---
 
 ## 12. Changelog
 
-| Date       | Change                    | Ticket / PR |
-| :--------- | :------------------------ | :---------- |
-| 2026-06-26 | Initial error code registry | —         |
-|            |                           |             |
-|            |                           |             |
+| Date       | Change                      | Ticket / PR |
+| :--------- | :-------------------------- | :---------- |
+| 2026-06-26 | Initial error code registry | —           |
+|            |                             |             |
+|            |                             |             |
 
 > Each entry is added when the code catalog changes — not on every bugfix. Backfill in the same PR that introduces or removes a code.
 

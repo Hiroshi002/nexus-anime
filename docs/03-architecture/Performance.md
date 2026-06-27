@@ -8,20 +8,20 @@
 
 ### Core Web Vitals (production)
 
-| Metric | Target | Threshold | What it measures |
-|--------|--------|-----------|-----------------|
-| **LCP** (Largest Contentful Paint) | < 1.0s | < 2.5s (good) | Perceived load speed — largest visible content |
-| **INP** (Interaction to Next Paint) | < 150ms | < 200ms (good) | Responsiveness to user interactions |
-| **CLS** (Cumulative Layout Shift) | < 0.05 | < 0.1 (good) | Visual stability during load |
+| Metric                              | Target  | Threshold      | What it measures                               |
+| ----------------------------------- | ------- | -------------- | ---------------------------------------------- |
+| **LCP** (Largest Contentful Paint)  | < 1.0s  | < 2.5s (good)  | Perceived load speed — largest visible content |
+| **INP** (Interaction to Next Paint) | < 150ms | < 200ms (good) | Responsiveness to user interactions            |
+| **CLS** (Cumulative Layout Shift)   | < 0.05  | < 0.1 (good)   | Visual stability during load                   |
 
 ### Server-side targets
 
-| Metric | Target | Why |
-|--------|--------|-----|
+| Metric                    | Target                               | Why                                         |
+| ------------------------- | ------------------------------------ | ------------------------------------------- |
 | TTFB (Time to First Byte) | < 200ms (cached), < 500ms (uncached) | Streaming starts fast; ISR serves from edge |
-| DB query p95 | < 50ms | Neon serverless + connection pooling |
-| Redis cache p95 | < 5ms | Upstash REST API (no TCP overhead) |
-| TMDB/AniList p95 | < 500ms | External network + their API latency |
+| DB query p95              | < 50ms                               | Neon serverless + connection pooling        |
+| Redis cache p95           | < 5ms                                | Upstash REST API (no TCP overhead)          |
+| TMDB/AniList p95          | < 500ms                              | External network + their API latency        |
 
 ### Why these targets
 
@@ -114,13 +114,13 @@ Neon serverless provides HTTP-based connection pooling. Each serverless function
 
 All images via `next/image` with the R2 loader. Next.js generates srcset variants at request time (on-demand optimization) and caches them on the CDN.
 
-| Optimization | How |
-|-------------|-----|
+| Optimization     | How                                                                        |
+| ---------------- | -------------------------------------------------------------------------- |
 | Format selection | WebP for browsers that support it, AVIF for modern browsers, JPEG fallback |
-| Responsive sizes | `srcset` with 1x, 2x, 3x variants based on `sizes` prop |
-| Quality tuning | 75 for thumbnails (small size), 80 for hero images (better quality) |
-| Lazy loading | `loading="lazy"` for below-the-fold images (automatic in Next.js) |
-| Priority loading | `priority` prop for LCP images (preloads in `<head>`) |
+| Responsive sizes | `srcset` with 1x, 2x, 3x variants based on `sizes` prop                    |
+| Quality tuning   | 75 for thumbnails (small size), 80 for hero images (better quality)        |
+| Lazy loading     | `loading="lazy"` for below-the-fold images (automatic in Next.js)          |
+| Priority loading | `priority` prop for LCP images (preloads in `<head>`)                      |
 
 ### Font optimization
 
@@ -129,9 +129,9 @@ Self-hosted fonts in `public/fonts/` with `next/font`:
 ```ts
 const inter = localFont({
   src: "./fonts/Inter-Variable.woff2",
-  display: "swap",          // Prevents FOIT (Flash of Invisible Text)
-  preload: true,             // Preloads in <link>
-  fallback: ["system-ui"],   // Fallback while font loads
+  display: "swap", // Prevents FOIT (Flash of Invisible Text)
+  preload: true, // Preloads in <link>
+  fallback: ["system-ui"], // Fallback while font loads
 });
 ```
 
@@ -147,13 +147,13 @@ Tailwind v4 generates only the CSS used in the application (dead code eliminatio
 
 ### Target budgets
 
-| Route | JS budget (gzipped) | Why |
-|-------|---------------------|-----|
-| Home (browse) | < 80KB | Mostly Server Components — minimal client JS |
-| Anime detail | < 100KB | Interactive watchlist toggle + episode list |
-| Watchlist | < 60KB | Grid + React Query |
-| Player | < 50KB (initial) + 200KB (lazy) | Shell loads fast; player streams in |
-| Checkout | < 50KB (initial) + 80KB (lazy) | Stripe Elements lazy-loaded |
+| Route         | JS budget (gzipped)             | Why                                          |
+| ------------- | ------------------------------- | -------------------------------------------- |
+| Home (browse) | < 80KB                          | Mostly Server Components — minimal client JS |
+| Anime detail  | < 100KB                         | Interactive watchlist toggle + episode list  |
+| Watchlist     | < 60KB                          | Grid + React Query                           |
+| Player        | < 50KB (initial) + 200KB (lazy) | Shell loads fast; player streams in          |
+| Checkout      | < 50KB (initial) + 80KB (lazy)  | Stripe Elements lazy-loaded                  |
 
 ### Tree-shaking enforcement
 
@@ -164,6 +164,7 @@ Tailwind v4 generates only the CSS used in the application (dead code eliminatio
 ### Code splitting
 
 Next.js App Router automatically code-splits by route. Additional splits:
+
 - `next/dynamic` for heavy client islands (player, Stripe).
 - React.lazy for conditionally rendered sections.
 
@@ -173,12 +174,12 @@ Next.js App Router automatically code-splits by route. Additional splits:
 
 See [Caching-Strategy.md](Caching-Strategy.md) for full details. Key performance-impacting caches:
 
-| Cache | Hit rate target | Impact |
-|-------|----------------|--------|
-| Vercel Edge (ISR) | > 95% for catalog pages | Serves cached HTML in < 50ms |
-| Redis | > 80% for anime detail | Avoids DB query + TMDB call |
-| Next.js fetch cache | > 90% for TMDB/AniList | Avoids external API call |
-| Browser cache | Varies | Eliminates network round-trip |
+| Cache               | Hit rate target         | Impact                        |
+| ------------------- | ----------------------- | ----------------------------- |
+| Vercel Edge (ISR)   | > 95% for catalog pages | Serves cached HTML in < 50ms  |
+| Redis               | > 80% for anime detail  | Avoids DB query + TMDB call   |
+| Next.js fetch cache | > 90% for TMDB/AniList  | Avoids external API call      |
+| Browser cache       | Varies                  | Eliminates network round-trip |
 
 ---
 
@@ -187,8 +188,10 @@ See [Caching-Strategy.md](Caching-Strategy.md) for full details. Key performance
 ### Preconnect hints
 
 ```html
-<link rel="preconnect" href="https://cdn.nexus-anime.com" />  <!-- R2 images -->
-<link rel="preconnect" href="https://api.tmdb.org" />          <!-- TMDB (server-only, not in client) -->
+<link rel="preconnect" href="https://cdn.nexus-anime.com" />
+<!-- R2 images -->
+<link rel="preconnect" href="https://api.tmdb.org" />
+<!-- TMDB (server-only, not in client) -->
 ```
 
 **Why preconnect:** Eliminates DNS + TCP + TLS handshake for known origins. Saves 100–300ms on the first request to each origin.
@@ -207,26 +210,26 @@ Next.js streams HTML by default in App Router. The browser starts parsing and re
 
 ### Development
 
-| Tool | When | What it measures |
-|------|------|-----------------|
-| Chrome DevTools Performance tab | During development | Component render time, layout shifts, long tasks |
-| React DevTools Profiler | Component optimization | Unnecessary re-renders, render duration |
-| `next build` output | Before deploy | Bundle sizes per route, code splitting effectiveness |
+| Tool                            | When                   | What it measures                                     |
+| ------------------------------- | ---------------------- | ---------------------------------------------------- |
+| Chrome DevTools Performance tab | During development     | Component render time, layout shifts, long tasks     |
+| React DevTools Profiler         | Component optimization | Unnecessary re-renders, render duration              |
+| `next build` output             | Before deploy          | Bundle sizes per route, code splitting effectiveness |
 
 ### CI/CD
 
-| Check | When | Threshold |
-|-------|------|-----------|
-| Bundle size | On PR | New route adds < 10KB gzipped (flagged if exceeded) |
-| Lighthouse CI | On deploy preview | LCP < 2.5s, CLS < 0.1, INP < 200ms |
+| Check         | When              | Threshold                                           |
+| ------------- | ----------------- | --------------------------------------------------- |
+| Bundle size   | On PR             | New route adds < 10KB gzipped (flagged if exceeded) |
+| Lighthouse CI | On deploy preview | LCP < 2.5s, CLS < 0.1, INP < 200ms                  |
 
 ### Production
 
-| Tool | What | Alert |
-|------|------|-------|
-| Vercel Analytics | Real User Monitoring (RUM) — CWV from actual users | p75 LCP > 2.5s for 10 min → alert |
-| Vercel Speed Insights | Per-route performance breakdown | Route regression detection |
-| Custom pino metrics | DB query p95, Redis p95, upstream p95 | p95 > threshold for 5 min → alert |
+| Tool                  | What                                               | Alert                             |
+| --------------------- | -------------------------------------------------- | --------------------------------- |
+| Vercel Analytics      | Real User Monitoring (RUM) — CWV from actual users | p75 LCP > 2.5s for 10 min → alert |
+| Vercel Speed Insights | Per-route performance breakdown                    | Route regression detection        |
+| Custom pino metrics   | DB query p95, Redis p95, upstream p95              | p95 > threshold for 5 min → alert |
 
 ### Why measure in production, not just lab
 
@@ -236,17 +239,17 @@ Lab data (Lighthouse) is synthetic and doesn't reflect real user conditions (slo
 
 ## 9. Performance Anti-Patterns to Avoid
 
-| Anti-pattern | Why it's bad | Correct approach |
-|-------------|-------------|-----------------|
-| `useState` + `useEffect` fetch | Waterfall: render → effect → fetch → render | Server Component fetch or React Query |
-| Blocking the page on one slow section | User sees nothing until slowest section resolves | `<Suspense>` with streaming |
-| `SELECT *` from DB | Transfers unused columns, increases latency | Select only needed columns |
-| Images without `width`/`height` | Layout shift (CLS) when image loads | Always set explicit dimensions |
-| Heavy client component in initial bundle | Increases JS parse time for all pages | `next/dynamic` with `ssr: false` |
-| Synchronous font loading | FOIT — text invisible until font loads | `font-display: swap` |
-| No `sizes` prop on `<Image>` | Browser downloads largest variant regardless | Set `sizes` for responsive loading |
-| Premature memoization | `useMemo`/`useCallback` without profiling | Only memoize when profiling shows benefit |
-| Client-side search indexing | Shipping full catalog to browser for search | Server-side search (TMDB API, DB fulltext) |
+| Anti-pattern                             | Why it's bad                                     | Correct approach                           |
+| ---------------------------------------- | ------------------------------------------------ | ------------------------------------------ |
+| `useState` + `useEffect` fetch           | Waterfall: render → effect → fetch → render      | Server Component fetch or React Query      |
+| Blocking the page on one slow section    | User sees nothing until slowest section resolves | `<Suspense>` with streaming                |
+| `SELECT *` from DB                       | Transfers unused columns, increases latency      | Select only needed columns                 |
+| Images without `width`/`height`          | Layout shift (CLS) when image loads              | Always set explicit dimensions             |
+| Heavy client component in initial bundle | Increases JS parse time for all pages            | `next/dynamic` with `ssr: false`           |
+| Synchronous font loading                 | FOIT — text invisible until font loads           | `font-display: swap`                       |
+| No `sizes` prop on `<Image>`             | Browser downloads largest variant regardless     | Set `sizes` for responsive loading         |
+| Premature memoization                    | `useMemo`/`useCallback` without profiling        | Only memoize when profiling shows benefit  |
+| Client-side search indexing              | Shipping full catalog to browser for search      | Server-side search (TMDB API, DB fulltext) |
 
 ---
 

@@ -48,21 +48,21 @@ Unit tests verify a single unit of behavior in isolation.
 ### Example
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { formatRuntime } from './formatRuntime';
+import { describe, it, expect } from "vitest";
+import { formatRuntime } from "./formatRuntime";
 
-describe('formatRuntime', () => {
-  it('formats minutes into hours and minutes', () => {
-    expect(formatRuntime(90)).toBe('1h 30m');
+describe("formatRuntime", () => {
+  it("formats minutes into hours and minutes", () => {
+    expect(formatRuntime(90)).toBe("1h 30m");
   });
 
-  it('omits hours when under 60 minutes', () => {
-    expect(formatRuntime(45)).toBe('45m');
+  it("omits hours when under 60 minutes", () => {
+    expect(formatRuntime(45)).toBe("45m");
   });
 
   it('returns "N/A" for zero or negative input', () => {
-    expect(formatRuntime(0)).toBe('N/A');
-    expect(formatRuntime(-5)).toBe('N/A');
+    expect(formatRuntime(0)).toBe("N/A");
+    expect(formatRuntime(-5)).toBe("N/A");
   });
 });
 ```
@@ -108,6 +108,7 @@ Prioritize flows that, if broken, mean users can't accomplish core tasks:
 ### When to Write an E2E Test
 
 When the flow is:
+
 - Repeatedly used by real users (the "happy path" the product depends on).
 - Expensive to break (signup, login, payment, playback).
 - Involved enough that unit + integration tests don't cover the whole story.
@@ -151,8 +152,8 @@ Factories, not fixtures. Fixtures rot — they encode assumptions that silently 
 ### Example
 
 ```typescript
-import { faker } from '@faker-js/faker';
-import type { Anime } from '@nexus/db';
+import { faker } from "@faker-js/faker";
+import type { Anime } from "@nexus/db";
 
 export function makeAnime(overrides: Partial<Anime> = {}): Anime {
   return {
@@ -161,7 +162,7 @@ export function makeAnime(overrides: Partial<Anime> = {}): Anime {
     slug: faker.lorem.slug(),
     synopsis: faker.lorem.paragraph(),
     episodeCount: faker.number.int({ min: 1, max: 100 }),
-    status: 'airing',
+    status: "airing",
     cachedAt: new Date(),
     ...overrides,
   };
@@ -283,13 +284,13 @@ Server Actions are the mutation boundary in the App Router. Test them by invokin
 3. **Verify side effects** — did the repository mutation run? Did `revalidatePath` or `revalidateTag` fire? Was the cache invalidated?
 
 ```typescript
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from "next/cache";
 
-it('adds an anime to the watchlist and revalidates the list', async () => {
+it("adds an anime to the watchlist and revalidates the list", async () => {
   const result = await addToWatchlist({ animeId: 123 });
 
   expect(result).toEqual({ data: { success: true } });
-  expect(revalidatePath).toHaveBeenCalledWith('/watchlist');
+  expect(revalidatePath).toHaveBeenCalledWith("/watchlist");
 });
 ```
 
@@ -307,36 +308,36 @@ Schemas are the boundary guards. Test them directly.
 - **Unexpected inputs** — the oddball data the upstream might send. These catch real bugs.
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { SignupInputSchema } from './signup.schema';
+import { describe, it, expect } from "vitest";
+import { SignupInputSchema } from "./signup.schema";
 
-describe('SignupInputSchema', () => {
-  it('accepts valid email and password', () => {
+describe("SignupInputSchema", () => {
+  it("accepts valid email and password", () => {
     const result = SignupInputSchema.safeParse({
-      email: 'user@example.com',
-      password: 'secure-password-123',
+      email: "user@example.com",
+      password: "secure-password-123",
     });
     expect(result.success).toBe(true);
   });
 
-  it('rejects an invalid email', () => {
+  it("rejects an invalid email", () => {
     const result = SignupInputSchema.safeParse({
-      email: 'not-an-email',
-      password: 'secure-password-123',
+      email: "not-an-email",
+      password: "secure-password-123",
     });
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].path).toEqual(['email']);
+      expect(result.error.issues[0].path).toEqual(["email"]);
     }
   });
 
   it.each([
-    ['', 'empty string'],
-    ['a', 'too short'],
-    ['a'.repeat(129), 'too long beyond max'],
-  ])('rejects a password that is %s', (password) => {
+    ["", "empty string"],
+    ["a", "too short"],
+    ["a".repeat(129), "too long beyond max"],
+  ])("rejects a password that is %s", (password) => {
     const result = SignupInputSchema.safeParse({
-      email: 'user@example.com',
+      email: "user@example.com",
       password,
     });
     expect(result.success).toBe(false);

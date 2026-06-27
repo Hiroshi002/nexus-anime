@@ -26,14 +26,14 @@ Goal: clients can page through any list deterministically without skipped or dup
 
 ## 2. Offset vs cursor
 
-| Concern | Offset | Cursor |
-| :------ | :----- | :----- |
-| Mechanism | `LIMIT n OFFSET m` | `WHERE (sort_col, id) < (last_seen) LIMIT n` |
-| Jump to arbitrary page | Yes (`page=k`) | No — sequential only |
-| Stable under inserts/deletes | **No** — rows shift, causing skips/duplicates | **Yes** — cursor is a stable position |
-| Total count cost | Cheap (`COUNT(*)`) | Expensive — requires separate `COUNT` |
-| Backward navigation | Trivial (`page=k-1`) | Requires reversed seek + in-memory flip |
-| Use case | Static/admin lists, small fixed datasets | Default for all user-facing growing lists |
+| Concern                      | Offset                                        | Cursor                                       |
+| :--------------------------- | :-------------------------------------------- | :------------------------------------------- |
+| Mechanism                    | `LIMIT n OFFSET m`                            | `WHERE (sort_col, id) < (last_seen) LIMIT n` |
+| Jump to arbitrary page       | Yes (`page=k`)                                | No — sequential only                         |
+| Stable under inserts/deletes | **No** — rows shift, causing skips/duplicates | **Yes** — cursor is a stable position        |
+| Total count cost             | Cheap (`COUNT(*)`)                            | Expensive — requires separate `COUNT`        |
+| Backward navigation          | Trivial (`page=k-1`)                          | Requires reversed seek + in-memory flip      |
+| Use case                     | Static/admin lists, small fixed datasets      | Default for all user-facing growing lists    |
 
 **Rule:** cursor pagination is the default. Offset pagination is permitted **only** on admin-only or static endpoints where the result set is bounded and not mutated concurrently by end users.
 
@@ -43,12 +43,12 @@ Goal: clients can page through any list deterministically without skipped or dup
 
 ### 3.1 Parameters
 
-| Parameter | Type | Required | Default | Range | Notes |
-| :-------- | :--- | :------ | :------ | :---- | :---- |
-| `cursor` | string | No | omitted (first page) | — | Base64url-encoded cursor from a prior response. Omit for the first page. |
-| `limit` | integer | No | `20` | `1`–`100` | Number of items per page. Clamped to `[1, 100]`; values outside the range return `VALIDATION_ERROR`. |
-| `includeTotal` | boolean | No | `false` | — | When `true`, the response includes an exact `total` count. Adds a `COUNT(*)` query — use sparingly. |
-| `direction` | string | No | `"forward"` | `"forward"` \| `"backward"` | Navigation direction. See §6. |
+| Parameter      | Type    | Required | Default              | Range                       | Notes                                                                                                |
+| :------------- | :------ | :------- | :------------------- | :-------------------------- | :--------------------------------------------------------------------------------------------------- |
+| `cursor`       | string  | No       | omitted (first page) | —                           | Base64url-encoded cursor from a prior response. Omit for the first page.                             |
+| `limit`        | integer | No       | `20`                 | `1`–`100`                   | Number of items per page. Clamped to `[1, 100]`; values outside the range return `VALIDATION_ERROR`. |
+| `includeTotal` | boolean | No       | `false`              | —                           | When `true`, the response includes an exact `total` count. Adds a `COUNT(*)` query — use sparingly.  |
+| `direction`    | string  | No       | `"forward"`          | `"forward"` \| `"backward"` | Navigation direction. See §6.                                                                        |
 
 All parameters are query-string parameters on `GET` requests. Cursor pagination MUST NOT be combined with offset parameters (`page`, `perPage`).
 
@@ -68,18 +68,24 @@ Shape of the decoded JSON:
 }
 ```
 
-| Field | Meaning |
-| :---- | :------ |
-| `v` | Cursor schema version (currently `1`). |
-| `s` | Sort column the cursor was generated against. |
-| `d` | Sort direction: `"asc"` or `"desc"`. |
-| `k` | Value of the sort column for the boundary item (ISO 8601 for timestamps). |
-| `id` | Primary key of the boundary item — tiebreaker for stable ordering. |
+| Field | Meaning                                                                   |
+| :---- | :------------------------------------------------------------------------ |
+| `v`   | Cursor schema version (currently `1`).                                    |
+| `s`   | Sort column the cursor was generated against.                             |
+| `d`   | Sort direction: `"asc"` or `"desc"`.                                      |
+| `k`   | Value of the sort column for the boundary item (ISO 8601 for timestamps). |
+| `id`  | Primary key of the boundary item — tiebreaker for stable ordering.        |
 
 Encoding:
 
 ```ts
-const json = JSON.stringify({ v: 1, s: "created_at", d: "desc", k: "2026-06-26T14:30:00.000Z", id: "clxkqexample0001" });
+const json = JSON.stringify({
+  v: 1,
+  s: "created_at",
+  d: "desc",
+  k: "2026-06-26T14:30:00.000Z",
+  id: "clxkqexample0001",
+});
 const cursor = Buffer.from(json, "utf8").toString("base64url");
 ```
 
@@ -112,14 +118,14 @@ A malformed or expired cursor returns `400 Bad Request` with code `INVALID_CURSO
 }
 ```
 
-| Field | Type | Notes |
-| :---- | :--- | :---- |
-| `data.items` | array | Page of results. Empty array `[]` when no results. |
-| `data.pagination.nextCursor` | string \| null | Pass as `cursor` to fetch the next page. `null` when no next page. |
-| `data.pagination.prevCursor` | string \| null | Pass as `cursor` with `direction=backward` to fetch the previous page. `null` when on the first page. |
-| `data.pagination.hasMore` | boolean | `true` when `nextCursor` is non-null. Convenience flag. |
-| `data.pagination.limit` | integer | The effective limit used (echoed back). |
-| `data.pagination.total` | integer \| null | Exact total count — **only present when `includeTotal=true`**. `null` otherwise. |
+| Field                        | Type            | Notes                                                                                                 |
+| :--------------------------- | :-------------- | :---------------------------------------------------------------------------------------------------- |
+| `data.items`                 | array           | Page of results. Empty array `[]` when no results.                                                    |
+| `data.pagination.nextCursor` | string \| null  | Pass as `cursor` to fetch the next page. `null` when no next page.                                    |
+| `data.pagination.prevCursor` | string \| null  | Pass as `cursor` with `direction=backward` to fetch the previous page. `null` when on the first page. |
+| `data.pagination.hasMore`    | boolean         | `true` when `nextCursor` is non-null. Convenience flag.                                               |
+| `data.pagination.limit`      | integer         | The effective limit used (echoed back).                                                               |
+| `data.pagination.total`      | integer \| null | Exact total count — **only present when `includeTotal=true`**. `null` otherwise.                      |
 
 The `data` key follows the standard envelope (see `API-Standards.md` §4). Errors use the standard error envelope.
 
@@ -175,10 +181,10 @@ Offset pagination is restricted to admin-only or static endpoints where:
 
 ### 6.1 Parameters
 
-| Parameter | Type | Required | Default | Range | Notes |
-| :-------- | :--- | :------ | :------ | :---- | :---- |
-| `page` | integer | No | `1` | `≥ 1` | Page number (1-indexed). |
-| `perPage` | integer | No | `20` | `1`–`100` | Items per page. Clamped like `limit`. |
+| Parameter | Type    | Required | Default | Range     | Notes                                 |
+| :-------- | :------ | :------- | :------ | :-------- | :------------------------------------ |
+| `page`    | integer | No       | `1`     | `≥ 1`     | Page number (1-indexed).              |
+| `perPage` | integer | No       | `20`    | `1`–`100` | Items per page. Clamped like `limit`. |
 
 Offset endpoints MUST NOT accept `cursor`, `direction`, or `includeTotal`.
 
@@ -200,14 +206,14 @@ Offset endpoints MUST NOT accept `cursor`, `direction`, or `includeTotal`.
 }
 ```
 
-| Field | Type | Notes |
-| :---- | :--- | :---- |
-| `data.pagination.page` | integer | Current page (echoed). |
-| `data.pagination.perPage` | integer | Effective perPage (echoed). |
-| `data.pagination.total` | integer | Exact total count (always present for offset). |
-| `data.pagination.totalPages` | integer | `ceil(total / perPage)`. |
-| `data.pagination.hasNext` | boolean | `page < totalPages`. |
-| `data.pagination.hasPrev` | boolean | `page > 1`. |
+| Field                        | Type    | Notes                                          |
+| :--------------------------- | :------ | :--------------------------------------------- |
+| `data.pagination.page`       | integer | Current page (echoed).                         |
+| `data.pagination.perPage`    | integer | Effective perPage (echoed).                    |
+| `data.pagination.total`      | integer | Exact total count (always present for offset). |
+| `data.pagination.totalPages` | integer | `ceil(total / perPage)`.                       |
+| `data.pagination.hasNext`    | boolean | `page < totalPages`.                           |
+| `data.pagination.hasPrev`    | boolean | `page > 1`.                                    |
 
 ---
 

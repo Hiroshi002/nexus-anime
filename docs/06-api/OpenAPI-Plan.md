@@ -39,14 +39,14 @@ This is sufficient for internal development but inadequate for external consumer
 
 ## 3. Tooling
 
-| Component | Choice | Rationale |
-|---|---|---|
-| Spec format | OpenAPI 3.1 | Aligns with JSON Schema draft 2020-12; supports `unknown` and `const` patterns used in our Zod schemas. |
-| Spec generation | `zod-to-openapi` | We already validate every boundary with Zod; generating the spec from the same schemas eliminates drift between validation and documentation. |
-| Spec serving | Scalar (primary), Redoc (fallback) | Scalar renders interactive docs with try-it-out at `/api/docs`. Redoc serves a static reference at `/api/reference` as a fallback for locked-down environments. |
-| Breaking-change detection | `oasdiff` | Industry-standard diff tool; integrates into CI with clear breaking/errata classification. |
-| Schema linting | `spectral` | Custom ruleset enforcing Nexus naming conventions (snake_case params, camelCase JSON properties, envelope shape). |
-| SDK generation | `openapi-typescript` | Generates a zero-dependency TypeScript client from the spec. Swift and Kotlin generation deferred to M6+. |
+| Component                 | Choice                             | Rationale                                                                                                                                                       |
+| ------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Spec format               | OpenAPI 3.1                        | Aligns with JSON Schema draft 2020-12; supports `unknown` and `const` patterns used in our Zod schemas.                                                         |
+| Spec generation           | `zod-to-openapi`                   | We already validate every boundary with Zod; generating the spec from the same schemas eliminates drift between validation and documentation.                   |
+| Spec serving              | Scalar (primary), Redoc (fallback) | Scalar renders interactive docs with try-it-out at `/api/docs`. Redoc serves a static reference at `/api/reference` as a fallback for locked-down environments. |
+| Breaking-change detection | `oasdiff`                          | Industry-standard diff tool; integrates into CI with clear breaking/errata classification.                                                                      |
+| Schema linting            | `spectral`                         | Custom ruleset enforcing Nexus naming conventions (snake_case params, camelCase JSON properties, envelope shape).                                               |
+| SDK generation            | `openapi-typescript`               | Generates a zero-dependency TypeScript client from the spec. Swift and Kotlin generation deferred to M6+.                                                       |
 
 ---
 
@@ -259,10 +259,10 @@ Server Action input/output shapes remain typed via Zod and TypeScript internally
 
 ## 12. Summary of estimates
 
-| Phase | Milestone | Scope | Effort |
-|---|---|---|---|
-| 1 | M3 | Auth + users: hand-written spec, Scalar, spectral lint | ~2 engineer-weeks |
-| 2 | M4 | Catalog + engagement: Zod-generated spec, oasdiff, TypeScript SDK | ~3 engineer-weeks |
-| 3 | M5 | Full coverage, interactive docs, Swift/Kotlin evaluation | ~2 engineer-weeks (generation wiring; mobile SDKs deferred to M6) |
+| Phase | Milestone | Scope                                                             | Effort                                                            |
+| ----- | --------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
+| 1     | M3        | Auth + users: hand-written spec, Scalar, spectral lint            | ~2 engineer-weeks                                                 |
+| 2     | M4        | Catalog + engagement: Zod-generated spec, oasdiff, TypeScript SDK | ~3 engineer-weeks                                                 |
+| 3     | M5        | Full coverage, interactive docs, Swift/Kotlin evaluation          | ~2 engineer-weeks (generation wiring; mobile SDKs deferred to M6) |
 
 Total: ~7 engineer-weeks across M3–M5, spread over the natural milestone cadence. Phase 1 is the critical path — it establishes the serving infrastructure and CI patterns that Phases 2 and 3 build on.

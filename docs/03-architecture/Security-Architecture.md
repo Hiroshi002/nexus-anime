@@ -8,19 +8,19 @@
 
 ### In-scope threats
 
-| Threat | Severity | Mitigation |
-|--------|----------|------------|
-| **Credential theft** (passwords, OAuth tokens) | Critical | Bcrypt hashing, secure cookies, no secrets in code |
-| **Session hijacking** (cookie theft, XSS → token exfil) | Critical | httpOnly + secure + sameSite cookies, CSP |
-| **SQL injection** | Critical | Drizzle ORM parameterized queries (no raw SQL) |
-| **XSS** (cross-site scripting) | High | React auto-escaping, DOMPurify for user HTML, CSP |
-| **CSRF** (cross-site request forgery) | High | Auth.js Double Submit Cookie, SameSite cookies |
-| **Brute-force login** | High | Rate limiting (5 attempts / 5 min), bcrypt slowdown |
-| **Data exposure** (leaked API keys, internal URLs) | High | Zod output validation, no secrets in responses |
-| **DDoS / abuse** | Medium | Vercel Edge protection, rate limiting |
-| **Upstream API abuse** (stolen TMDB key) | Medium | Server-only API calls, rate limiting |
-| **Content piracy** (video URL sharing) | Medium | Cloudflare Stream signed URLs, 5-min expiry |
-| **Supply chain attack** (malicious npm package) | Medium | Dependabot, CodeQL, pnpm lockfile integrity |
+| Threat                                                  | Severity | Mitigation                                          |
+| ------------------------------------------------------- | -------- | --------------------------------------------------- |
+| **Credential theft** (passwords, OAuth tokens)          | Critical | Bcrypt hashing, secure cookies, no secrets in code  |
+| **Session hijacking** (cookie theft, XSS → token exfil) | Critical | httpOnly + secure + sameSite cookies, CSP           |
+| **SQL injection**                                       | Critical | Drizzle ORM parameterized queries (no raw SQL)      |
+| **XSS** (cross-site scripting)                          | High     | React auto-escaping, DOMPurify for user HTML, CSP   |
+| **CSRF** (cross-site request forgery)                   | High     | Auth.js Double Submit Cookie, SameSite cookies      |
+| **Brute-force login**                                   | High     | Rate limiting (5 attempts / 5 min), bcrypt slowdown |
+| **Data exposure** (leaked API keys, internal URLs)      | High     | Zod output validation, no secrets in responses      |
+| **DDoS / abuse**                                        | Medium   | Vercel Edge protection, rate limiting               |
+| **Upstream API abuse** (stolen TMDB key)                | Medium   | Server-only API calls, rate limiting                |
+| **Content piracy** (video URL sharing)                  | Medium   | Cloudflare Stream signed URLs, 5-min expiry         |
+| **Supply chain attack** (malicious npm package)         | Medium   | Dependabot, CodeQL, pnpm lockfile integrity         |
 
 ### Out of scope (deferred to M5+)
 
@@ -69,15 +69,15 @@ See [Authentication-Architecture.md](Authentication-Architecture.md) for full de
 
 ### Key measures
 
-| Measure | Implementation | Threat mitigated |
-|---------|---------------|-----------------|
-| Password hashing | bcrypt, work factor 12 | Credential theft (offline brute-force) |
-| Session cookies | `httpOnly`, `secure`, `sameSite=lax` | XSS → session theft, CSRF |
-| CSRF protection | Auth.js Double Submit Cookie | Cross-site request forgery |
-| Rate limiting | 5 login attempts / 5 minutes | Brute-force login |
-| Session revocation | Database session store (delete row) | Stolen session → immediate revocation |
-| Email verification | Token-based verification before activation | Account takeover via unverified email |
-| No secrets in code | Environment variables only | Credential exposure in source control |
+| Measure            | Implementation                             | Threat mitigated                       |
+| ------------------ | ------------------------------------------ | -------------------------------------- |
+| Password hashing   | bcrypt, work factor 12                     | Credential theft (offline brute-force) |
+| Session cookies    | `httpOnly`, `secure`, `sameSite=lax`       | XSS → session theft, CSRF              |
+| CSRF protection    | Auth.js Double Submit Cookie               | Cross-site request forgery             |
+| Rate limiting      | 5 login attempts / 5 minutes               | Brute-force login                      |
+| Session revocation | Database session store (delete row)        | Stolen session → immediate revocation  |
+| Email verification | Token-based verification before activation | Account takeover via unverified email  |
+| No secrets in code | Environment variables only                 | Credential exposure in source control  |
 
 ---
 
@@ -87,12 +87,12 @@ See [Authentication-Architecture.md](Authentication-Architecture.md) for full de
 
 Every external input is validated with Zod before processing:
 
-| Boundary | What's validated | Schema example |
-|----------|-----------------|---------------|
-| Server Actions | FormData fields | `signupSchema.parse({ email, password })` |
-| Route Handlers | Request body, query params, path params | `webhookEventSchema.parse(body)` |
-| External APIs | Response data | `tmdbDetailSchema.parse(response)` |
-| URL params | Dynamic route segments | `z.uuid().parse(params.id)` |
+| Boundary       | What's validated                        | Schema example                            |
+| -------------- | --------------------------------------- | ----------------------------------------- |
+| Server Actions | FormData fields                         | `signupSchema.parse({ email, password })` |
+| Route Handlers | Request body, query params, path params | `webhookEventSchema.parse(body)`          |
+| External APIs  | Response data                           | `tmdbDetailSchema.parse(response)`        |
+| URL params     | Dynamic route segments                  | `z.uuid().parse(params.id)`               |
 
 ### Why Zod at every boundary, not just at the form
 
@@ -100,11 +100,11 @@ Client validation prevents typos and gives instant feedback, but it can be bypas
 
 ### Sanitization for user-generated content
 
-| Content type | Sanitizer | Why |
-|-------------|-----------|-----|
-| Plain text (comments, bios) | `DOMPurify.sanitize(text, { ALLOWED_TAGS: [] })` | Strip all HTML — render as plain text |
-| Rich text (future: reviews) | `DOMPurify.sanitize(html, { ALLOWED_TAGS: [...] })` | Allow limited tags (b, i, a), strip everything else |
-| URLs (profile links) | Validate with `z.url().parse()`, check protocol is `https:` | Prevent `javascript:` URL XSS |
+| Content type                | Sanitizer                                                   | Why                                                 |
+| --------------------------- | ----------------------------------------------------------- | --------------------------------------------------- |
+| Plain text (comments, bios) | `DOMPurify.sanitize(text, { ALLOWED_TAGS: [] })`            | Strip all HTML — render as plain text               |
+| Rich text (future: reviews) | `DOMPurify.sanitize(html, { ALLOWED_TAGS: [...] })`         | Allow limited tags (b, i, a), strip everything else |
+| URLs (profile links)        | Validate with `z.url().parse()`, check protocol is `https:` | Prevent `javascript:` URL XSS                       |
 
 ### Why DOMPurify, not a regex-based sanitizer
 
@@ -141,14 +141,14 @@ This prevents accidental data leakage (e.g., including `internalNotes` on an ani
 
 Set via Next.js `next.config.ts` `headers()` and middleware:
 
-| Header | Value | Why |
-|--------|-------|-----|
-| `X-Frame-Options` | `DENY` | Prevent clickjacking — our pages can't be iframed |
-| `X-Content-Type-Options` | `nosniff` | Prevent MIME type sniffing — browser respects declared type |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Don't leak full URL + query params to third-party origins |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Explicitly deny access to sensitive browser APIs |
-| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | Force HTTPS for 2 years, including subdomains |
-| `Content-Security-Policy` | Dynamic (see below) | Prevent XSS, control resource origins |
+| Header                      | Value                                          | Why                                                         |
+| --------------------------- | ---------------------------------------------- | ----------------------------------------------------------- |
+| `X-Frame-Options`           | `DENY`                                         | Prevent clickjacking — our pages can't be iframed           |
+| `X-Content-Type-Options`    | `nosniff`                                      | Prevent MIME type sniffing — browser respects declared type |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`              | Don't leak full URL + query params to third-party origins   |
+| `Permissions-Policy`        | `camera=(), microphone=(), geolocation=()`     | Explicitly deny access to sensitive browser APIs            |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | Force HTTPS for 2 years, including subdomains               |
+| `Content-Security-Policy`   | Dynamic (see below)                            | Prevent XSS, control resource origins                       |
 
 ### Content Security Policy (CSP)
 
@@ -177,16 +177,16 @@ Nonce-based CSP generates a random string per request and adds it to `<script>` 
 
 ### Where secrets live
 
-| Secret | Storage | Accessed by |
-|--------|---------|-------------|
-| `DATABASE_URL` | Vercel environment variable | Server-side only (`@nexus/db`) |
-| `UPSTASH_REDIS_*` | Vercel environment variable | Server-side only (`@nexus/cache`) |
-| `AUTH_SECRET` | Vercel environment variable | Auth.js (server-only) |
-| `AUTH_GOOGLE_*` | Vercel environment variable | Auth.js OAuth callback |
-| `STRIPE_SECRET_KEY` | Vercel environment variable | Stripe SDK (server-only) |
-| `STRIPE_WEBHOOK_SECRET` | Vercel environment variable | Webhook handler |
-| `TMDB_API_KEY` | Vercel environment variable | TMDB client (server-only) |
-| `CLOUDFLARE_STREAM_*` | Vercel environment variable | Stream client (server-only) |
+| Secret                  | Storage                     | Accessed by                       |
+| ----------------------- | --------------------------- | --------------------------------- |
+| `DATABASE_URL`          | Vercel environment variable | Server-side only (`@nexus/db`)    |
+| `UPSTASH_REDIS_*`       | Vercel environment variable | Server-side only (`@nexus/cache`) |
+| `AUTH_SECRET`           | Vercel environment variable | Auth.js (server-only)             |
+| `AUTH_GOOGLE_*`         | Vercel environment variable | Auth.js OAuth callback            |
+| `STRIPE_SECRET_KEY`     | Vercel environment variable | Stripe SDK (server-only)          |
+| `STRIPE_WEBHOOK_SECRET` | Vercel environment variable | Webhook handler                   |
+| `TMDB_API_KEY`          | Vercel environment variable | TMDB client (server-only)         |
+| `CLOUDFLARE_STREAM_*`   | Vercel environment variable | Stream client (server-only)       |
 
 ### What NEVER contains secrets
 
@@ -217,11 +217,11 @@ async function getSignedPlaybackUrl(videoId: string): Promise<string> {
 }
 ```
 
-| Property | Value | Why |
-|----------|-------|-----|
-| URL expiry | 5 minutes | Short window limits sharing. User must re-request for continued playback. |
-| Signing key | Server-only | Client cannot generate signed URLs independently. |
-| IP binding | Off (for now) | IP changes during mobile streaming (WiFi → cellular). Consider for piracy-sensitive content. |
+| Property    | Value         | Why                                                                                          |
+| ----------- | ------------- | -------------------------------------------------------------------------------------------- |
+| URL expiry  | 5 minutes     | Short window limits sharing. User must re-request for continued playback.                    |
+| Signing key | Server-only   | Client cannot generate signed URLs independently.                                            |
+| IP binding  | Off (for now) | IP changes during mobile streaming (WiFi → cellular). Consider for piracy-sensitive content. |
 
 ### Why 5-minute expiry
 
@@ -247,7 +247,7 @@ Stripe webhook events are verified before processing:
 const event = stripe.webhooks.constructEvent(
   await request.text(),
   request.headers.get("stripe-signature"),
-  process.env.STRIPE_WEBHOOK_SECRET!
+  process.env.STRIPE_WEBHOOK_SECRET!,
 );
 ```
 
@@ -259,12 +259,12 @@ Without verification, an attacker could send a fake `checkout.session.completed`
 
 ### Automated scanning
 
-| Tool | Frequency | What it checks |
-|------|-----------|---------------|
-| Dependabot | Daily | Known vulnerabilities in npm dependencies |
-| CodeQL | Weekly + on PR | Security vulnerability patterns in our code |
-| `pnpm audit` | In CI | Known CVEs in lockfile |
-| Socket.dev | On install | Supply chain attacks (typosquatting, maintainer changes) |
+| Tool         | Frequency      | What it checks                                           |
+| ------------ | -------------- | -------------------------------------------------------- |
+| Dependabot   | Daily          | Known vulnerabilities in npm dependencies                |
+| CodeQL       | Weekly + on PR | Security vulnerability patterns in our code              |
+| `pnpm audit` | In CI          | Known CVEs in lockfile                                   |
+| Socket.dev   | On install     | Supply chain attacks (typosquatting, maintainer changes) |
 
 ### Lockfile integrity
 
@@ -276,16 +276,16 @@ Without verification, an attacker could send a fake `checkout.session.completed`
 
 ### Personal data we store
 
-| Data | Purpose | Retention |
-|------|---------|-----------|
-| Email | Auth, notifications | Until account deletion |
-| Password hash | Auth | Until account deletion |
-| Display name | Profile display | Until account deletion |
-| Avatar image | Profile display | Until account deletion |
-| Watch history | Continue-watching, recommendations | Until account deletion |
+| Data            | Purpose                            | Retention                  |
+| --------------- | ---------------------------------- | -------------------------- |
+| Email           | Auth, notifications                | Until account deletion     |
+| Password hash   | Auth                               | Until account deletion     |
+| Display name    | Profile display                    | Until account deletion     |
+| Avatar image    | Profile display                    | Until account deletion     |
+| Watch history   | Continue-watching, recommendations | Until account deletion     |
 | Payment history | Billing support, legal requirement | 7 years (financial record) |
-| Session data | Auth | 30 days (session expiry) |
-| IP address | Rate limiting, fraud detection | 24 hours (ephemeral) |
+| Session data    | Auth                               | 30 days (session expiry)   |
+| IP address      | Rate limiting, fraud detection     | 24 hours (ephemeral)       |
 
 ### Data deletion
 
@@ -294,6 +294,7 @@ Account deletion is **hard delete** for personal data, **soft delete** for watch
 ### GDPR readiness (future)
 
 The architecture accommodates GDPR compliance:
+
 - No third-party analytics that track PII without consent.
 - Feature-flag-gated analytics (can be turned off per region).
 - Account deletion API (right to erasure).

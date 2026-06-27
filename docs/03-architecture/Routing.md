@@ -92,7 +92,7 @@ Middleware redirects unauthenticated users to `/login?callbackUrl=<current>`. La
 
 ### (auth) — Authentication pages
 
-No app shell (navbar/sidebar). Minimal centered-card layout. These pages must not have session-dependent chrome — they are the gateway *to* a session.
+No app shell (navbar/sidebar). Minimal centered-card layout. These pages must not have session-dependent chrome — they are the gateway _to_ a session.
 
 ### Why Route Groups over middleware-only
 
@@ -108,13 +108,13 @@ Middleware runs on the Edge (Vercel Edge Functions / Cloudflare). It is **kept t
 
 ### Responsibilities
 
-| Responsibility | Implementation |
-|----------------|---------------|
-| Auth redirect | Check session cookie. Redirect `(authenticated)` routes to `/login` if unauthenticated. |
-| Callback URL injection | Set `callbackUrl` search param so post-login redirects back. |
-| Security headers | Append `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`. |
-| CSP header | Dynamic CSP with nonce for inline scripts (if needed). |
-| Geo header | Inject `x-geo-country` from `request.geo` for region-based content. |
+| Responsibility         | Implementation                                                                               |
+| ---------------------- | -------------------------------------------------------------------------------------------- |
+| Auth redirect          | Check session cookie. Redirect `(authenticated)` routes to `/login` if unauthenticated.      |
+| Callback URL injection | Set `callbackUrl` search param so post-login redirects back.                                 |
+| Security headers       | Append `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`. |
+| CSP header             | Dynamic CSP with nonce for inline scripts (if needed).                                       |
+| Geo header             | Inject `x-geo-country` from `request.geo` for region-based content.                          |
 
 ### What middleware must NOT do
 
@@ -157,10 +157,10 @@ Catalog pages (anime detail, season) get high traffic and the data changes on a 
 
 ### Use cases (future, post-M3)
 
-| Feature | Mechanism | Purpose |
-|---------|-----------|---------|
-| Episode detail modal | Intercepting route `@modal/(.)[id]/[episodeId]` | Open episode details in a modal instead of a full page. Direct URL access renders the full page. |
-| Photo gallery | Parallel route `@gallery` | Render a photo gallery in a slot alongside the main content, independently loading and error-handling. |
+| Feature              | Mechanism                                       | Purpose                                                                                                |
+| -------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Episode detail modal | Intercepting route `@modal/(.)[id]/[episodeId]` | Open episode details in a modal instead of a full page. Direct URL access renders the full page.       |
+| Photo gallery        | Parallel route `@gallery`                       | Render a photo gallery in a slot alongside the main content, independently loading and error-handling. |
 
 ### Why defer
 
@@ -194,10 +194,10 @@ Next.js `<Link>` for internal navigation. Prefetching enabled by default for vis
 
 Defined in `next.config.ts`:
 
-| Pattern | Target | Type | Reason |
-|---------|--------|------|--------|
+| Pattern      | Target | Type           | Reason                                    |
+| ------------ | ------ | -------------- | ----------------------------------------- |
 | `/anime/:id` | `/:id` | Redirect (301) | Legacy URL: old `/anime/123` → new `/123` |
-| `/show/:id` | `/:id` | Redirect (301) | Legacy URL: "show" → "anime" |
+| `/show/:id`  | `/:id` | Redirect (301) | Legacy URL: "show" → "anime"              |
 
 ### Why in next.config.ts, not middleware
 
@@ -209,11 +209,11 @@ Static redirects defined at build time are faster than middleware-based redirect
 
 API routes exist for **machines**, not browsers. They handle webhooks, health checks, and future mobile API access.
 
-| Route | Method | Purpose | Auth |
-|-------|--------|---------|------|
-| `/api/stripe/webhook` | POST | Stripe event delivery | Stripe signature verification |
-| `/api/stream/webhook` | POST | Cloudflare Stream events | Stream signature verification |
-| `/api/health` | GET | Liveness/readiness probe | None (internal) |
+| Route                 | Method | Purpose                  | Auth                          |
+| --------------------- | ------ | ------------------------ | ----------------------------- |
+| `/api/stripe/webhook` | POST   | Stripe event delivery    | Stripe signature verification |
+| `/api/stream/webhook` | POST   | Cloudflare Stream events | Stream signature verification |
+| `/api/health`         | GET    | Liveness/readiness probe | None (internal)               |
 
 ### Why Route Handlers over Server Actions for webhooks
 
@@ -223,15 +223,15 @@ Server Actions are form submissions — they require a Next.js client and a CSRF
 
 ## 9. Loading States per Route
 
-| Route | Strategy | `loading.tsx` |
-|-------|----------|---------------|
-| `/` (home) | Streaming + ISR | Trending skeleton + genre grid skeleton |
-| `/[id]` (detail) | Streaming + ISR | Hero skeleton + episode list skeleton |
-| `/search` | Streaming (SSR) | Search result grid skeleton |
-| `/watchlist` | SSR + React Query | Watchlist grid skeleton |
-| `/profile` | SSR | Profile header skeleton |
-| `/login`, `/signup` | Static | None (instant) |
-| `/pricing` | Static | None (instant) |
+| Route               | Strategy          | `loading.tsx`                           |
+| ------------------- | ----------------- | --------------------------------------- |
+| `/` (home)          | Streaming + ISR   | Trending skeleton + genre grid skeleton |
+| `/[id]` (detail)    | Streaming + ISR   | Hero skeleton + episode list skeleton   |
+| `/search`           | Streaming (SSR)   | Search result grid skeleton             |
+| `/watchlist`        | SSR + React Query | Watchlist grid skeleton                 |
+| `/profile`          | SSR               | Profile header skeleton                 |
+| `/login`, `/signup` | Static            | None (instant)                          |
+| `/pricing`          | Static            | None (instant)                          |
 
 ### Why skeletons, not spinners
 

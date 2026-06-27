@@ -23,7 +23,7 @@ Claude must:
 - **Think before coding.** Read the relevant file and its neighbors before editing. If a file is unfamiliar, read it — do not infer from file name alone.
 - **Prefer modifying existing code** over creating new files. New files are justified only when the new code has a distinct responsibility not already owned by an existing module.
 - **Avoid unnecessary new files.** If a one-line change suffices, do not scaffold a module.
-- **Explain important decisions** — a one-line comment on *why* (not *what*) when the rationale is non-obvious.
+- **Explain important decisions** — a one-line comment on _why_ (not _what_) when the rationale is non-obvious.
 - **Keep responses concise.** One paragraph for explanations; bullet points for changes; no preamble.
 - **Ask one question** if requirements are ambiguous. Do not guess.
 - **Never guess.** If the architecture, schema, or API contract is unclear, read the relevant doc or ask.

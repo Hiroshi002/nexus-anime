@@ -17,36 +17,36 @@ A `bookmark` represents a user's intent to **save an anime for later** — their
 
 ### 2.1 Fields
 
-| Column | Type | Constraint | Description |
-|--------|------|------------|-------------|
-| `id` | `uuid` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key. |
-| `user_id` | `uuid` | `NOT NULL` FK → `users.id` | Owner. |
-| `anime_id` | `uuid` | `NOT NULL` FK → `anime.id` | Saved show. |
-| `note` | `text` | nullable | Personal note (e.g. "watch with Sarah"). |
-| `sort_order` | `integer` | `NOT NULL DEFAULT 0` | Manual ordering within the user's list. |
-| `notify_on_new_episode` | `boolean` | `NOT NULL DEFAULT true` | Opt into notifications for new episodes. |
-| `deleted_at` | `timestamptz` | nullable | Soft-delete marker (removal from list). |
-| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()` | When first bookmarked. |
-| `updated_at` | `timestamptz` | `NOT NULL DEFAULT now()` | Last mutation. |
-| `created_by` | `uuid` nullable | FK → `users.id` | = `user_id` (self-owned; kept for audit consistency). |
-| `updated_by` | `uuid` nullable | FK → `users.id` | Last mutator. |
+| Column                  | Type            | Constraint                              | Description                                           |
+| ----------------------- | --------------- | --------------------------------------- | ----------------------------------------------------- |
+| `id`                    | `uuid`          | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key.                                        |
+| `user_id`               | `uuid`          | `NOT NULL` FK → `users.id`              | Owner.                                                |
+| `anime_id`              | `uuid`          | `NOT NULL` FK → `anime.id`              | Saved show.                                           |
+| `note`                  | `text`          | nullable                                | Personal note (e.g. "watch with Sarah").              |
+| `sort_order`            | `integer`       | `NOT NULL DEFAULT 0`                    | Manual ordering within the user's list.               |
+| `notify_on_new_episode` | `boolean`       | `NOT NULL DEFAULT true`                 | Opt into notifications for new episodes.              |
+| `deleted_at`            | `timestamptz`   | nullable                                | Soft-delete marker (removal from list).               |
+| `created_at`            | `timestamptz`   | `NOT NULL DEFAULT now()`                | When first bookmarked.                                |
+| `updated_at`            | `timestamptz`   | `NOT NULL DEFAULT now()`                | Last mutation.                                        |
+| `created_by`            | `uuid` nullable | FK → `users.id`                         | = `user_id` (self-owned; kept for audit consistency). |
+| `updated_by`            | `uuid` nullable | FK → `users.id`                         | Last mutator.                                         |
 
 ### 2.2 Constraints
 
-| Name | Type | Definition |
-|------|------|------------|
-| `uq_bookmarks_user_anime` | partial unique | `UNIQUE (user_id, anime_id) WHERE deleted_at IS NULL` |
-| `chk_bookmarks_note_length` | check | `char_length(note) <= 500` |
+| Name                        | Type           | Definition                                            |
+| --------------------------- | -------------- | ----------------------------------------------------- |
+| `uq_bookmarks_user_anime`   | partial unique | `UNIQUE (user_id, anime_id) WHERE deleted_at IS NULL` |
+| `chk_bookmarks_note_length` | check          | `char_length(note) <= 500`                            |
 
 ### 2.3 Indexes
 
-| Index | Type | Columns | Purpose |
-|-------|------|---------|---------|
-| `pk_bookmarks` | btree (unique) | `id` | PK. |
-| `idx_bookmarks_user_id` | btree | `(user_id, sort_order)` `WHERE deleted_at IS NULL` | User's watchlist (ordered). |
-| `idx_bookmarks_user_anime` | btree (unique, partial) | `(user_id, anime_id)` `WHERE deleted_at IS NULL` | "Is this in my list?" toggle check. |
-| `idx_bookmarks_anime_id` | btree | `anime_id` `WHERE deleted_at IS NULL` | Bookmark count for a show. |
-| `idx_bookmarks_notify` | btree | `(anime_id)` `WHERE notify_on_new_episode = true AND deleted_at IS NULL` | Notification fan-out on new episode. |
+| Index                      | Type                    | Columns                                                                  | Purpose                              |
+| -------------------------- | ----------------------- | ------------------------------------------------------------------------ | ------------------------------------ |
+| `pk_bookmarks`             | btree (unique)          | `id`                                                                     | PK.                                  |
+| `idx_bookmarks_user_id`    | btree                   | `(user_id, sort_order)` `WHERE deleted_at IS NULL`                       | User's watchlist (ordered).          |
+| `idx_bookmarks_user_anime` | btree (unique, partial) | `(user_id, anime_id)` `WHERE deleted_at IS NULL`                         | "Is this in my list?" toggle check.  |
+| `idx_bookmarks_anime_id`   | btree                   | `anime_id` `WHERE deleted_at IS NULL`                                    | Bookmark count for a show.           |
+| `idx_bookmarks_notify`     | btree                   | `(anime_id)` `WHERE notify_on_new_episode = true AND deleted_at IS NULL` | Notification fan-out on new episode. |
 
 ### 2.4 Decisions & Rationale
 
@@ -61,14 +61,14 @@ A `bookmark` represents a user's intent to **save an anime for later** — their
 
 The "Add to List" / "Remove from List" button is a **toggle**:
 
-| State | Action |
-|-------|--------|
-| No active bookmark | `INSERT` a new row. |
-| Active bookmark exists | `UPDATE SET deleted_at = now()` (soft-delete). |
+| State                                   | Action                                                                                                                                       |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| No active bookmark                      | `INSERT` a new row.                                                                                                                          |
+| Active bookmark exists                  | `UPDATE SET deleted_at = now()` (soft-delete).                                                                                               |
 | Previously soft-deleted bookmark exists | Either restore it (`deleted_at = NULL`) or insert a new row. We **insert a new row** to keep `created_at` accurate for "date added" display. |
 
 ### 2.6 Relationship Recap
 
-- `users` 1 — * `bookmarks` (one-to-many).
-- `anime` 1 — * `bookmarks` (one-to-many).
+- `users` 1 — \* `bookmarks` (one-to-many).
+- `anime` 1 — \* `bookmarks` (one-to-many).
 - `anime.bookmark_count` is denormalized and maintained on bookmark insert/soft-delete.

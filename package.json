@@ -6,10 +6,12 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "prepare": "husky",
     "clean": "turbo clean",
     "docker:up": "docker compose -f tooling/docker/docker-compose.yml up -d",
     "docker:down": "docker compose -f tooling/docker/docker-compose.yml down",
@@ -17,9 +19,15 @@
     "docker:logs": "docker compose -f tooling/docker/docker-compose.yml logs -f"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "eslint": "^9.39.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "turbo": "^2.4.4",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "typescript-eslint": "^8.34.0"
   }
 }

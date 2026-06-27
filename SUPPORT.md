@@ -38,13 +38,13 @@ Email **[INSERT CONTACT EMAIL]** with a short description of who you are and wha
 
 ## Response expectations
 
-| Channel                  | Expected first response |
-|--------------------------|-------------------------|
-| Security reports         | Within 48 hours         |
-| Bug reports              | Within 7 days           |
-| Feature requests         | Within 14 days          |
-| Discussions              | Best-effort             |
-| Sponsorship / partner    | Within 7 business days  |
+| Channel               | Expected first response |
+| --------------------- | ----------------------- |
+| Security reports      | Within 48 hours         |
+| Bug reports           | Within 7 days           |
+| Feature requests      | Within 14 days          |
+| Discussions           | Best-effort             |
+| Sponsorship / partner | Within 7 business days  |
 
 ---
 

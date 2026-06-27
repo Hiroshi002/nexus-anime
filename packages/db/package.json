@@ -8,7 +8,8 @@
     "./schema": "./src/schema.ts"
   },
   "scripts": {
-    "lint": "eslint --config ../../tooling/config-eslint/index.js src",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "typecheck": "tsc --noEmit",
     "test": "echo \"no tests\" && exit 0",
     "clean": "rm -rf dist"
@@ -16,6 +17,7 @@
   "devDependencies": {
     "@nexus/eslint-config": "workspace:*",
     "eslint": "^9.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.0.0"
   }
 }

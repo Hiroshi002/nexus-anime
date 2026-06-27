@@ -74,6 +74,7 @@ Cache invalidation uses `revalidatePath`/`revalidateTag`.
 Server Actions are the default for web. Every new feature starts here.
 
 A Server Action is chosen when:
+
 - The caller is a web component (Server or Client).
 - The mutation needs the Auth.js session cookie.
 - The caller benefits from `useActionState` (pending state, optimistic
@@ -88,6 +89,7 @@ use standard HTTP method routing (`GET`, `POST`, `PUT`, `PATCH`,
 the envelope format.
 
 A Route Handler is chosen when:
+
 - The caller is external (mobile app, partner, cron).
 - The endpoint is a webhook (Stripe, Cloudflare Stream).
 - The endpoint must be cacheable at the edge (`Cache-Control`
@@ -129,12 +131,12 @@ additional fields, but they must always carry `data` (success) or
 
 ### Per-surface authentication
 
-| Surface | Mechanism |
-|---|---|
-| Server Actions | Auth.js session cookie + `requireUser()` helper |
-| Route Handlers (user) | Bearer OAuth2 token + middleware |
-| Route Handlers (webhook) | HMAC signature verification |
-| Route Internal (worker) | mTLS + service token |
+| Surface                  | Mechanism                                       |
+| ------------------------ | ----------------------------------------------- |
+| Server Actions           | Auth.js session cookie + `requireUser()` helper |
+| Route Handlers (user)    | Bearer OAuth2 token + middleware                |
+| Route Handlers (webhook) | HMAC signature verification                     |
+| Route Internal (worker)  | mTLS + service token                            |
 
 A critical rule: **never trust a session cookie at a Route Handler.**
 Route Handlers that require user context validate a Bearer token at the

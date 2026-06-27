@@ -245,40 +245,40 @@ erDiagram
 
 ### 3.1 Identity Cluster
 
-| Parent | Child | Cardinality | On-delete behavior |
-|--------|-------|-------------|--------------------|
-| `users` | `user_accounts` | 1 : 0..* | Hard-delete accounts when user is hard-deleted (erasure). |
-| `users` | `user_sessions` | 1 : 0..* | Hard-delete on user hard-delete; expire naturally via `expires_at`. |
-| `users` | `watch_history` | 1 : 0..* | **Preserve** on soft-delete (anonymize); hard-delete on erasure. |
-| `users` | `continue_watching` | 1 : 0..* | Cascade hard-delete on user erasure. |
-| `users` | `bookmarks` | 1 : 0..* | Cascade hard-delete on user erasure. |
-| `users` | `comments` | 1 : 0..* | **Preserve** author label as `[deleted]` on erasure; keep the comment. |
-| `users` | `ratings` | 1 : 0..* | Cascade hard-delete on user erasure. |
-| `users` | `notifications` | 1 : 0..* | Cascade hard-delete on user erasure. |
-| `users` | `search_history` | 1 : 0..* | Cascade hard-delete on user erasure. |
-| `users` | `audit_log` | 1 : 0..* | **Never delete** — audit log is immutable and actor is preserved as a snapshot. |
+| Parent  | Child               | Cardinality | On-delete behavior                                                              |
+| ------- | ------------------- | ----------- | ------------------------------------------------------------------------------- |
+| `users` | `user_accounts`     | 1 : 0..\*   | Hard-delete accounts when user is hard-deleted (erasure).                       |
+| `users` | `user_sessions`     | 1 : 0..\*   | Hard-delete on user hard-delete; expire naturally via `expires_at`.             |
+| `users` | `watch_history`     | 1 : 0..\*   | **Preserve** on soft-delete (anonymize); hard-delete on erasure.                |
+| `users` | `continue_watching` | 1 : 0..\*   | Cascade hard-delete on user erasure.                                            |
+| `users` | `bookmarks`         | 1 : 0..\*   | Cascade hard-delete on user erasure.                                            |
+| `users` | `comments`          | 1 : 0..\*   | **Preserve** author label as `[deleted]` on erasure; keep the comment.          |
+| `users` | `ratings`           | 1 : 0..\*   | Cascade hard-delete on user erasure.                                            |
+| `users` | `notifications`     | 1 : 0..\*   | Cascade hard-delete on user erasure.                                            |
+| `users` | `search_history`    | 1 : 0..\*   | Cascade hard-delete on user erasure.                                            |
+| `users` | `audit_log`         | 1 : 0..\*   | **Never delete** — audit log is immutable and actor is preserved as a snapshot. |
 
 ### 3.2 Catalog Cluster
 
-| Parent | Child | Cardinality | Notes |
-|--------|-------|-------------|-------|
-| `anime` | `seasons` | 1 : 0..* | A show may have zero seasons if undated. |
-| `anime` | `episodes` | 1 : 0..* | Direct link for flat (non-seasonal) shows. |
-| `seasons` | `episodes` | 1 : 0..* | Episodes belong to exactly one season. |
-| `anime` | `anime_genres` | 1 : 0..* | Many-to-many via join table. |
-| `anime` | `anime_studios` | 1 : 0..* | Many-to-many via join table, with `role` (production/licensing). |
-| `genres` | `anime_genres` | 1 : 0..* | Genre is a shared taxonomy. |
-| `studios` | `anime_studios` | 1 : 0..* | Studio is a shared taxonomy. |
+| Parent    | Child           | Cardinality | Notes                                                            |
+| --------- | --------------- | ----------- | ---------------------------------------------------------------- |
+| `anime`   | `seasons`       | 1 : 0..\*   | A show may have zero seasons if undated.                         |
+| `anime`   | `episodes`      | 1 : 0..\*   | Direct link for flat (non-seasonal) shows.                       |
+| `seasons` | `episodes`      | 1 : 0..\*   | Episodes belong to exactly one season.                           |
+| `anime`   | `anime_genres`  | 1 : 0..\*   | Many-to-many via join table.                                     |
+| `anime`   | `anime_studios` | 1 : 0..\*   | Many-to-many via join table, with `role` (production/licensing). |
+| `genres`  | `anime_genres`  | 1 : 0..\*   | Genre is a shared taxonomy.                                      |
+| `studios` | `anime_studios` | 1 : 0..\*   | Studio is a shared taxonomy.                                     |
 
 ### 3.3 Engagement Cluster
 
-| Parent | Child | Cardinality | Notes |
-|--------|-------|-------------|-------|
-| `users` + `anime` | `bookmarks` | 1 : 0..1 | Unique `(user_id, anime_id)` where not deleted. |
-| `users` + `anime` | `ratings` | 1 : 0..1 | Unique `(user_id, anime_id)` where not deleted. |
-| `users` + `anime` | `comments` | 1 : 0..* | Threaded via `parent_comment_id` self-reference. |
-| `users` + `episode` | `watch_history` | 1 : 0..* | Append-only log; one row per watch event. |
-| `users` + `episode` | `continue_watching` | 1 : 0..* | One cursor per `(user, anime)` — updated in place. |
+| Parent              | Child               | Cardinality | Notes                                              |
+| ------------------- | ------------------- | ----------- | -------------------------------------------------- |
+| `users` + `anime`   | `bookmarks`         | 1 : 0..1    | Unique `(user_id, anime_id)` where not deleted.    |
+| `users` + `anime`   | `ratings`           | 1 : 0..1    | Unique `(user_id, anime_id)` where not deleted.    |
+| `users` + `anime`   | `comments`          | 1 : 0..\*   | Threaded via `parent_comment_id` self-reference.   |
+| `users` + `episode` | `watch_history`     | 1 : 0..\*   | Append-only log; one row per watch event.          |
+| `users` + `episode` | `continue_watching` | 1 : 0..\*   | One cursor per `(user, anime)` — updated in place. |
 
 ### 3.4 Self-Reference
 
@@ -290,12 +290,12 @@ erDiagram
 
 The 20 documents map to four clusters:
 
-| Cluster | Tables | Documents |
-|---------|--------|-----------|
-| **Identity** | `users`, `user_accounts`, `user_sessions` | `User.md` |
-| **Catalog** | `anime`, `seasons`, `episodes`, `genres`, `studios`, `anime_genres`, `anime_studios` | `Anime.md`, `Season.md`, `Episode.md`, `Genre.md`, `Studio.md` |
-| **Engagement** | `watch_history`, `continue_watching`, `bookmarks`, `comments`, `ratings` | `Watch-History.md`, `Continue-Watching.md`, `Bookmark.md`, `Comment.md`, `Rating.md` |
-| **Operations** | `notifications`, `search_history`, `audit_log` | `Notification.md`, `Search-History.md`, `Audit-Log.md` |
+| Cluster        | Tables                                                                               | Documents                                                                            |
+| -------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| **Identity**   | `users`, `user_accounts`, `user_sessions`                                            | `User.md`                                                                            |
+| **Catalog**    | `anime`, `seasons`, `episodes`, `genres`, `studios`, `anime_genres`, `anime_studios` | `Anime.md`, `Season.md`, `Episode.md`, `Genre.md`, `Studio.md`                       |
+| **Engagement** | `watch_history`, `continue_watching`, `bookmarks`, `comments`, `ratings`             | `Watch-History.md`, `Continue-Watching.md`, `Bookmark.md`, `Comment.md`, `Rating.md` |
+| **Operations** | `notifications`, `search_history`, `audit_log`                                       | `Notification.md`, `Search-History.md`, `Audit-Log.md`                               |
 
 ---
 

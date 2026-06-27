@@ -74,19 +74,19 @@ See [API-Standards.md](./API-Standards.md) section on caching for the full cache
 
 All endpoints in this document share the error envelope and code registry defined in [`Error-Codes.md`](./Error-Codes.md). The codes you will see here:
 
-| Code                 | HTTP | Trigger in this resource                 |
-| :------------------- | :--- | :--------------------------------------- |
-| `VALIDATION_ERROR`   | 400  | Query/body failed Zod schema            |
-| `FIELD_REQUIRED`     | 400  | Nested in `VALIDATION_ERROR.details`     |
-| `FIELD_INVALID`      | 400  | Nested in `VALIDATION_ERROR.details`     |
-| `UNAUTHORIZED`       | 401  | Missing bearer token on admin endpoints  |
-| `FORBIDDEN`          | 403  | Non-admin caller on admin endpoints     |
-| `EPISODE_NOT_FOUND`  | 404  | `id` lookup miss (no deleted)            |
-| `ANIME_NOT_FOUND`    | 404  | `animeId` path param lookup miss         |
-| `SEASON_NOT_FOUND`   | 404  | `season_id` filter references missing season |
-| `CONFLICT`           | 409  | Version mismatch on PATCH                |
-| `RATE_LIMITED`       | 429  | Quota exhausted                          |
-| `INTERNAL_ERROR`     | 500  | Unhandled failure                        |
+| Code                | HTTP | Trigger in this resource                     |
+| :------------------ | :--- | :------------------------------------------- |
+| `VALIDATION_ERROR`  | 400  | Query/body failed Zod schema                 |
+| `FIELD_REQUIRED`    | 400  | Nested in `VALIDATION_ERROR.details`         |
+| `FIELD_INVALID`     | 400  | Nested in `VALIDATION_ERROR.details`         |
+| `UNAUTHORIZED`      | 401  | Missing bearer token on admin endpoints      |
+| `FORBIDDEN`         | 403  | Non-admin caller on admin endpoints          |
+| `EPISODE_NOT_FOUND` | 404  | `id` lookup miss (no deleted)                |
+| `ANIME_NOT_FOUND`   | 404  | `animeId` path param lookup miss             |
+| `SEASON_NOT_FOUND`  | 404  | `season_id` filter references missing season |
+| `CONFLICT`          | 409  | Version mismatch on PATCH                    |
+| `RATE_LIMITED`      | 429  | Quota exhausted                              |
+| `INTERNAL_ERROR`    | 500  | Unhandled failure                            |
 
 Sub-code naming follows the `*_NOT_FOUND` pattern for each entity. A deleted episode returns `EPISODE_NOT_FOUND`, not `410 Gone` — soft-deleted rows are indistinguishable from non-existent rows at the API layer.
 
@@ -94,13 +94,13 @@ Sub-code naming follows the `*_NOT_FOUND` pattern for each entity. A deleted epi
 
 ## 5. Authentication
 
-| Endpoint group                              | Auth required                         |
-| :------------------------------------------ | :------------------------------------ |
-| GET reads (section 6.1–6.3)                 | None — public endpoint                |
-| GET `/api/v1/episodes/{id}/stream` (6.4)    | Valid session or bearer token (user)  |
+| Endpoint group                                | Auth required                                      |
+| :-------------------------------------------- | :------------------------------------------------- |
+| GET reads (section 6.1–6.3)                   | None — public endpoint                             |
+| GET `/api/v1/episodes/{id}/stream` (6.4)      | Valid session or bearer token (user)               |
 | POST `/api/v1/anime/{animeId}/episodes` (6.5) | `Authorization: Bearer <admin-token>` + admin role |
-| PATCH `/api/v1/episodes/{id}` (6.6)         | Same                                  |
-| DELETE `/api/v1/episodes/{id}` (6.7)        | Same                                  |
+| PATCH `/api/v1/episodes/{id}` (6.6)           | Same                                               |
+| DELETE `/api/v1/episodes/{id}` (6.7)          | Same                                               |
 
 The admin role check follows the policy in [`Authentication.md`](./Authentication.md). Bearer tokens are validated by middleware before the handler runs. A `401 UNAUTHORIZED` reply is returned when the token is absent or invalid; a `403 FORBIDDEN` reply is returned when the token identifies a user who is not in the admin role.
 
@@ -124,9 +124,9 @@ GET /api/v1/anime/{animeId}/episodes
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `animeId` | `string` (uuid) | yes | Parent anime surrogate key. |
+| Parameter | Type            | Required | Description                 |
+| :-------- | :-------------- | :------- | :-------------------------- |
+| `animeId` | `string` (uuid) | yes      | Parent anime surrogate key. |
 
 #### Auth
 
@@ -134,32 +134,32 @@ None.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Accept` | `application/json` |
+| Header                     | Value                                               |
+| :------------------------- | :-------------------------------------------------- |
+| `Accept`                   | `application/json`                                  |
 | `Cache-Control` (response) | `public, max-age=1800, stale-while-revalidate=3600` |
 
 #### Query parameters
 
 All query parameters are optional. Combining filters is an AND operation across facets.
 
-| Parameter | Type | Default | Description |
-| :-------- | :--- | :------ | :---------- |
-| `season_id?` | `string` (uuid) | — | Filter to a specific season. Must belong to the anime identified by `animeId` (returns `SEASON_NOT_FOUND` otherwise). |
-| `is_filler?` | `boolean` | — | `true` returns only fillers; `false` returns only canon; omit returns all. |
-| `is_premium?` | `boolean` | — | `true` returns only premium episodes; `false` returns only free; omit returns all. |
-| `sort?` | `EpisodeSort` | `"number"` | Sort field. See sorting table below. |
-| `order?` | `"asc"` \| `"desc"` | varies by sort | Sort direction. Default is `asc` for `number` and `number_explicit`; `desc` for `aired_at`. |
-| `cursor?` | `string` | — | Opaque cursor from `meta.pagination.nextCursor` of the previous page. Omit for the first page. |
-| `limit?` | `integer` (1–100) | `50` | Page size. Hard cap 100. Values above the cap are clamped. |
+| Parameter     | Type                | Default        | Description                                                                                                           |
+| :------------ | :------------------ | :------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| `season_id?`  | `string` (uuid)     | —              | Filter to a specific season. Must belong to the anime identified by `animeId` (returns `SEASON_NOT_FOUND` otherwise). |
+| `is_filler?`  | `boolean`           | —              | `true` returns only fillers; `false` returns only canon; omit returns all.                                            |
+| `is_premium?` | `boolean`           | —              | `true` returns only premium episodes; `false` returns only free; omit returns all.                                    |
+| `sort?`       | `EpisodeSort`       | `"number"`     | Sort field. See sorting table below.                                                                                  |
+| `order?`      | `"asc"` \| `"desc"` | varies by sort | Sort direction. Default is `asc` for `number` and `number_explicit`; `desc` for `aired_at`.                           |
+| `cursor?`     | `string`            | —              | Opaque cursor from `meta.pagination.nextCursor` of the previous page. Omit for the first page.                        |
+| `limit?`      | `integer` (1–100)   | `50`           | Page size. Hard cap 100. Values above the cap are clamped.                                                            |
 
 #### Sorting
 
-| `sort` value | Indexed column | Default `order` |
-| :----------- | :------------- | :-------------- |
-| `number` | `number ASC` | `asc` |
-| `number_explicit` | `number_explicit ASC` | `asc` |
-| `aired_at` | `aired_at DESC` | `desc` |
+| `sort` value      | Indexed column        | Default `order` |
+| :---------------- | :-------------------- | :-------------- |
+| `number`          | `number ASC`          | `asc`           |
+| `number_explicit` | `number_explicit ASC` | `asc`           |
+| `aired_at`        | `aired_at DESC`       | `desc`          |
 
 All sort columns have `WHERE deleted_at IS NULL` indexes defined in `docs/07-database/Episode.md` section 2.3.
 
@@ -273,13 +273,13 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `animeId` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `animeId` |
-| No active anime with that `animeId` | 404 | `ANIME_NOT_FOUND` | `{ animeId }` |
-| `season_id` does not belong to `animeId` | 404 | `SEASON_NOT_FOUND` | `{ season_id }` |
-| `limit` outside 1–100 | 400 | `VALIDATION_ERROR` | `errors[]` on `limit` |
-| Malformed `cursor` | 400 | `VALIDATION_ERROR` | `errors[]` on `cursor` |
+| Scenario                                 | HTTP | `code`             | `details`               |
+| :--------------------------------------- | :--- | :----------------- | :---------------------- |
+| `animeId` not a valid UUID               | 400  | `VALIDATION_ERROR` | `errors[]` on `animeId` |
+| No active anime with that `animeId`      | 404  | `ANIME_NOT_FOUND`  | `{ animeId }`           |
+| `season_id` does not belong to `animeId` | 404  | `SEASON_NOT_FOUND` | `{ season_id }`         |
+| `limit` outside 1–100                    | 400  | `VALIDATION_ERROR` | `errors[]` on `limit`   |
+| Malformed `cursor`                       | 400  | `VALIDATION_ERROR` | `errors[]` on `cursor`  |
 
 Any `VALIDATION_ERROR` follows the [`Error-Codes.md`](./Error-Codes.md) shape with `details.errors[]`.
 
@@ -299,9 +299,9 @@ GET /api/v1/episodes/{id}
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Episode surrogate key. |
+| Parameter | Type            | Required | Description            |
+| :-------- | :-------------- | :------- | :--------------------- |
+| `id`      | `string` (uuid) | yes      | Episode surrogate key. |
 
 #### Auth
 
@@ -309,9 +309,9 @@ None.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Accept` | `application/json` |
+| Header                     | Value                                               |
+| :------------------------- | :-------------------------------------------------- |
+| `Accept`                   | `application/json`                                  |
 | `Cache-Control` (response) | `public, max-age=1800, stale-while-revalidate=3600` |
 
 #### Response schema
@@ -360,10 +360,10 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `id` |
-| No active episode with that `id` | 404 | `EPISODE_NOT_FOUND` | `{ id }` |
+| Scenario                         | HTTP | `code`              | `details`          |
+| :------------------------------- | :--- | :------------------ | :----------------- |
+| `id` not a valid UUID            | 400  | `VALIDATION_ERROR`  | `errors[]` on `id` |
+| No active episode with that `id` | 404  | `EPISODE_NOT_FOUND` | `{ id }`           |
 
 **Playback note:** The response contains `video_asset_id` only. The client must call `GET /api/v1/episodes/{id}/stream` (section 6.4) to obtain a signed, time-limited playback URL. The `video_asset_id` is never a playable URL and must not be used directly in a `<video>` element.
 
@@ -383,9 +383,9 @@ GET /api/v1/episodes/{id}/stream
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Episode surrogate key. |
+| Parameter | Type            | Required | Description            |
+| :-------- | :-------------- | :------- | :--------------------- |
+| `id`      | `string` (uuid) | yes      | Episode surrogate key. |
 
 #### Auth
 
@@ -393,9 +393,9 @@ Valid session cookie or `Authorization: Bearer <token>`. Required — this endpo
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Accept` | `application/json` |
+| Header                     | Value                                          |
+| :------------------------- | :--------------------------------------------- |
+| `Accept`                   | `application/json`                             |
 | `Cache-Control` (response) | `private, no-cache, no-store, must-revalidate` |
 
 The response is **never cached at the edge** — each call mints a fresh signed URL with a new expiry.
@@ -448,15 +448,15 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `id` |
-| No active episode with that `id` | 404 | `EPISODE_NOT_FOUND` | `{ id }` |
-| Episode has no `video_asset_id` | 404 | `EPISODE_NOT_FOUND` | `{ id, reason: "no_video_asset" }` |
-| Caller not authenticated | 401 | `UNAUTHORIZED` | — |
-| Caller tier insufficient for premium episode | 402 | `PAYMENT_REQUIRED` | `{ required_tier: "premium" }` |
-| Caller geolocation blocked by licensing | 403 | `FORBIDDEN` | `{ reason: "geo_blocked", country: "XX" }` |
-| Cloudflare Stream signing service unreachable | 502 | `UPSTREAM_ERROR` | — |
+| Scenario                                      | HTTP | `code`              | `details`                                  |
+| :-------------------------------------------- | :--- | :------------------ | :----------------------------------------- |
+| `id` not a valid UUID                         | 400  | `VALIDATION_ERROR`  | `errors[]` on `id`                         |
+| No active episode with that `id`              | 404  | `EPISODE_NOT_FOUND` | `{ id }`                                   |
+| Episode has no `video_asset_id`               | 404  | `EPISODE_NOT_FOUND` | `{ id, reason: "no_video_asset" }`         |
+| Caller not authenticated                      | 401  | `UNAUTHORIZED`      | —                                          |
+| Caller tier insufficient for premium episode  | 402  | `PAYMENT_REQUIRED`  | `{ required_tier: "premium" }`             |
+| Caller geolocation blocked by licensing       | 403  | `FORBIDDEN`         | `{ reason: "geo_blocked", country: "XX" }` |
+| Cloudflare Stream signing service unreachable | 502  | `UPSTREAM_ERROR`    | —                                          |
 
 #### Expiry & re-request policy
 
@@ -481,9 +481,9 @@ POST /api/v1/anime/{animeId}/episodes
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `animeId` | `string` (uuid) | yes | Parent anime surrogate key. |
+| Parameter | Type            | Required | Description                 |
+| :-------- | :-------------- | :------- | :-------------------------- |
+| `animeId` | `string` (uuid) | yes      | Parent anime surrogate key. |
 
 #### Auth
 
@@ -491,10 +491,10 @@ POST /api/v1/anime/{animeId}/episodes
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Authorization` | `Bearer <admin-token>` |
-| `Content-Type` | `application/json` |
+| Header                     | Value                         |
+| :------------------------- | :---------------------------- |
+| `Authorization`            | `Bearer <admin-token>`        |
+| `Content-Type`             | `application/json`            |
 | `Cache-Control` (response) | none (response not cacheable) |
 
 #### Body schema
@@ -626,17 +626,17 @@ HTTP: `201`. No `Location` header (multiple resources).
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `animeId` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `animeId` |
-| No active anime with that `animeId` | 404 | `ANIME_NOT_FOUND` | `{ animeId }` |
-| `season_id` does not belong to `animeId` | 404 | `SEASON_NOT_FOUND` | `{ season_id }` |
-| Missing required `number` or `duration_seconds` | 400 | `VALIDATION_ERROR` | `errors[].code: "FIELD_REQUIRED"` |
-| `number` or `duration_seconds` not positive | 400 | `VALIDATION_ERROR` | `errors[].code: "FIELD_INVALID"` |
-| Duplicate `(anime_id, number)` in active data | 409 | `CONFLICT` | `{ number }` |
-| Duplicate `(anime_id, season_id, number)` in active data | 409 | `CONFLICT` | `{ season_id, number }` |
-| Batch exceeds 500 items | 400 | `VALIDATION_ERROR` | `errors[]` on `episodes` |
-| Any item in batch fails validation | 400 | `VALIDATION_ERROR` | `errors[]` with item index |
+| Scenario                                                 | HTTP | `code`             | `details`                         |
+| :------------------------------------------------------- | :--- | :----------------- | :-------------------------------- |
+| `animeId` not a valid UUID                               | 400  | `VALIDATION_ERROR` | `errors[]` on `animeId`           |
+| No active anime with that `animeId`                      | 404  | `ANIME_NOT_FOUND`  | `{ animeId }`                     |
+| `season_id` does not belong to `animeId`                 | 404  | `SEASON_NOT_FOUND` | `{ season_id }`                   |
+| Missing required `number` or `duration_seconds`          | 400  | `VALIDATION_ERROR` | `errors[].code: "FIELD_REQUIRED"` |
+| `number` or `duration_seconds` not positive              | 400  | `VALIDATION_ERROR` | `errors[].code: "FIELD_INVALID"`  |
+| Duplicate `(anime_id, number)` in active data            | 409  | `CONFLICT`         | `{ number }`                      |
+| Duplicate `(anime_id, season_id, number)` in active data | 409  | `CONFLICT`         | `{ season_id, number }`           |
+| Batch exceeds 500 items                                  | 400  | `VALIDATION_ERROR` | `errors[]` on `episodes`          |
+| Any item in batch fails validation                       | 400  | `VALIDATION_ERROR` | `errors[]` with item index        |
 
 ---
 
@@ -654,9 +654,9 @@ PATCH /api/v1/episodes/{id}
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Episode surrogate key. |
+| Parameter | Type            | Required | Description            |
+| :-------- | :-------------- | :------- | :--------------------- |
+| `id`      | `string` (uuid) | yes      | Episode surrogate key. |
 
 #### Auth
 
@@ -664,12 +664,12 @@ PATCH /api/v1/episodes/{id}
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Authorization` | `Bearer <admin-token>` |
-| `Content-Type` | `application/json` |
-| `If-Match` | `"<version>"` (strong recommended; see below) |
-| `Cache-Control` (response) | none |
+| Header                     | Value                                         |
+| :------------------------- | :-------------------------------------------- |
+| `Authorization`            | `Bearer <admin-token>`                        |
+| `Content-Type`             | `application/json`                            |
+| `If-Match`                 | `"<version>"` (strong recommended; see below) |
+| `Cache-Control` (response) | none                                          |
 
 #### Optimistic concurrency
 
@@ -741,14 +741,14 @@ HTTP: `200`.
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `id` |
-| No active episode with that `id` | 404 | `EPISODE_NOT_FOUND` | `{ id }` |
-| No `version` provided (missing header **and** body field) | 400 | `VALIDATION_ERROR` | `errors[].code: "FIELD_REQUIRED"` on `version` |
-| `version` mismatch (record has version 2, request says 1) | 409 | `CONFLICT` | `{ currentVersion: 2 }` |
-| `season_id` does not belong to episode's `anime_id` | 404 | `SEASON_NOT_FOUND` | `{ season_id }` |
-| New `number` conflicts with existing active episode | 409 | `CONFLICT` | `{ number }` |
+| Scenario                                                  | HTTP | `code`              | `details`                                      |
+| :-------------------------------------------------------- | :--- | :------------------ | :--------------------------------------------- |
+| `id` not a valid UUID                                     | 400  | `VALIDATION_ERROR`  | `errors[]` on `id`                             |
+| No active episode with that `id`                          | 404  | `EPISODE_NOT_FOUND` | `{ id }`                                       |
+| No `version` provided (missing header **and** body field) | 400  | `VALIDATION_ERROR`  | `errors[].code: "FIELD_REQUIRED"` on `version` |
+| `version` mismatch (record has version 2, request says 1) | 409  | `CONFLICT`          | `{ currentVersion: 2 }`                        |
+| `season_id` does not belong to episode's `anime_id`       | 404  | `SEASON_NOT_FOUND`  | `{ season_id }`                                |
+| New `number` conflicts with existing active episode       | 409  | `CONFLICT`          | `{ number }`                                   |
 
 #### Retry guidance for clients
 
@@ -776,9 +776,9 @@ DELETE /api/v1/episodes/{id}
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Episode to soft-delete. |
+| Parameter | Type            | Required | Description             |
+| :-------- | :-------------- | :------- | :---------------------- |
+| `id`      | `string` (uuid) | yes      | Episode to soft-delete. |
 
 #### Auth
 
@@ -786,10 +786,10 @@ DELETE /api/v1/episodes/{id}
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Authorization` | `Bearer <admin-token>` |
-| `Cache-Control` (response) | none |
+| Header                     | Value                  |
+| :------------------------- | :--------------------- |
+| `Authorization`            | `Bearer <admin-token>` |
+| `Cache-Control` (response) | none                   |
 
 #### Body
 
@@ -822,10 +822,10 @@ The soft-delete is idempotent: calling `DELETE` on an already-deleted record ret
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` |
-| No record exists with that `id` (including hard-deleted archival) | 404 | `EPISODE_NOT_FOUND` | `{ id }` |
+| Scenario                                                          | HTTP | `code`              | `details`  |
+| :---------------------------------------------------------------- | :--- | :------------------ | :--------- |
+| `id` not a valid UUID                                             | 400  | `VALIDATION_ERROR`  | `errors[]` |
+| No record exists with that `id` (including hard-deleted archival) | 404  | `EPISODE_NOT_FOUND` | `{ id }`   |
 
 #### Cascade note
 
@@ -835,14 +835,14 @@ Soft-delete does **not** cascade — watch-history and watch-progress tables ret
 
 ## 7. Endpoint map reference
 
-| Method | URL | Auth |
-| :----- | :-- | :---- |
-| `GET` | `/api/v1/anime/{animeId}/episodes` | none |
-| `GET` | `/api/v1/episodes/{id}` | none |
-| `GET` | `/api/v1/episodes/{id}/stream` | session or bearer (user) |
-| `POST` | `/api/v1/anime/{animeId}/episodes` | bearer + admin |
-| `PATCH` | `/api/v1/episodes/{id}` | bearer + admin |
-| `DELETE` | `/api/v1/episodes/{id}` | bearer + admin |
+| Method   | URL                                | Auth                     |
+| :------- | :--------------------------------- | :----------------------- |
+| `GET`    | `/api/v1/anime/{animeId}/episodes` | none                     |
+| `GET`    | `/api/v1/episodes/{id}`            | none                     |
+| `GET`    | `/api/v1/episodes/{id}/stream`     | session or bearer (user) |
+| `POST`   | `/api/v1/anime/{animeId}/episodes` | bearer + admin           |
+| `PATCH`  | `/api/v1/episodes/{id}`            | bearer + admin           |
+| `DELETE` | `/api/v1/episodes/{id}`            | bearer + admin           |
 
 ---
 
@@ -850,13 +850,13 @@ Soft-delete does **not** cascade — watch-history and watch-progress tables ret
 
 The following are explicitly **not** covered in this document but are companions to the Episodes resource:
 
-| Topic | Where |
-| :---- | :---- |
-| Season grouping & navigation | `docs/06-api/Seasons.md` |
-| Cloudflare Stream signing algorithm & upload flow | `docs/06-api/Uploads.md` |
-| User watch history & continue-watching | `docs/06-api/Watch-History.md` and `Continue-Watching.md` |
-| Episode comments | `docs/06-api/Comments.md` |
-| Subtitle tracks & preview thumbnails | Future milestone (section 9) |
+| Topic                                             | Where                                                     |
+| :------------------------------------------------ | :-------------------------------------------------------- |
+| Season grouping & navigation                      | `docs/06-api/Seasons.md`                                  |
+| Cloudflare Stream signing algorithm & upload flow | `docs/06-api/Uploads.md`                                  |
+| User watch history & continue-watching            | `docs/06-api/Watch-History.md` and `Continue-Watching.md` |
+| Episode comments                                  | `docs/06-api/Comments.md`                                 |
+| Subtitle tracks & preview thumbnails              | Future milestone (section 9)                              |
 
 ---
 
@@ -919,11 +919,11 @@ Before landing a change to this surface, verify:
 
 ## 11. Changelog
 
-| Date       | Change                      | Ticket / PR |
-| :--------- | :-------------------------- | :---------- |
-| 2026-06-26 | Initial Episodes endpoint spec | —         |
-|            |                             |             |
-|            |                             |             |
+| Date       | Change                         | Ticket / PR |
+| :--------- | :----------------------------- | :---------- |
+| 2026-06-26 | Initial Episodes endpoint spec | —           |
+|            |                                |             |
+|            |                                |             |
 
 ---
 

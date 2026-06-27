@@ -76,11 +76,11 @@ If multiple PRs compose a single feature, they are individually named and indivi
 
 Reviewing large PRs is the single best way to ship defects disguised as features.
 
-| Metric | Target | Hard cap |
-|--------|--------|----------|
-| Lines changed | < 400 | 800 |
-| Files touched | < 15 | 25 |
-| Commits in branch | 1–20 | — (squashed at merge anyway) |
+| Metric            | Target | Hard cap                     |
+| ----------------- | ------ | ---------------------------- |
+| Lines changed     | < 400  | 800                          |
+| Files touched     | < 15   | 25                           |
+| Commits in branch | 1–20   | — (squashed at merge anyway) |
 
 If a PR crosses the 800-line hard cap, **it must be split**. Strategies:
 
@@ -94,7 +94,7 @@ Chore and docs PRs are exempt from the line-accounting rule because they do not 
 
 ## Review Process
 
-1. **Request review** from at least one code owner of the affected package. Cross-package changes request from an owner of *each* touched package.
+1. **Request review** from at least one code owner of the affected package. Cross-package changes request from an owner of _each_ touched package.
 2. **Approval** — 1 approval from a non-author team member. Reviewers self-assign; the author does not assign themselves.
 3. **CI green** — all five checks must pass: lint, typecheck, test, build, format. Cancelled checks do not count.
 4. **Conversations resolved** — every comment receives a response. Approval after outstanding comments is still valid, but the comments should be resolved to preserve signal.
@@ -113,13 +113,13 @@ Chore and docs PRs are exempt from the line-accounting rule because they do not 
 
 CI is required on every PR targeting `main` or a release branch and enforces five gates. All gates must pass.
 
-| Gate | What fails | Typical root cause |
-|------|------------|--------------------|
-| `lint` | ESLint error, unused import, exhaustive-deps violation | Missed during local dev because `tsc` doesn't run ESLint |
-| `typecheck` | Type error across apps/web or packages/* | Incorrect inference from a third-party library without augmentation |
-| `test` | A test fails, coverage drops below threshold, or a test was skipped (`it.skip`) without justification | Test relies on timing, hidden mock state, or env var not in CI |
-| `build` | `pnpm build` fails across all packages | Missing export, invalid `next.config`, syntax error in a config file |
-| `format` | Prettier diff detected (including inside Markdown and JSON) | Editor format-on-save config diverges from repo `.prettierrc` |
+| Gate        | What fails                                                                                            | Typical root cause                                                   |
+| ----------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `lint`      | ESLint error, unused import, exhaustive-deps violation                                                | Missed during local dev because `tsc` doesn't run ESLint             |
+| `typecheck` | Type error across apps/web or packages/\*                                                             | Incorrect inference from a third-party library without augmentation  |
+| `test`      | A test fails, coverage drops below threshold, or a test was skipped (`it.skip`) without justification | Test relies on timing, hidden mock state, or env var not in CI       |
+| `build`     | `pnpm build` fails across all packages                                                                | Missing export, invalid `next.config`, syntax error in a config file |
+| `format`    | Prettier diff detected (including inside Markdown and JSON)                                           | Editor format-on-save config diverges from repo `.prettierrc`        |
 
 Locally, run `pnpm check` before pushing — it runs all five gates in parallel via Turborepo.
 
@@ -192,6 +192,7 @@ Keep the branch's history linear with the branch; let the squash flatten it into
 Preferred patternfeat(auth): add Google OAuth callback route handler
 fixup! feat(auth): rename callback handler for clarity
 fixup! feat(auth): clarify error response in body
+
 ```
 
 The `fixup!` prefix (or `squash!` if you want the commit preserved but rebased) marks commits as folded into the previous commit during an interactive rebase. The PR author rebases locally and force-pushes only before review — after a reviewer has reviewed, new feedback becomes new commits (not amendments) so the reviewer can read only the delta.
@@ -206,3 +207,4 @@ Do not amend pushed commits once someone has left a review — rewriting history
 - [Commit Convention](./Commit-Convention.md) — what types and shapes land inside a PR.
 - `.github/workflows/ci.yml` — the canonical CI gate definitions.
 - `.github/CODEOWNERS` — which team must approve which path.
+```

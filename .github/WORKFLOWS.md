@@ -22,30 +22,35 @@ dependency-update.yml   ← CI re-run when lockfile changes
 ## Why each workflow exists
 
 ### `ci.yml` — canonical CI gate
+
 The single source of truth for "is this commit shippable?" Runs lint,
 typecheck, test, build, and format check in parallel. Required as a
-merge-protection branch check. New workflows below are *additive* — they
+merge-protection branch check. New workflows below are _additive_ — they
 don't replace this one.
 
 ### `lint.yml`, `typecheck.yml`, `test.yml`, `build.yml` — fast feedback
+
 These are the same stages as `ci.yml`, split out so a PR author can see
 exactly which gate failed at a glance. They cost extra CI minutes but save
 developer time when iterating on a specific failure. If CI cost becomes a
 concern, these can be collapsed back into `ci.yml`.
 
 ### `codeql.yml` — security static analysis
+
 Catches security-relevant patterns (open redirects, prototype pollution,
 missing input sanitization) that linting and typechecking miss. Runs on
 push to main, on PRs, and weekly as a supply-chain backstop. Results
 appear in the repo's **Security → Code scanning alerts** tab.
 
 ### `release.yml` — GitHub Release on semver tag
+
 When a tag matching `v*` is pushed, builds the commit (to verify it's
 shippable) and creates a GitHub Release with auto-generated notes. This
 is the only workflow triggered by tag push — production deploy is
 separate on purpose so a release can be drafted without deploying.
 
 ### `deploy-preview.yml` — preview environment
+
 Builds and deploys the web app to a preview URL on every PR and push to
 main. The deployment provider is configurable — see the comments in the
 file for Vercel and custom-provider patterns. The deploy step is a
@@ -53,6 +58,7 @@ placeholder until secrets are wired up; the `if: false` guards prevent
 accidental no-op deploys.
 
 ### `deploy-production.yml` — production deploy
+
 Triggered by semver tag push. Builds first (so a broken tag doesn't
 reach production), then hands off to the deployment provider. Uses the
 `production` GitHub environment for secrets and required reviewers. The
@@ -60,6 +66,7 @@ deploy step is a placeholder — configure your provider before relying on
 this workflow.
 
 ### `dependency-update.yml` — lockfile change verification
+
 Dependabot opens PRs against `main`; this workflow runs the full CI
 suite when a PR touches `pnpm-lock.yaml` or any `package.json`. It does
 not bump dependencies itself — it's a backstop that ensures manual or
@@ -84,11 +91,11 @@ automated dependency changes still pass every gate.
 
 ## Required secrets
 
-| Secret | Used by |
-|---|---|
-| `GITHUB_TOKEN` | All workflows (auto-provided). |
+| Secret                                               | Used by                                                        |
+| ---------------------------------------------------- | -------------------------------------------------------------- |
+| `GITHUB_TOKEN`                                       | All workflows (auto-provided).                                 |
 | `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | `deploy-preview.yml`, `deploy-production.yml` (Vercel option). |
-| Provider-specific credentials | `deploy-preview.yml`, `deploy-production.yml` (custom option). |
+| Provider-specific credentials                        | `deploy-preview.yml`, `deploy-production.yml` (custom option). |
 
 ## Required branch protection
 

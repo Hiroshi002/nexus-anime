@@ -216,16 +216,16 @@ features/auth/
 
 ### 3.2 Feature roster (current + planned)
 
-| Feature | Domain |
-|---------|--------|
-| `auth` | Auth.js v5 config, sessions, login, OAuth |
-| `catalog` | Anime detail, season/episode, genres, search |
-| `watchlist` | Watchlist, continue-watching, activity |
-| `video` | Signed playback, player chrome, progress |
-| `profile` | User profile, settings, billing info |
-| `payments` | Stripe subscriptions, checkout, webhooks |
-| `notifications` | In-app notices, email preferences |
-| `social` | Comments, reviews, follows |
+| Feature         | Domain                                       |
+| --------------- | -------------------------------------------- |
+| `auth`          | Auth.js v5 config, sessions, login, OAuth    |
+| `catalog`       | Anime detail, season/episode, genres, search |
+| `watchlist`     | Watchlist, continue-watching, activity       |
+| `video`         | Signed playback, player chrome, progress     |
+| `profile`       | User profile, settings, billing info         |
+| `payments`      | Stripe subscriptions, checkout, webhooks     |
+| `notifications` | In-app notices, email preferences            |
+| `social`        | Comments, reviews, follows                   |
 
 Each feature has a spec in `docs/milestones/` and a corresponding label in `.github/labels.yml`.
 
@@ -236,7 +236,7 @@ Each feature has a spec in `docs/milestones/` and a corresponding label in `.git
 - **Routes** that serve the feature live in `feature/routes/` (or, when shared by multiple features, in `app/`). The rule: put the route directory closest to the feature that owns its content, and hoist to `app/` only when more than one feature renders the route.
 - **Tests** are colocated — see §8.
 
-### 3.4 Cross-feature rules  (R, the most important section)
+### 3.4 Cross-feature rules (R, the most important section)
 
 A feature may **never** import another feature directly. This is the backbone of the modular monolith — it keeps features extractable as packages later without re-plumbing.
 
@@ -268,13 +268,13 @@ Allowed import graph:
 
 **How to share stuff between features:**
 
-| Pattern | When | Where to put it |
-|---------|------|-----------------|
-| A shared component | Used by ≥2 features | `components/` |
-| A shared hook | Same | `hooks/` |
-| Shared logic / formatting | Same | `lib/` |
-| Shared types or Zod schemas used across features | Same | `packages/` (e.g. a `domain` package when one materializes, or extracted into a shared type file in the meantime) |
-| Shared UI primitive or token | Same | `@nexus/ui` |
+| Pattern                                          | When                | Where to put it                                                                                                   |
+| ------------------------------------------------ | ------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| A shared component                               | Used by ≥2 features | `components/`                                                                                                     |
+| A shared hook                                    | Same                | `hooks/`                                                                                                          |
+| Shared logic / formatting                        | Same                | `lib/`                                                                                                            |
+| Shared types or Zod schemas used across features | Same                | `packages/` (e.g. a `domain` package when one materializes, or extracted into a shared type file in the meantime) |
+| Shared UI primitive or token                     | Same                | `@nexus/ui`                                                                                                       |
 
 When in doubt: if two features need it, it's not a feature concern, it's an app or package concern.
 
@@ -322,6 +322,7 @@ packages/
 ### 4.2 When to create a new package
 
 Create a new `@nexus/*` package when:
+
 - The code is consumed by **two or more apps** (today, just `web`; second app e.g. `admin`).
 - The code is a **stable standalone library** with its own backward-compatibility needs (e.g. `@nexus/ui`).
 - The code must ship its own API contract that other features are forbidden to bypass.
@@ -391,6 +392,7 @@ docs/
 ### 6.2 Docs in `12-conventions/`
 
 The `12-conventions/` directory is reserved for the conventions suite:
+
 - `Coding-Standards.md`
 - `Naming-Conventions.md`
 - `Folder-Conventions.md` (this file)
@@ -411,7 +413,7 @@ Every feature and every package exposes a **single** `index.ts` at its root. Fea
 export { LoginForm } from "./components/LoginForm";
 export { OAuthButtons } from "./components/OAuthButtons";
 export { useSession } from "./hooks/use-session";
-export { login, signup } from "./actions";          // re-namespaced
+export { login, signup } from "./actions"; // re-namespaced
 export type { AuthSession } from "./types/auth-types";
 ```
 
@@ -427,7 +429,7 @@ import { LoginForm, useSession } from "@/features/auth";
 - **Only export what is consumed.** Don't "pre-export" every file in the barrel speculatively. Exports are API surface — treat them like one.
 - Imports from `../lib/` or `../packages/*` are fine inside the barrel. Imports from another feature are not, even through a barrel.
 
-### 7.3 No barrel re-exports of barrels  (P)
+### 7.3 No barrel re-exports of barrels (P)
 
 Avoid chains of barrel re-re-export (a barrel that mostly re-exports another barrel). It confuses readers and bundlers. One hop, then stop.
 
@@ -435,7 +437,7 @@ Avoid chains of barrel re-re-export (a barrel that mostly re-exports another bar
 
 ## 8. Test Colocation
 
-### 8.1 Default: colocate with source  (P)
+### 8.1 Default: colocate with source (P)
 
 Tests live next to the code they cover, using `<source>.test.ts` naming:
 
@@ -455,7 +457,7 @@ features/catalog/
 
 Benefits: refactoring moves source and test together; finding tests is effortless; distantly-located tests are forgotten tests.
 
-### 8.2 When to use `tests/` directories  (P)
+### 8.2 When to use `tests/` directories (P)
 
 When test fixtures, vitest global setup helpers, and integration scenarios grow large enough to crowd the source directory, nest them in a `tests/` directory **at the same level as, not inside,** the source:
 
@@ -489,14 +491,14 @@ apps/web/
 
 ## 9. Anti-Patterns
 
-| Anti-pattern | Fix |
-|--------------|-----|
-| `features/auth/.../CatalogCard.tsx` (a component from another feature) | Move it to `features/catalog/components/` or `components/`. |
-| `import { x } from "@/features/catalog/components/CatalogCard"` inside `features/auth/` | Import from `@/features/auth` via barrel, or lift shared UI to `components/`. |
-| `src/index.ts` files that re-barrel every sibling file | Export only what is actually consumed. |
-| A `util.ts` / `helper.ts` in 8 namespaces | One `lib/cn.ts`, `lib/format.ts`, `lib/http.ts` — not one `helpers.ts` per feature. |
-| A `src/components/` file with a feature-specific name (`WatchlistButton`) | Move it into `features/watchlist/components/`. |
-| A feature directory with 30+ files at a single level | Split into sub-features. |
-| `apps/web/tests/` inside `features/` | Move to `features/<name>/tests/` or `apps/web/tests/` as appropriate. |
+| Anti-pattern                                                                            | Fix                                                                                 |
+| --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `features/auth/.../CatalogCard.tsx` (a component from another feature)                  | Move it to `features/catalog/components/` or `components/`.                         |
+| `import { x } from "@/features/catalog/components/CatalogCard"` inside `features/auth/` | Import from `@/features/auth` via barrel, or lift shared UI to `components/`.       |
+| `src/index.ts` files that re-barrel every sibling file                                  | Export only what is actually consumed.                                              |
+| A `util.ts` / `helper.ts` in 8 namespaces                                               | One `lib/cn.ts`, `lib/format.ts`, `lib/http.ts` — not one `helpers.ts` per feature. |
+| A `src/components/` file with a feature-specific name (`WatchlistButton`)               | Move it into `features/watchlist/components/`.                                      |
+| A feature directory with 30+ files at a single level                                    | Split into sub-features.                                                            |
+| `apps/web/tests/` inside `features/`                                                    | Move to `features/<name>/tests/` or `apps/web/tests/` as appropriate.               |
 
 When in doubt, the test is: **if I delete this feature's directory, does it break anything outside this feature?** If yes, the code is misplaced.

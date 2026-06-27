@@ -60,12 +60,12 @@ We considered two alternatives:
 We use **four distinct tools, each owning one category of state.** There is
 no overlap: a piece of state has exactly one correct home.
 
-| Category | Tool | Where it runs |
-|---|---|---|
-| Server state | Server Components + `React.cache()` | Server |
-| Client cache | TanStack Query (`@tanstack/react-query`) | Client |
-| Client UI | Zustand (two stores: `useUiStore`, `usePlayerStore`) | Client |
-| URL state | `next/navigation` (`useSearchParams`, `useRouter`) | Client (URL is the source of truth) |
+| Category     | Tool                                                 | Where it runs                       |
+| ------------ | ---------------------------------------------------- | ----------------------------------- |
+| Server state | Server Components + `React.cache()`                  | Server                              |
+| Client cache | TanStack Query (`@tanstack/react-query`)             | Client                              |
+| Client UI    | Zustand (two stores: `useUiStore`, `usePlayerStore`) | Client                              |
+| URL state    | `next/navigation` (`useSearchParams`, `useRouter`)   | Client (URL is the source of truth) |
 
 ### Server state
 

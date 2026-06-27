@@ -15,9 +15,9 @@ Webhook endpoints are the only ingress path where payloads originate from outsid
 
 ## Planned Endpoints
 
-| Method | Path | Upstream | Signature Header |
-|--------|------|----------|------------------|
-| `POST` | `/api/v1/webhooks/stripe` | Stripe | `Stripe-Signature` |
+| Method | Path                      | Upstream          | Signature Header       |
+| ------ | ------------------------- | ----------------- | ---------------------- |
+| `POST` | `/api/v1/webhooks/stripe` | Stripe            | `Stripe-Signature`     |
 | `POST` | `/api/v1/webhooks/stream` | Cloudflare Stream | `Cloudflare-Signature` |
 
 Both endpoints share the same contract:

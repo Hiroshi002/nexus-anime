@@ -83,17 +83,17 @@ See [API-Standards.md](./API-Standards.md) section on caching for the full cache
 
 All endpoints in this document share the error envelope and code registry defined in [`Error-Codes.md`](./Error-Codes.md). The codes you will see here:
 
-| Code                 | HTTP | Trigger in this resource                 |
-| :------------------- | :--- | :--------------------------------------- |
-| `VALIDATION_ERROR`   | 400  | Query/body failed Zod schema            |
-| `FIELD_REQUIRED`     | 400  | Nested in `VALIDATION_ERROR.details`     |
-| `FIELD_INVALID`      | 400  | Nested in `VALIDATION_ERROR.details`     |
-| `UNAUTHORIZED`       | 401  | Missing bearer token on admin endpoints  |
-| `FORBIDDEN`          | 403  | Non-admin caller on admin endpoints     |
-| `ANIME_NOT_FOUND`    | 404  | `id` or `slug` lookup miss (no deleted)  |
-| `CONFLICT`           | 409  | Version mismatch on PATCH                |
-| `RATE_LIMITED`       | 429  | Quota exhausted                          |
-| `INTERNAL_ERROR`     | 500  | Unhandled failure                        |
+| Code               | HTTP | Trigger in this resource                |
+| :----------------- | :--- | :-------------------------------------- |
+| `VALIDATION_ERROR` | 400  | Query/body failed Zod schema            |
+| `FIELD_REQUIRED`   | 400  | Nested in `VALIDATION_ERROR.details`    |
+| `FIELD_INVALID`    | 400  | Nested in `VALIDATION_ERROR.details`    |
+| `UNAUTHORIZED`     | 401  | Missing bearer token on admin endpoints |
+| `FORBIDDEN`        | 403  | Non-admin caller on admin endpoints     |
+| `ANIME_NOT_FOUND`  | 404  | `id` or `slug` lookup miss (no deleted) |
+| `CONFLICT`         | 409  | Version mismatch on PATCH               |
+| `RATE_LIMITED`     | 429  | Quota exhausted                         |
+| `INTERNAL_ERROR`   | 500  | Unhandled failure                       |
 
 Sub-code naming follows the `*_NOT_FOUND` pattern for each entity. A deleted anime returns `ANIME_NOT_FOUND`, not `410 Gone` — soft-deleted rows are indistinguishable from non-existent rows at the API layer.
 
@@ -101,13 +101,13 @@ Sub-code naming follows the `*_NOT_FOUND` pattern for each entity. A deleted ani
 
 ## 5. Authentication
 
-| Endpoint group                         | Auth required                         |
-| :------------------------------------- | :------------------------------------ |
-| GET reads (section 6.1–6.7, 6.9)       | None — public endpoint                |
-| GET `/api/v1/anime/search` (section 6.8) | None — public                       |
-| POST `/api/v1/anime` (section 6.10)    | `Authorization: Bearer <admin-token>` + admin role |
-| PATCH `/api/v1/anime/{id}` (6.11)      | Same                                  |
-| DELETE `/api/v1/anime/{id}` (6.12)     | Same                                  |
+| Endpoint group                           | Auth required                                      |
+| :--------------------------------------- | :------------------------------------------------- |
+| GET reads (section 6.1–6.7, 6.9)         | None — public endpoint                             |
+| GET `/api/v1/anime/search` (section 6.8) | None — public                                      |
+| POST `/api/v1/anime` (section 6.10)      | `Authorization: Bearer <admin-token>` + admin role |
+| PATCH `/api/v1/anime/{id}` (6.11)        | Same                                               |
+| DELETE `/api/v1/anime/{id}` (6.12)       | Same                                               |
 
 The admin role check follows the policy in [`Authentication.md`](./Authentication.md). Bearer tokens are validated by middleware before the handler runs. A `401 UNAUTHORIZED` reply is returned when the token is absent or invalid; a `403 FORBIDDEN` reply is returned when the token identifies a user who is not in the admin role.
 
@@ -133,40 +133,40 @@ None.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Accept` | `application/json` |
+| Header                     | Value                                                |
+| :------------------------- | :--------------------------------------------------- |
+| `Accept`                   | `application/json`                                   |
 | `Cache-Control` (response) | `public, max-age=3600, stale-while-revalidate=86400` |
 
 #### Query parameters
 
 All query parameters are optional. Combining filters is an AND operation across facets; `genres` / `studios` are OR-within-facet (any match within the list).
 
-| Parameter | Type | Default | Description |
-| :-------- | :--- | :------ | :---------- |
-| `q?` | `string` | — | Free-text search. Shortcut from 6.9; delegates to the same full-text path below. |
-| `status?` | `AnimeStatus` | — | Filter by lifecycle status. One of `unknown`, `upcoming`, `airing`, `finished`, `cancelled`. |
-| `type?` | `AnimeType` | — | Filter by `tv`, `movie`, `ova`, `ona`, `special`, `music`. |
-| `season_year?` | `integer` | — | Broadcast year (e.g. 2024). |
-| `season_name?` | `SeasonName` | — | One of `spring`, `summer`, `fall`, `winter`. Useful combined with `season_year`. |
-| `age_rating?` | `AgeRating` | — | One of `g`, `pg`, `pg13`, `r`, `r18`. Match exact. |
-| `genres?` | `string[]` (CSV or repeated) | — | One or more genre IDs. Anime matching **any** of the supplied genres is included. |
-| `studios?` | `string[]` (CSV or repeated) | — | One or more studio IDs. Anime matching **any** of the supplied studios is included. |
-| `min_rating?` | `number` | — | Inclusive lower bound on `average_rating` (0–10). Use `0` to include unrated items; omit to disable. |
-| `sort?` | `AnimeSort` | `"popularity"` | Sort field. See sorting table below. |
-| `order?` | `"asc"` \| `"desc"` | varies by sort | Sort direction. Default is `desc` for `popularity`, `rating`, `published_at`, `created_at`; `asc` for `title`. |
-| `cursor?` | `string` | — | Opaque cursor from `meta.pagination.nextCursor` of the previous page. Omit for the first page. |
-| `limit?` | `integer` (1–100) | `20` | Page size. Hard cap 100. Values above the cap are clamped. |
+| Parameter      | Type                         | Default        | Description                                                                                                    |
+| :------------- | :--------------------------- | :------------- | :------------------------------------------------------------------------------------------------------------- |
+| `q?`           | `string`                     | —              | Free-text search. Shortcut from 6.9; delegates to the same full-text path below.                               |
+| `status?`      | `AnimeStatus`                | —              | Filter by lifecycle status. One of `unknown`, `upcoming`, `airing`, `finished`, `cancelled`.                   |
+| `type?`        | `AnimeType`                  | —              | Filter by `tv`, `movie`, `ova`, `ona`, `special`, `music`.                                                     |
+| `season_year?` | `integer`                    | —              | Broadcast year (e.g. 2024).                                                                                    |
+| `season_name?` | `SeasonName`                 | —              | One of `spring`, `summer`, `fall`, `winter`. Useful combined with `season_year`.                               |
+| `age_rating?`  | `AgeRating`                  | —              | One of `g`, `pg`, `pg13`, `r`, `r18`. Match exact.                                                             |
+| `genres?`      | `string[]` (CSV or repeated) | —              | One or more genre IDs. Anime matching **any** of the supplied genres is included.                              |
+| `studios?`     | `string[]` (CSV or repeated) | —              | One or more studio IDs. Anime matching **any** of the supplied studios is included.                            |
+| `min_rating?`  | `number`                     | —              | Inclusive lower bound on `average_rating` (0–10). Use `0` to include unrated items; omit to disable.           |
+| `sort?`        | `AnimeSort`                  | `"popularity"` | Sort field. See sorting table below.                                                                           |
+| `order?`       | `"asc"` \| `"desc"`          | varies by sort | Sort direction. Default is `desc` for `popularity`, `rating`, `published_at`, `created_at`; `asc` for `title`. |
+| `cursor?`      | `string`                     | —              | Opaque cursor from `meta.pagination.nextCursor` of the previous page. Omit for the first page.                 |
+| `limit?`       | `integer` (1–100)            | `20`           | Page size. Hard cap 100. Values above the cap are clamped.                                                     |
 
 #### Sorting
 
-| `sort` value | Indexed column | Default `order` |
-| :----------- | :------------- | :-------------- |
-| `popularity` | `popularity_score DESC` | `desc` |
-| `rating` | `average_rating DESC, rating_count DESC` | `desc` (weighting avoids 5.0 with 1 vote floating to top) |
-| `published_at` | `published_at DESC` | `desc` |
-| `created_at` | `created_at DESC` | `desc` |
-| `title` | `title ASC` | `asc` |
+| `sort` value   | Indexed column                           | Default `order`                                           |
+| :------------- | :--------------------------------------- | :-------------------------------------------------------- |
+| `popularity`   | `popularity_score DESC`                  | `desc`                                                    |
+| `rating`       | `average_rating DESC, rating_count DESC` | `desc` (weighting avoids 5.0 with 1 vote floating to top) |
+| `published_at` | `published_at DESC`                      | `desc`                                                    |
+| `created_at`   | `created_at DESC`                        | `desc`                                                    |
+| `title`        | `title ASC`                              | `asc`                                                     |
 
 All sort columns have `WHERE deleted_at IS NULL` indexes defined in `docs/07-database/Anime.md` section 2.6.
 
@@ -239,7 +239,7 @@ GET /api/v1/anime?status=airing&type=tv&season_year=2026&season_name=summer&min_
       "trailer_url": "https://stream.nexus-anime.app/trailer/dandadan.m3u8",
       "average_rating": 8.42,
       "rating_count": 12840,
-      "popularity_score": 912.7300
+      "popularity_score": 912.73
     }
   ],
   "meta": {
@@ -256,13 +256,13 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| Invalid enum in `status`, `type`, etc. | 400 | `VALIDATION_ERROR` | `errors[]` with `code: "FIELD_INVALID"` |
-| `limit` outside 1–100 | 400 | `VALIDATION_ERROR` | `errors[]` on `limit` |
-| `min_rating` outside 0–10 | 400 | `VALIDATION_ERROR` | `errors[]` on `min_rating` |
-| `season_year` outside 1917–2100 | 400 | `VALIDATION_ERROR` | `errors[]` on `season_year` |
-| Malformed `cursor` | 400 | `VALIDATION_ERROR` | `errors[]` on `cursor` |
+| Scenario                               | HTTP | `code`             | `details`                               |
+| :------------------------------------- | :--- | :----------------- | :-------------------------------------- |
+| Invalid enum in `status`, `type`, etc. | 400  | `VALIDATION_ERROR` | `errors[]` with `code: "FIELD_INVALID"` |
+| `limit` outside 1–100                  | 400  | `VALIDATION_ERROR` | `errors[]` on `limit`                   |
+| `min_rating` outside 0–10              | 400  | `VALIDATION_ERROR` | `errors[]` on `min_rating`              |
+| `season_year` outside 1917–2100        | 400  | `VALIDATION_ERROR` | `errors[]` on `season_year`             |
+| Malformed `cursor`                     | 400  | `VALIDATION_ERROR` | `errors[]` on `cursor`                  |
 
 Any `VALIDATION_ERROR` follows the [`Error-Codes.md`](./Error-Codes.md) shape with `details.errors[]`.
 
@@ -282,9 +282,9 @@ GET /api/v1/anime/{id}
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Surrogate key from the `anime` table. |
+| Parameter | Type            | Required | Description                           |
+| :-------- | :-------------- | :------- | :------------------------------------ |
+| `id`      | `string` (uuid) | yes      | Surrogate key from the `anime` table. |
 
 #### Auth
 
@@ -292,9 +292,9 @@ None.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Accept` | `application/json` |
+| Header                     | Value                                                |
+| :------------------------- | :--------------------------------------------------- |
+| `Accept`                   | `application/json`                                   |
 | `Cache-Control` (response) | `public, max-age=3600, stale-while-revalidate=86400` |
 
 #### Response schema
@@ -336,7 +336,7 @@ GET /api/v1/anime/a1b2c3d4-e5f6-7890-abcd-ef1234567890
     "tmdb_id": 275863,
     "anilist_id": 184182,
     "mal_id": null,
-    "popularity_score": 912.7300,
+    "popularity_score": 912.73,
     "average_rating": 8.42,
     "rating_count": 12840,
     "view_count": 284190,
@@ -354,10 +354,10 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `id` |
-| No active anime with that `id` | 404 | `ANIME_NOT_FOUND` | `{ id }` |
+| Scenario                       | HTTP | `code`             | `details`          |
+| :----------------------------- | :--- | :----------------- | :----------------- |
+| `id` not a valid UUID          | 400  | `VALIDATION_ERROR` | `errors[]` on `id` |
+| No active anime with that `id` | 404  | `ANIME_NOT_FOUND`  | `{ id }`           |
 
 ---
 
@@ -375,9 +375,9 @@ GET /api/v1/anime/slug/{slug}
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `slug` | `string` | yes | URL-safe slug (e.g. `attack-on-titan`). Unicode letters, digits, and hyphens only. |
+| Parameter | Type     | Required | Description                                                                        |
+| :-------- | :------- | :------- | :--------------------------------------------------------------------------------- |
+| `slug`    | `string` | yes      | URL-safe slug (e.g. `attack-on-titan`). Unicode letters, digits, and hyphens only. |
 
 #### Auth
 
@@ -385,9 +385,9 @@ None.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Accept` | `application/json` |
+| Header                     | Value                                                |
+| :------------------------- | :--------------------------------------------------- |
+| `Accept`                   | `application/json`                                   |
 | `Cache-Control` (response) | `public, max-age=3600, stale-while-revalidate=86400` |
 
 #### Response schema
@@ -404,10 +404,10 @@ Response body is structurally identical to 6.2.
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `slug` empty or non-conforming | 400 | `VALIDATION_ERROR` | `errors[]` on `slug` |
-| No active anime with that `slug` | 404 | `ANIME_NOT_FOUND` | `{ slug }` |
+| Scenario                         | HTTP | `code`             | `details`            |
+| :------------------------------- | :--- | :----------------- | :------------------- |
+| `slug` empty or non-conforming   | 400  | `VALIDATION_ERROR` | `errors[]` on `slug` |
+| No active anime with that `slug` | 404  | `ANIME_NOT_FOUND`  | `{ slug }`           |
 
 **Behavioral note**: When a slug changes (e.g., post-import correction), the old slug becomes available for reuse once the row is updated. The detail page should re-fetch using the canonical slug discovered from the redirecting response body, not cache the old mapping indefinitely. To support legacy inbound links, the application tracks a separate `anime_slug_redirect` table (out of scope for this document).
 
@@ -427,9 +427,9 @@ GET /api/v1/anime/{id}/genres
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Anime surrogate key. |
+| Parameter | Type            | Required | Description          |
+| :-------- | :-------------- | :------- | :------------------- |
+| `id`      | `string` (uuid) | yes      | Anime surrogate key. |
 
 #### Auth
 
@@ -456,7 +456,13 @@ None.
 {
   "data": [
     { "id": "g1", "slug": "action", "name": "Action", "description": "", "is_adult": false },
-    { "id": "g2", "slug": "supernatural", "name": "Supernatural", "description": "", "is_adult": false }
+    {
+      "id": "g2",
+      "slug": "supernatural",
+      "name": "Supernatural",
+      "description": "",
+      "is_adult": false
+    }
   ],
   "meta": { "requestId": "req_5f6a7b8c" }
 }
@@ -466,10 +472,10 @@ HTTP: `200`. Empty `data` array (`[]`) when the anime has zero genres — still 
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` |
-| No active anime with that `id` | 404 | `ANIME_NOT_FOUND` | `{ id }` |
+| Scenario                       | HTTP | `code`             | `details`  |
+| :----------------------------- | :--- | :----------------- | :--------- |
+| `id` not a valid UUID          | 400  | `VALIDATION_ERROR` | `errors[]` |
+| No active anime with that `id` | 404  | `ANIME_NOT_FOUND`  | `{ id }`   |
 
 ---
 
@@ -487,9 +493,9 @@ GET /api/v1/anime/{id}/studios
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Anime surrogate key. |
+| Parameter | Type            | Required | Description          |
+| :-------- | :-------------- | :------- | :------------------- |
+| `id`      | `string` (uuid) | yes      | Anime surrogate key. |
 
 #### Auth
 
@@ -545,16 +551,16 @@ GET /api/v1/anime/{id}/recommendations
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Source anime. |
+| Parameter | Type            | Required | Description   |
+| :-------- | :-------------- | :------- | :------------ |
+| `id`      | `string` (uuid) | yes      | Source anime. |
 
 #### Query parameters
 
-| Parameter | Type | Default | Description |
-| :-------- | :--- | :------ | :---------- |
-| `cursor?` | `string` | — | Opaque cursor. |
-| `limit?` | `integer` (1–50) | `10` | Page size. |
+| Parameter | Type             | Default | Description    |
+| :-------- | :--------------- | :------ | :------------- |
+| `cursor?` | `string`         | —       | Opaque cursor. |
+| `limit?`  | `integer` (1–50) | `10`    | Page size.     |
 
 #### Auth
 
@@ -576,10 +582,10 @@ Uses the standard cursor pagination envelope and `AnimeSummary` projection (mirr
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` |
-| No active anime with that `id` | 404 | `ANIME_NOT_FOUND` | `{ id }` |
+| Scenario                       | HTTP | `code`             | `details`  |
+| :----------------------------- | :--- | :----------------- | :--------- |
+| `id` not a valid UUID          | 400  | `VALIDATION_ERROR` | `errors[]` |
+| No active anime with that `id` | 404  | `ANIME_NOT_FOUND`  | `{ id }`   |
 
 ---
 
@@ -597,9 +603,9 @@ GET /api/v1/anime/{id}/franchise
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Reference anime. |
+| Parameter | Type            | Required | Description      |
+| :-------- | :-------------- | :------- | :--------------- |
+| `id`      | `string` (uuid) | yes      | Reference anime. |
 
 #### Response schema
 
@@ -625,10 +631,10 @@ The result is **not paginated** — franchise sets are bounded in size (typicall
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` |
-| No active anime with that `id` | 404 | `ANIME_NOT_FOUND` | `{ id }` |
+| Scenario                       | HTTP | `code`             | `details`  |
+| :----------------------------- | :--- | :----------------- | :--------- |
+| `id` not a valid UUID          | 400  | `VALIDATION_ERROR` | `errors[]` |
+| No active anime with that `id` | 404  | `ANIME_NOT_FOUND`  | `{ id }`   |
 
 ---
 
@@ -654,9 +660,9 @@ None.
 
 ##### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Content-Type` | `application/json` |
+| Header                     | Value                                                |
+| :------------------------- | :--------------------------------------------------- |
+| `Content-Type`             | `application/json`                                   |
 | `Cache-Control` (response) | `public, max-age=3600, stale-while-revalidate=86400` |
 
 ##### Body schema
@@ -724,12 +730,12 @@ Response matches `GET /api/v1/anime` shape.
 
 Same as `GET /api/v1/anime`, with additional:
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `Content-Type` not `application/json` | 415 | `VALIDATION_ERROR` (per API-Standards) | — |
-| JSON body parse failure | 400 | `VALIDATION_ERROR` | Plain schema error, not nested |
-| `query.season_year_min > query.season_year_max` | 400 | `VALIDATION_ERROR` | `errors[]` on `query.season_year_max` |
-| `query` is an empty object `{}` | 200 | — | Matches everything; no validation error. (List handling rules still apply — 200 with paginated default sort.) |
+| Scenario                                        | HTTP | `code`                                 | `details`                                                                                                     |
+| :---------------------------------------------- | :--- | :------------------------------------- | :------------------------------------------------------------------------------------------------------------ |
+| `Content-Type` not `application/json`           | 415  | `VALIDATION_ERROR` (per API-Standards) | —                                                                                                             |
+| JSON body parse failure                         | 400  | `VALIDATION_ERROR`                     | Plain schema error, not nested                                                                                |
+| `query.season_year_min > query.season_year_max` | 400  | `VALIDATION_ERROR`                     | `errors[]` on `query.season_year_max`                                                                         |
+| `query` is an empty object `{}`                 | 200  | —                                      | Matches everything; no validation error. (List handling rules still apply — 200 with paginated default sort.) |
 
 #### 6.8.2. `GET /api/v1/anime?q=` — search shortcut
 
@@ -745,19 +751,19 @@ sent to `POST /api/v1/anime/search`. There is no behavioral difference. Both res
 
 ### 6.9. Endpoint map reference
 
-| Method | URL | Auth |
-| :----- | :-- | :---- |
-| `GET` | `/api/v1/anime` | none |
-| `GET` | `/api/v1/anime/{id}` | none |
-| `GET` | `/api/v1/anime/slug/{slug}` | none |
-| `GET` | `/api/v1/anime/{id}/genres` | none |
-| `GET` | `/api/v1/anime/{id}/studios` | none |
-| `GET` | `/api/v1/anime/{id}/recommendations` | none |
-| `GET` | `/api/v1/anime/{id}/franchise` | none |
-| `POST` | `/api/v1/anime/search` | none |
-| `POST` | `/api/v1/anime` | bearer + admin |
-| `PATCH` | `/api/v1/anime/{id}` | bearer + admin |
-| `DELETE` | `/api/v1/anime/{id}` | bearer + admin |
+| Method   | URL                                  | Auth           |
+| :------- | :----------------------------------- | :------------- |
+| `GET`    | `/api/v1/anime`                      | none           |
+| `GET`    | `/api/v1/anime/{id}`                 | none           |
+| `GET`    | `/api/v1/anime/slug/{slug}`          | none           |
+| `GET`    | `/api/v1/anime/{id}/genres`          | none           |
+| `GET`    | `/api/v1/anime/{id}/studios`         | none           |
+| `GET`    | `/api/v1/anime/{id}/recommendations` | none           |
+| `GET`    | `/api/v1/anime/{id}/franchise`       | none           |
+| `POST`   | `/api/v1/anime/search`               | none           |
+| `POST`   | `/api/v1/anime`                      | bearer + admin |
+| `PATCH`  | `/api/v1/anime/{id}`                 | bearer + admin |
+| `DELETE` | `/api/v1/anime/{id}`                 | bearer + admin |
 
 ---
 
@@ -779,10 +785,10 @@ POST /api/v1/anime
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Authorization` | `Bearer <admin-token>` |
-| `Content-Type` | `application/json` |
+| Header                     | Value                         |
+| :------------------------- | :---------------------------- |
+| `Authorization`            | `Bearer <admin-token>`        |
+| `Content-Type`             | `application/json`            |
 | `Cache-Control` (response) | none (response not cacheable) |
 
 #### Body schema
@@ -865,13 +871,13 @@ HTTP: `201`. `Location: /api/v1/anime/{id}`.
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| Missing required `slug` or `title` | 400 | `VALIDATION_ERROR` | `errors[]` |
-| `slug` already in use (active row) | 409 | `CONFLICT` | `{ slug }` |
-| `tmdb_id` conflict | 409 | `CONFLICT` | `{ tmdb_id }` |
-| `anilist_id` conflict | 409 | `CONFLICT` | `{ anilist_id }` |
-| Enum/range validation failure | 400 | `VALIDATION_ERROR` | standard shape |
+| Scenario                           | HTTP | `code`             | `details`        |
+| :--------------------------------- | :--- | :----------------- | :--------------- |
+| Missing required `slug` or `title` | 400  | `VALIDATION_ERROR` | `errors[]`       |
+| `slug` already in use (active row) | 409  | `CONFLICT`         | `{ slug }`       |
+| `tmdb_id` conflict                 | 409  | `CONFLICT`         | `{ tmdb_id }`    |
+| `anilist_id` conflict              | 409  | `CONFLICT`         | `{ anilist_id }` |
+| Enum/range validation failure      | 400  | `VALIDATION_ERROR` | standard shape   |
 
 ---
 
@@ -889,12 +895,12 @@ PATCH /api/v1/anime/{id}
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Authorization` | `Bearer <admin-token>` |
-| `Content-Type` | `application/json` |
-| `If-Match` | `"<version>"` (strong recommended; see below) |
-| `Cache-Control` (response) | none |
+| Header                     | Value                                         |
+| :------------------------- | :-------------------------------------------- |
+| `Authorization`            | `Bearer <admin-token>`                        |
+| `Content-Type`             | `application/json`                            |
+| `If-Match`                 | `"<version>"` (strong recommended; see below) |
+| `Cache-Control` (response) | none                                          |
 
 #### Optimistic concurrency
 
@@ -964,14 +970,14 @@ HTTP: `200`.
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `id` |
-| No `version` provided (missing header **and** body field) | 400 | `VALIDATION_ERROR` | `errors[].code: "FIELD_REQUIRED"` on `version` |
-| `version` mismatch (record has version 5, request says 4) | 409 | `CONFLICT` | `{ currentVersion: 5 }` |
-| No active anime with that `id` | 404 | `ANIME_NOT_FOUND` | `{ id }` |
-| `slug` conflict with another active row | 409 | `CONFLICT` | `{ slug }` |
-| `tmdb_id` conflict | 409 | `CONFLICT` | `{ tmdb_id }` |
+| Scenario                                                  | HTTP | `code`             | `details`                                      |
+| :-------------------------------------------------------- | :--- | :----------------- | :--------------------------------------------- |
+| `id` not a valid UUID                                     | 400  | `VALIDATION_ERROR` | `errors[]` on `id`                             |
+| No `version` provided (missing header **and** body field) | 400  | `VALIDATION_ERROR` | `errors[].code: "FIELD_REQUIRED"` on `version` |
+| `version` mismatch (record has version 5, request says 4) | 409  | `CONFLICT`         | `{ currentVersion: 5 }`                        |
+| No active anime with that `id`                            | 404  | `ANIME_NOT_FOUND`  | `{ id }`                                       |
+| `slug` conflict with another active row                   | 409  | `CONFLICT`         | `{ slug }`                                     |
+| `tmdb_id` conflict                                        | 409  | `CONFLICT`         | `{ tmdb_id }`                                  |
 
 #### Retry guidance for clients
 
@@ -999,16 +1005,16 @@ DELETE /api/v1/anime/{id}
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Authorization` | `Bearer <admin-token>` |
-| `Cache-Control` (response) | none |
+| Header                     | Value                  |
+| :------------------------- | :--------------------- |
+| `Authorization`            | `Bearer <admin-token>` |
+| `Cache-Control` (response) | none                   |
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Anime to soft-delete. |
+| Parameter | Type            | Required | Description           |
+| :-------- | :-------------- | :------- | :-------------------- |
+| `id`      | `string` (uuid) | yes      | Anime to soft-delete. |
 
 #### Body
 
@@ -1041,10 +1047,10 @@ The soft-delete is idempotent: calling `DELETE` on an already-deleted record ret
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` |
-| No record exists with that `id` (including hard-deleted archival) | 404 | `ANIME_NOT_FOUND` | `{ id }` |
+| Scenario                                                          | HTTP | `code`             | `details`  |
+| :---------------------------------------------------------------- | :--- | :----------------- | :--------- |
+| `id` not a valid UUID                                             | 400  | `VALIDATION_ERROR` | `errors[]` |
+| No record exists with that `id` (including hard-deleted archival) | 404  | `ANIME_NOT_FOUND`  | `{ id }`   |
 
 #### Cascade note
 
@@ -1082,13 +1088,13 @@ If two import sources (TMDB and AniList) reconcile the same anime concurrently, 
 
 The following are explicitly **not** covered in this document but are companions to the Anime resource:
 
-| Topic | Where |
-| :---- | :---- |
-| Seasons & episodes (per-anime children) | `docs/06-api/Seasons.md` and `docs/06-api/Episodes.md` |
-| Genres, studios master lists | `docs/06-api/Genres.md` and `docs/06-api/Studios.md` |
+| Topic                                                       | Where                                                          |
+| :---------------------------------------------------------- | :------------------------------------------------------------- |
+| Seasons & episodes (per-anime children)                     | `docs/06-api/Seasons.md` and `docs/06-api/Episodes.md`         |
+| Genres, studios master lists                                | `docs/06-api/Genres.md` and `docs/06-api/Studios.md`           |
 | User engagement (bookmark, rating, watch-history, comments) | `docs/06-api/Watchlists.md`, `Ratings.md`, `Comments.md`, etc. |
-| Recommendation engine internals | Architecture ADR, `packages/services/recommender/` |
-| Full-text search with `tsvector` | `docs/06-api/Search.md` (M6) |
+| Recommendation engine internals                             | Architecture ADR, `packages/services/recommender/`             |
+| Full-text search with `tsvector`                            | `docs/06-api/Search.md` (M6)                                   |
 
 ---
 
@@ -1099,7 +1105,7 @@ Before landing a change to this surface, verify:
 - **Type safety** — `pnpm typecheck` passes. No `any` introduces in handler, serializer, or schema.
 - **Build safety** — `pnpm build` succeeds. Handlers compile under Next.js App Router convention.
 - **Runtime safety** — happy path, empty list, deleted lookup, admin `403` all return a typed envelope without throwing.
-- **Edge cases** — zero results (200,data: []`), `limit: 0` clamped, `min_rating: 10.1` rejected, double-delete idempotency, version mismatch retry.
+- **Edge cases** — zero results (200,data: []`), `limit: 0`clamped,`min_rating: 10.1` rejected, double-delete idempotency, version mismatch retry.
 - **Error handling** — no unhandled promise rejections; no leaked stack traces; friendly `message` values.
 - **Caching** — reads include the cache headers defined in section 3; mutations invalidate the relevant `@nexus/cache` prefix.
 - **Auth** — admin endpoints reject missing / non-admin tokens with 401 / 403 respectively.
@@ -1108,11 +1114,11 @@ Before landing a change to this surface, verify:
 
 ## 11. Changelog
 
-| Date       | Change                    | Ticket / PR |
-| :--------- | :------------------------ | :---------- |
-| 2026-06-26 | Initial Anime endpoint spec | —         |
-|            |                           |             |
-|            |                           |             |
+| Date       | Change                      | Ticket / PR |
+| :--------- | :-------------------------- | :---------- |
+| 2026-06-26 | Initial Anime endpoint spec | —           |
+|            |                             |             |
+|            |                             |             |
 
 ---
 

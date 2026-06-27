@@ -86,44 +86,44 @@ Serve as the primary landing surface after authentication. The home page adapts 
 
 ## 7. UI Components
 
-| Component | Responsibility | Reusable? | Package |
-|-----------|---------------|-----------|---------|
-| `HomeShell` | Page layout branching (anonymous vs. authenticated) | No | `apps/web` |
-| `HeroCarousel` | Auto-rotating featured anime slides with manual controls | Yes | `apps/web` |
-| `FeaturedSlide` | Single hero slide (backdrop, title, meta, CTAs) | Yes | `apps/web` |
-| `ContinueWatchingRail` | Horizontal rail of in-progress anime with progress bars | No | `apps/web` |
-| `ProgressCard` | Thumbnail + title + progress bar + "Resume" button | Yes | `apps/web` |
-| `TrendingRail` | Horizontal rail of trending anime with rank numbers | No | `apps/web` |
-| `PopularRail` | Horizontal rail of popular anime | No | `apps/web` |
-| `RecommendedRail` | Horizontal rail of personalized recommendations | No | `apps/web` |
-| `LatestRail` | Horizontal rail of recently released anime | No | `apps/web` |
-| `GenrePills` | Horizontal scrollable row of genre filter badges | Yes | `apps/web` |
-| `AnimeCard` | Poster + title + meta, used inside rails | Yes | `@nexus/ui` |
-| `RailHeader` | Rail title + "See all →" link | Yes | `@nexus/ui` |
-| `RailSkeleton` | Placeholder skeleton matching rail layout | Yes | `@nexus/ui` |
-| `HeroSkeleton` | Placeholder skeleton for hero section | Yes | `@nexus/ui` |
+| Component              | Responsibility                                           | Reusable? | Package     |
+| ---------------------- | -------------------------------------------------------- | --------- | ----------- |
+| `HomeShell`            | Page layout branching (anonymous vs. authenticated)      | No        | `apps/web`  |
+| `HeroCarousel`         | Auto-rotating featured anime slides with manual controls | Yes       | `apps/web`  |
+| `FeaturedSlide`        | Single hero slide (backdrop, title, meta, CTAs)          | Yes       | `apps/web`  |
+| `ContinueWatchingRail` | Horizontal rail of in-progress anime with progress bars  | No        | `apps/web`  |
+| `ProgressCard`         | Thumbnail + title + progress bar + "Resume" button       | Yes       | `apps/web`  |
+| `TrendingRail`         | Horizontal rail of trending anime with rank numbers      | No        | `apps/web`  |
+| `PopularRail`          | Horizontal rail of popular anime                         | No        | `apps/web`  |
+| `RecommendedRail`      | Horizontal rail of personalized recommendations          | No        | `apps/web`  |
+| `LatestRail`           | Horizontal rail of recently released anime               | No        | `apps/web`  |
+| `GenrePills`           | Horizontal scrollable row of genre filter badges         | Yes       | `apps/web`  |
+| `AnimeCard`            | Poster + title + meta, used inside rails                 | Yes       | `@nexus/ui` |
+| `RailHeader`           | Rail title + "See all →" link                            | Yes       | `@nexus/ui` |
+| `RailSkeleton`         | Placeholder skeleton matching rail layout                | Yes       | `@nexus/ui` |
+| `HeroSkeleton`         | Placeholder skeleton for hero section                    | Yes       | `@nexus/ui` |
 
 ## 8. API Dependencies
 
-| Endpoint | Method | Auth Required | Rate Limit | Cache |
-|----------|--------|---------------|------------|-------|
-| `/api/home/feed` | GET | No (anonymous ISR) | 100/min per IP | ISR 300s |
-| `/api/home/continue-watching` | GET | Yes | 60/min per user | None (SSR) |
-| `/api/anime/trending` | GET | No | 100/min per IP | ISR 300s |
-| `/api/anime/popular` | GET | No | 100/min per IP | ISR 900s |
-| `/api/anime/latest` | GET | No | 100/min per IP | ISR 300s |
-| `/api/recommendations` | GET | Yes | 60/min per user | None (SSR) |
-| `/api/home/hero` | GET | No | 100/min per IP | ISR 300s |
+| Endpoint                      | Method | Auth Required      | Rate Limit      | Cache      |
+| ----------------------------- | ------ | ------------------ | --------------- | ---------- |
+| `/api/home/feed`              | GET    | No (anonymous ISR) | 100/min per IP  | ISR 300s   |
+| `/api/home/continue-watching` | GET    | Yes                | 60/min per user | None (SSR) |
+| `/api/anime/trending`         | GET    | No                 | 100/min per IP  | ISR 300s   |
+| `/api/anime/popular`          | GET    | No                 | 100/min per IP  | ISR 900s   |
+| `/api/anime/latest`           | GET    | No                 | 100/min per IP  | ISR 300s   |
+| `/api/recommendations`        | GET    | Yes                | 60/min per user | None (SSR) |
+| `/api/home/hero`              | GET    | No                 | 100/min per IP  | ISR 300s   |
 
 ## 9. Database Dependencies
 
-| Table / View | Operation | Index / Query Notes |
-|--------------|-----------|---------------------|
-| `anime` | SELECT | Indexed on `id`, `trending_score`, `popularity_score`, `release_date` |
-| `episodes` | SELECT | Indexed on `(anime_id, episode_number)` for next-episode lookup |
-| `watch_history` | SELECT | Indexed on `(user_id, updated_at)` for continue-watching query |
-| `watchlist` | SELECT | Indexed on `user_id` for personalized recommendation input |
-| `users` | SELECT | `id` for session lookup |
+| Table / View    | Operation | Index / Query Notes                                                   |
+| --------------- | --------- | --------------------------------------------------------------------- |
+| `anime`         | SELECT    | Indexed on `id`, `trending_score`, `popularity_score`, `release_date` |
+| `episodes`      | SELECT    | Indexed on `(anime_id, episode_number)` for next-episode lookup       |
+| `watch_history` | SELECT    | Indexed on `(user_id, updated_at)` for continue-watching query        |
+| `watchlist`     | SELECT    | Indexed on `user_id` for personalized recommendation input            |
+| `users`         | SELECT    | `id` for session lookup                                               |
 
 ## 10. Edge Cases
 
@@ -142,28 +142,28 @@ Serve as the primary landing surface after authentication. The home page adapts 
 
 ## 11. Error Handling
 
-| Error Condition | User-Facing Message | Recovery Action | Log Level |
-|-----------------|---------------------|-----------------|-----------|
-| Hero API failure | Static featured banner (no carousel) | Render fallback | warn |
-| Single rail API failure | "Couldn't load this section. Retry." | Inline retry button | warn |
-| All rails API failure | Page-level error with "Try again" button | Full page retry | error |
-| Session expired (SSR) | Anonymous layout rendered | Silent fallback, no user action | info |
-| Personalization service timeout | Trending + popular substituted | Render fallback rails | warn |
-| Continue watching query timeout | Rail hidden | Render other rails | warn |
+| Error Condition                 | User-Facing Message                      | Recovery Action                 | Log Level |
+| ------------------------------- | ---------------------------------------- | ------------------------------- | --------- |
+| Hero API failure                | Static featured banner (no carousel)     | Render fallback                 | warn      |
+| Single rail API failure         | "Couldn't load this section. Retry."     | Inline retry button             | warn      |
+| All rails API failure           | Page-level error with "Try again" button | Full page retry                 | error     |
+| Session expired (SSR)           | Anonymous layout rendered                | Silent fallback, no user action | info      |
+| Personalization service timeout | Trending + popular substituted           | Render fallback rails           | warn      |
+| Continue watching query timeout | Rail hidden                              | Render other rails              | warn      |
 
 ## 12. Analytics Events
 
-| Event Name | Trigger | Properties | Surface |
-|------------|---------|------------|---------|
-| `home_page_view` | Page loads | `{ is_authenticated, rail_count }` | Server |
-| `home_hero_click` | User clicks hero CTA | `{ anime_id, action: 'watch' | 'watchlist', slide_index }` | Client |
-| `home_hero_slide_view` | Hero slide visible for > 2s | `{ anime_id, slide_index }` | Client |
-| `home_rail_see_all_click` | User clicks "See all →" | `{ rail_type: 'trending' | 'popular' | 'latest' | 'recommended' | 'continue' }` | Client |
-| `home_rail_card_click` | User clicks anime card in rail | `{ anime_id, rail_type, position }` | Client |
-| `home_continue_resume_click` | User clicks "Resume" on continue watching | `{ anime_id, episode_id, progress_pct }` | Client |
-| `home_genre_pill_click` | User clicks genre pill | `{ genre_slug }` | Client |
-| `home_rail_retry` | User clicks retry on failed rail | `{ rail_type }` | Client |
-| `home_signup_ct_click` | Anonymous user clicks signup CTA | `{ source: 'hero' | 'rail' | 'genre' }` | Client |
+| Event Name                   | Trigger                                   | Properties                               | Surface                     |
+| ---------------------------- | ----------------------------------------- | ---------------------------------------- | --------------------------- | ---------- | ------------- | ------------- | ------ |
+| `home_page_view`             | Page loads                                | `{ is_authenticated, rail_count }`       | Server                      |
+| `home_hero_click`            | User clicks hero CTA                      | `{ anime_id, action: 'watch'             | 'watchlist', slide_index }` | Client     |
+| `home_hero_slide_view`       | Hero slide visible for > 2s               | `{ anime_id, slide_index }`              | Client                      |
+| `home_rail_see_all_click`    | User clicks "See all →"                   | `{ rail_type: 'trending'                 | 'popular'                   | 'latest'   | 'recommended' | 'continue' }` | Client |
+| `home_rail_card_click`       | User clicks anime card in rail            | `{ anime_id, rail_type, position }`      | Client                      |
+| `home_continue_resume_click` | User clicks "Resume" on continue watching | `{ anime_id, episode_id, progress_pct }` | Client                      |
+| `home_genre_pill_click`      | User clicks genre pill                    | `{ genre_slug }`                         | Client                      |
+| `home_rail_retry`            | User clicks retry on failed rail          | `{ rail_type }`                          | Client                      |
+| `home_signup_ct_click`       | Anonymous user clicks signup CTA          | `{ source: 'hero'                        | 'rail'                      | 'genre' }` | Client        |
 
 ## 13. Security Considerations
 

@@ -141,15 +141,15 @@ Dependabot is configured to open PRs for security-critical updates. Dependabot P
 
 ## Dependency Categories
 
-| Category | Examples | Version strategy |
-|----------|----------|------------------|
-| Runtime (client) | `next`, `react`, `framer-motion` | Pin to carets (`^16.0.0`), test before minor bumps |
-| Runtime (server) | `drizzle-orm`, `ioredis`, `zod` | Pin to carets, test before minor bumps |
-| Dev (build) | `typescript`, `eslint`, `turbo` | Carets, wide range acceptable |
-| Dev (test) | `vitest`, `@testing-library/react` | Carets, fast-moving |
-| Dev (tooling) | `prettier`, `husky`, `lint-staged` | Exact or tilde, low churn |
-| Peer | `react` (peer of framer-motion) | Match the range expected by the primary |
-| Optional | `sharp` (optional for next/image) | Installed only when needed |
+| Category         | Examples                           | Version strategy                                   |
+| ---------------- | ---------------------------------- | -------------------------------------------------- |
+| Runtime (client) | `next`, `react`, `framer-motion`   | Pin to carets (`^16.0.0`), test before minor bumps |
+| Runtime (server) | `drizzle-orm`, `ioredis`, `zod`    | Pin to carets, test before minor bumps             |
+| Dev (build)      | `typescript`, `eslint`, `turbo`    | Carets, wide range acceptable                      |
+| Dev (test)       | `vitest`, `@testing-library/react` | Carets, fast-moving                                |
+| Dev (tooling)    | `prettier`, `husky`, `lint-staged` | Exact or tilde, low churn                          |
+| Peer             | `react` (peer of framer-motion)    | Match the range expected by the primary            |
+| Optional         | `sharp` (optional for next/image)  | Installed only when needed                         |
 
 ### Version Pinning Strategy
 
@@ -211,13 +211,13 @@ The following categories of dependencies are banned. New additions in these cate
 
 This list evolves. Tech lead maintains it.
 
-| Package | Reason |
-|---------|--------|
-| `moment` | Unmaintained, large bundle. Use `date-fns` or `dayjs`. |
+| Package         | Reason                                                                              |
+| --------------- | ----------------------------------------------------------------------------------- |
+| `moment`        | Unmaintained, large bundle. Use `date-fns` or `dayjs`.                              |
 | `lodash` (full) | Import-only-what-you-use is hard to enforce. Use `lodash-es` or native equivalents. |
-| `request` | Deprecated. Use `node-fetch` or built-in `fetch`. |
-| `node-cache` | Use `@nexus/cache` (ioredis) for caching. |
-| `jest` | Incompatible with our ESM-first setup. Use `vitest`. |
+| `request`       | Deprecated. Use `node-fetch` or built-in `fetch`.                                   |
+| `node-cache`    | Use `@nexus/cache` (ioredis) for caching.                                           |
+| `jest`          | Incompatible with our ESM-first setup. Use `vitest`.                                |
 
 ## Breaking Change Handling in Dependencies
 

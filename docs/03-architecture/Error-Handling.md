@@ -15,7 +15,7 @@ class AppError extends Error {
     public readonly code: ErrorCode,
     public readonly statusCode: number,
     public readonly details?: unknown,
-    public readonly cause?: Error
+    public readonly cause?: Error,
   ) {
     super(message);
     this.name = this.constructor.name;
@@ -25,25 +25,25 @@ class AppError extends Error {
 
 ### Specialized error classes
 
-| Class | Code | Status | When |
-|-------|------|--------|------|
-| `ValidationError` | `VALIDATION_ERROR` | 400 | Zod schema parse fails |
-| `UnauthorizedError` | `UNAUTHORIZED` | 401 | No session or expired session |
-| `ForbiddenError` | `FORBIDDEN` | 403 | Insufficient permissions |
-| `NotFoundError` | `NOT_FOUND` | 404 | Resource doesn't exist |
-| `ConflictError` | `CONFLICT` | 409 | Duplicate resource (email already registered) |
-| `RateLimitError` | `RATE_LIMITED` | 429 | Too many requests |
-| `PaymentRequiredError` | `PAYMENT_REQUIRED` | 402 | Subscription required |
-| `UpstreamError` | `UPSTREAM_ERROR` | 502 | External API failure (TMDB, Stripe, Stream) |
-| `InternalError` | `INTERNAL_ERROR` | 500 | Unexpected/unhandled error |
+| Class                  | Code               | Status | When                                          |
+| ---------------------- | ------------------ | ------ | --------------------------------------------- |
+| `ValidationError`      | `VALIDATION_ERROR` | 400    | Zod schema parse fails                        |
+| `UnauthorizedError`    | `UNAUTHORIZED`     | 401    | No session or expired session                 |
+| `ForbiddenError`       | `FORBIDDEN`        | 403    | Insufficient permissions                      |
+| `NotFoundError`        | `NOT_FOUND`        | 404    | Resource doesn't exist                        |
+| `ConflictError`        | `CONFLICT`         | 409    | Duplicate resource (email already registered) |
+| `RateLimitError`       | `RATE_LIMITED`     | 429    | Too many requests                             |
+| `PaymentRequiredError` | `PAYMENT_REQUIRED` | 402    | Subscription required                         |
+| `UpstreamError`        | `UPSTREAM_ERROR`   | 502    | External API failure (TMDB, Stripe, Stream)   |
+| `InternalError`        | `INTERNAL_ERROR`   | 500    | Unexpected/unhandled error                    |
 
 ### Why a custom error hierarchy
 
-| Alternative | Why rejected |
-|-------------|-------------|
-| Raw `Error` with message only | No machine-readable code. Client can't switch on error type. No status code mapping. |
-| `HttpError` with status only | Status codes are ambiguous (400 could be validation or bad request shape). Machine-readable `code` is specific. |
-| Neverthrow / Result type | Forces every function to return `Result<T, E>`. Adds boilerplate. Good for functional codebases but fights Next.js's error boundary model. |
+| Alternative                   | Why rejected                                                                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Raw `Error` with message only | No machine-readable code. Client can't switch on error type. No status code mapping.                                                       |
+| `HttpError` with status only  | Status codes are ambiguous (400 could be validation or bad request shape). Machine-readable `code` is specific.                            |
+| Neverthrow / Result type      | Forces every function to return `Result<T, E>`. Adds boilerplate. Good for functional codebases but fights Next.js's error boundary model. |
 
 ---
 
@@ -56,8 +56,8 @@ function serializeError(error: unknown): ApiErrorEnvelope {
   if (error instanceof AppError) {
     return {
       error: {
-        message: error.message,         // User-friendly
-        code: error.code,               // Machine-readable
+        message: error.message, // User-friendly
+        code: error.code, // Machine-readable
         details: error.details ?? null, // Structured (field errors, etc.)
       },
     };
@@ -207,6 +207,7 @@ export async function signupAction(_prev: ActionState, formData: FormData): Prom
 ### Why Zod at every boundary
 
 Validation is defense-in-depth. Even if the client validates, the server must validate independently (client code can be bypassed). Zod gives us:
+
 1. Runtime validation (catch shape errors from upstream APIs).
 2. Type inference (derive TS types from Zod schemas).
 3. Error formatting (field-level errors for form display).
@@ -235,12 +236,12 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 2, delay = 1000): Pr
 
 ### Fallback strategy
 
-| Upstream | Failure mode | Fallback |
-|----------|-------------|----------|
-| TMDB | API down or rate-limited | Serve stale Redis cache (if available) or show degraded UI (no poster image) |
-| AniList | Same | Same |
-| Stripe | API down | Queue webhook events for later processing; show "Payment processing" message |
-| Cloudflare Stream | API down | Show "Video temporarily unavailable" with retry button |
+| Upstream          | Failure mode             | Fallback                                                                     |
+| ----------------- | ------------------------ | ---------------------------------------------------------------------------- |
+| TMDB              | API down or rate-limited | Serve stale Redis cache (if available) or show degraded UI (no poster image) |
+| AniList           | Same                     | Same                                                                         |
+| Stripe            | API down                 | Queue webhook events for later processing; show "Payment processing" message |
+| Cloudflare Stream | API down                 | Show "Video temporarily unavailable" with retry button                       |
 
 ### Why stale cache as fallback, not hardcoded defaults
 
@@ -316,16 +317,16 @@ function logError(error: unknown, context?: Record<string, unknown>) {
 
 ## 9. User-Facing Error UX
 
-| Error | UI | Recovery |
-|-------|----|----------|
-| Network error | "Check your connection and try again" | Retry button |
-| 404 Not Found | "This anime doesn't exist" + trending suggestions | Link to home |
-| Validation error | Inline field errors on form | Fix and resubmit |
-| 401 Unauthorized | "Sign in to continue" | Redirect to login |
-| 403 Forbidden | "You need a subscription to watch this" | Link to pricing |
-| 429 Rate limited | "Slow down! Try again in a minute" | Auto-retry after delay |
-| 502 Upstream error | "We're having trouble loading this" | Retry button |
-| 500 Internal error | "Something went wrong on our end" | Retry button |
+| Error              | UI                                                | Recovery               |
+| ------------------ | ------------------------------------------------- | ---------------------- |
+| Network error      | "Check your connection and try again"             | Retry button           |
+| 404 Not Found      | "This anime doesn't exist" + trending suggestions | Link to home           |
+| Validation error   | Inline field errors on form                       | Fix and resubmit       |
+| 401 Unauthorized   | "Sign in to continue"                             | Redirect to login      |
+| 403 Forbidden      | "You need a subscription to watch this"           | Link to pricing        |
+| 429 Rate limited   | "Slow down! Try again in a minute"                | Auto-retry after delay |
+| 502 Upstream error | "We're having trouble loading this"               | Retry button           |
+| 500 Internal error | "Something went wrong on our end"                 | Retry button           |
 
 ### Why context-specific messages, not generic "Error"
 

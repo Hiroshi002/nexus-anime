@@ -1,0 +1,6 @@
+# pre-commit — runs lint-staged on staged files only.
+# eslint --fix auto-applies safe fixes; prettier reformats. Staged files
+# only — see lint-staged config in root package.json.
+#
+# Bypassing with --no-verify is forbidden by docs/12-conventions/Git-Workflow.md.
+npx lint-staged

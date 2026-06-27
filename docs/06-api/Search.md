@@ -65,7 +65,7 @@ Every free-text query (`q`, `query.text`, `suggest.q`) passes through the same n
 1. **Lowercase** — `q.toLowerCase()`.
 2. **Trim** — strip leading/trailing whitespace.
 3. **Collapse whitespace** — internal runs of whitespace become a single space.
-4. **Strip punctuation** — remove `!@#$%^&*()[]{};:,.<>?/~"'\`` characters. Hyphens within words are preserved (e.g., `attack-on-titan` becomes `attack-on-titan`, not `attackontitan`).
+4. **Strip punctuation** — remove `!@#$%^&*()[]{};:,.<>?/~"'\`` characters. Hyphens within words are preserved (e.g., `attack-on-titan`becomes`attack-on-titan`, not `attackontitan`).
 5. **Truncate** — cap at 200 characters after normalization.
 6. **Empty-after-normalization** — if the result is an empty string, return `200` with `data: []` (no error).
 
@@ -186,10 +186,10 @@ Rationale: search results are volatile (new anime, new episodes, updated ranking
 
 Search endpoints are **public and high-traffic**. They enforce a stricter quota than authenticated endpoints:
 
-| Actor       | Limit | Window | Key                    |
-| :---------- | :---- | :----- | :--------------------- |
-| IP (anon)   | 20    | 60s    | `ip:{addr}:search`     |
-| User (auth) | 20    | 60s    | `user:{sub}:search`    |
+| Actor       | Limit | Window | Key                 |
+| :---------- | :---- | :----- | :------------------ |
+| IP (anon)   | 20    | 60s    | `ip:{addr}:search`  |
+| User (auth) | 20    | 60s    | `user:{sub}:search` |
 
 The limit is **shared across all search endpoints** — a user who hits `/suggest` 20 times in 60 seconds will be rate-limited on `/search` too. This prevents abuse of autocomplete as a cheap proxy for full search.
 
@@ -219,23 +219,23 @@ None.
 
 #### Query parameters
 
-| Parameter | Type | Default | Description |
-| :-------- | :--- | :------ | :---------- |
-| `q` | `string` | **required** | Free-text query. Normalized server-side (section 3). |
-| `type` | `SearchType` | `"anime"` | Entity type to search. One of `anime`, `episode`, `studio`, `user`, `all`. |
-| `sort` | `SearchSort` | `"relevance"` | Sort field. See sorting table below. |
-| `order` | `"asc"` \| `"desc"` | varies by sort | Sort direction. |
-| `cursor` | `string` | — | Opaque cursor from `meta.pagination.nextCursor`. |
-| `limit` | `integer` (1–50) | `20` | Page size. Hard cap 50 (lower than catalog because mixed-type results are heavier). |
+| Parameter | Type                | Default        | Description                                                                         |
+| :-------- | :------------------ | :------------- | :---------------------------------------------------------------------------------- |
+| `q`       | `string`            | **required**   | Free-text query. Normalized server-side (section 3).                                |
+| `type`    | `SearchType`        | `"anime"`      | Entity type to search. One of `anime`, `episode`, `studio`, `user`, `all`.          |
+| `sort`    | `SearchSort`        | `"relevance"`  | Sort field. See sorting table below.                                                |
+| `order`   | `"asc"` \| `"desc"` | varies by sort | Sort direction.                                                                     |
+| `cursor`  | `string`            | —              | Opaque cursor from `meta.pagination.nextCursor`.                                    |
+| `limit`   | `integer` (1–50)    | `20`           | Page size. Hard cap 50 (lower than catalog because mixed-type results are heavier). |
 
 #### Sorting
 
-| `sort` value | Meaning | Default `order` |
-| :----------- | :------ | :-------------- |
-| `relevance` | `ts_rank_cd` score (or Meilisearch relevance) | `desc` |
-| `popularity` | `popularity_score` (anime) or `anime_count` (studio) | `desc` |
-| `rating` | `average_rating` (anime) | `desc` |
-| `created_at` | Entity creation time | `desc` |
+| `sort` value | Meaning                                              | Default `order` |
+| :----------- | :--------------------------------------------------- | :-------------- |
+| `relevance`  | `ts_rank_cd` score (or Meilisearch relevance)        | `desc`          |
+| `popularity` | `popularity_score` (anime) or `anime_count` (studio) | `desc`          |
+| `rating`     | `average_rating` (anime)                             | `desc`          |
+| `created_at` | Entity creation time                                 | `desc`          |
 
 When `type=all`, relevance is the only meaningful sort. Other sort values applied to `type=all` fall back to `relevance` with a `meta.sortFallback: true` hint.
 
@@ -262,7 +262,7 @@ GET /api/v1/search?q=dandadan&type=anime&limit=2
       "type": "tv",
       "poster_url": "https://img.nexus-anime.app/poster/dandadan.jpg",
       "average_rating": 8.42,
-      "popularity_score": 912.7300
+      "popularity_score": 912.73
     }
   ],
   "meta": {
@@ -281,12 +281,12 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `q` missing or empty | 400 | `VALIDATION_ERROR` | `errors[]` on `q` |
-| `type` not a valid `SearchType` | 400 | `VALIDATION_ERROR` | `errors[]` on `type` |
-| `limit` outside 1–50 | 400 | `VALIDATION_ERROR` | `errors[]` on `limit` |
-| Search backend unreachable | 503 | `SEARCH_BACKEND_UNAVAILABLE` | — |
+| Scenario                        | HTTP | `code`                       | `details`             |
+| :------------------------------ | :--- | :--------------------------- | :-------------------- |
+| `q` missing or empty            | 400  | `VALIDATION_ERROR`           | `errors[]` on `q`     |
+| `type` not a valid `SearchType` | 400  | `VALIDATION_ERROR`           | `errors[]` on `type`  |
+| `limit` outside 1–50            | 400  | `VALIDATION_ERROR`           | `errors[]` on `limit` |
+| Search backend unreachable      | 503  | `SEARCH_BACKEND_UNAVAILABLE` | —                     |
 
 ---
 
@@ -308,9 +308,9 @@ None.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Content-Type` | `application/json` |
+| Header                     | Value                                            |
+| :------------------------- | :----------------------------------------------- |
+| `Content-Type`             | `application/json`                               |
 | `Cache-Control` (response) | `public, max-age=60, stale-while-revalidate=300` |
 
 #### Body schema
@@ -399,13 +399,13 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `Content-Type` not `application/json` | 415 | `VALIDATION_ERROR` | — |
-| JSON body parse failure | 400 | `VALIDATION_ERROR` | — |
-| `query.season_year_min > query.season_year_max` | 400 | `VALIDATION_ERROR` | `errors[]` on `query.season_year_max` |
-| `limit` outside 1–50 | 400 | `VALIDATION_ERROR` | `errors[]` on `limit` |
-| Search backend unreachable | 503 | `SEARCH_BACKEND_UNAVAILABLE` | — |
+| Scenario                                        | HTTP | `code`                       | `details`                             |
+| :---------------------------------------------- | :--- | :--------------------------- | :------------------------------------ |
+| `Content-Type` not `application/json`           | 415  | `VALIDATION_ERROR`           | —                                     |
+| JSON body parse failure                         | 400  | `VALIDATION_ERROR`           | —                                     |
+| `query.season_year_min > query.season_year_max` | 400  | `VALIDATION_ERROR`           | `errors[]` on `query.season_year_max` |
+| `limit` outside 1–50                            | 400  | `VALIDATION_ERROR`           | `errors[]` on `limit`                 |
+| Search backend unreachable                      | 503  | `SEARCH_BACKEND_UNAVAILABLE` | —                                     |
 
 ---
 
@@ -427,10 +427,10 @@ None.
 
 #### Query parameters
 
-| Parameter | Type | Default | Description |
-| :-------- | :--- | :------ | :---------- |
-| `q` | `string` | **required** | Partial query. Prefix matching is applied server-side. |
-| `type` | `SearchType` | `"anime"` | Restrict to a single entity type. `all` is not permitted here — the client issues one request per type if needed. |
+| Parameter | Type         | Default      | Description                                                                                                       |
+| :-------- | :----------- | :----------- | :---------------------------------------------------------------------------------------------------------------- |
+| `q`       | `string`     | **required** | Partial query. Prefix matching is applied server-side.                                                            |
+| `type`    | `SearchType` | `"anime"`    | Restrict to a single entity type. `all` is not permitted here — the client issues one request per type if needed. |
 
 #### Response schema
 
@@ -488,11 +488,11 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `q` missing or empty | 400 | `VALIDATION_ERROR` | `errors[]` on `q` |
-| `type` is `all` or invalid | 400 | `VALIDATION_ERROR` | `errors[]` on `type` |
-| Search backend unreachable | 503 | `SEARCH_BACKEND_UNAVAILABLE` | — |
+| Scenario                   | HTTP | `code`                       | `details`            |
+| :------------------------- | :--- | :--------------------------- | :------------------- |
+| `q` missing or empty       | 400  | `VALIDATION_ERROR`           | `errors[]` on `q`    |
+| `type` is `all` or invalid | 400  | `VALIDATION_ERROR`           | `errors[]` on `type` |
+| Search backend unreachable | 503  | `SEARCH_BACKEND_UNAVAILABLE` | —                    |
 
 ---
 
@@ -514,9 +514,9 @@ GET /api/v1/search/history
 
 #### Query parameters
 
-| Parameter | Type | Default | Description |
-| :-------- | :--- | :------ | :---------- |
-| `limit` | `integer` (1–50) | `20` | Number of recent searches to return. |
+| Parameter | Type             | Default | Description                          |
+| :-------- | :--------------- | :------ | :----------------------------------- |
+| `limit`   | `integer` (1–50) | `20`    | Number of recent searches to return. |
 
 #### Response schema
 
@@ -575,10 +575,10 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| Missing/invalid token | 401 | `UNAUTHORIZED` | — |
-| `limit` outside 1–50 | 400 | `VALIDATION_ERROR` | `errors[]` on `limit` |
+| Scenario              | HTTP | `code`             | `details`             |
+| :-------------------- | :--- | :----------------- | :-------------------- |
+| Missing/invalid token | 401  | `UNAUTHORIZED`     | —                     |
+| `limit` outside 1–50  | 400  | `VALIDATION_ERROR` | `errors[]` on `limit` |
 
 ---
 
@@ -600,9 +600,9 @@ DELETE /api/v1/search/history/{id}
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `id` | `string` (uuid) | yes | Entry ID from `GET /api/v1/search/history`. |
+| Parameter | Type            | Required | Description                                 |
+| :-------- | :-------------- | :------- | :------------------------------------------ |
+| `id`      | `string` (uuid) | yes      | Entry ID from `GET /api/v1/search/history`. |
 
 #### Response schema
 
@@ -626,11 +626,11 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| Missing/invalid token | 401 | `UNAUTHORIZED` | — |
-| `id` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `id` |
-| Entry not found or not owned by caller | 404 | `HISTORY_ENTRY_NOT_FOUND` | `{ id }` |
+| Scenario                               | HTTP | `code`                    | `details`          |
+| :------------------------------------- | :--- | :------------------------ | :----------------- |
+| Missing/invalid token                  | 401  | `UNAUTHORIZED`            | —                  |
+| `id` not a valid UUID                  | 400  | `VALIDATION_ERROR`        | `errors[]` on `id` |
+| Entry not found or not owned by caller | 404  | `HISTORY_ENTRY_NOT_FOUND` | `{ id }`           |
 
 ---
 
@@ -672,22 +672,22 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| Missing/invalid token | 401 | `UNAUTHORIZED` | — |
+| Scenario              | HTTP | `code`         | `details` |
+| :-------------------- | :--- | :------------- | :-------- |
+| Missing/invalid token | 401  | `UNAUTHORIZED` | —         |
 
 ---
 
 ## 8. Endpoint map
 
-| Method | URL | Auth | Rate limit |
-| :----- | :-- | :---- | :--------- |
-| `GET` | `/api/v1/search` | none | 20/60s per user/IP |
-| `POST` | `/api/v1/search` | none | 20/60s per user/IP |
-| `GET` | `/api/v1/search/suggest` | none | 20/60s per user/IP (shared) |
-| `GET` | `/api/v1/search/history` | bearer | standard authenticated quota |
+| Method   | URL                           | Auth   | Rate limit                   |
+| :------- | :---------------------------- | :----- | :--------------------------- |
+| `GET`    | `/api/v1/search`              | none   | 20/60s per user/IP           |
+| `POST`   | `/api/v1/search`              | none   | 20/60s per user/IP           |
+| `GET`    | `/api/v1/search/suggest`      | none   | 20/60s per user/IP (shared)  |
+| `GET`    | `/api/v1/search/history`      | bearer | standard authenticated quota |
 | `DELETE` | `/api/v1/search/history/{id}` | bearer | standard authenticated quota |
-| `DELETE` | `/api/v1/search/history` | bearer | standard authenticated quota |
+| `DELETE` | `/api/v1/search/history`      | bearer | standard authenticated quota |
 
 ---
 
@@ -695,15 +695,15 @@ HTTP: `200`
 
 All endpoints in this document share the error envelope and code registry defined in [`Error-Codes.md`](./Error-Codes.md). The codes you will see here:
 
-| Code                 | HTTP | Trigger in this resource                 |
-| :------------------- | :--- | :--------------------------------------- |
-| `VALIDATION_ERROR`   | 400  | Query/body failed Zod schema            |
-| `FIELD_REQUIRED`     | 400  | Nested in `VALIDATION_ERROR.details`     |
-| `FIELD_INVALID`      | 400  | Nested in `VALIDATION_ERROR.details`     |
-| `UNAUTHORIZED`       | 401  | Missing/invalid bearer token on history  |
-| `RATE_LIMITED`       | 429  | Quota exhausted                          |
-| `SEARCH_BACKEND_UNAVAILABLE` | 503 | Postgres or Meilisearch unreachable |
-| `HISTORY_ENTRY_NOT_FOUND` | 404 | `id` lookup miss or owned by another user |
+| Code                         | HTTP | Trigger in this resource                  |
+| :--------------------------- | :--- | :---------------------------------------- |
+| `VALIDATION_ERROR`           | 400  | Query/body failed Zod schema              |
+| `FIELD_REQUIRED`             | 400  | Nested in `VALIDATION_ERROR.details`      |
+| `FIELD_INVALID`              | 400  | Nested in `VALIDATION_ERROR.details`      |
+| `UNAUTHORIZED`               | 401  | Missing/invalid bearer token on history   |
+| `RATE_LIMITED`               | 429  | Quota exhausted                           |
+| `SEARCH_BACKEND_UNAVAILABLE` | 503  | Postgres or Meilisearch unreachable       |
+| `HISTORY_ENTRY_NOT_FOUND`    | 404  | `id` lookup miss or owned by another user |
 
 ---
 

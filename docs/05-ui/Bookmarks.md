@@ -5,9 +5,11 @@
 ---
 
 ## 1. Purpose
+
 Authenticated hub where users view, sort, filter, and manage the anime they have saved to their watchlist.
 
 ## 2. User Goals
+
 - See all bookmarked anime at a glance with current watch status.
 - Filter by status (want_to_watch, watching, completed, dropped).
 - Sort by recent, alphabetical, or status priority.
@@ -16,11 +18,13 @@ Authenticated hub where users view, sort, filter, and manage the anime they have
 - Navigate to trending anime when the list is empty.
 
 ## 3. Entry Points
+
 - Header navigation link "Bookmarks" (visible only when authenticated).
 - Post-action toast "Added to Bookmarks" with deep-link after toggling from `/anime/[slug]`.
 - Direct URL `/bookmarks` shared or bookmarked externally.
 
 ## 4. Layout Structure
+
 ```
 ┌──────────────────────────────────────────────────────┐
 │  Header (sticky)                                     │
@@ -45,6 +49,7 @@ Authenticated hub where users view, sort, filter, and manage the anime they have
 ```
 
 ## 5. Component Hierarchy
+
 - `BookmarksPage` (Server Component, auth-gated)
   - `BookmarksHeader`
     - `PageTitle` — "Bookmarks", Space Grotesk 22px, `text-primary`
@@ -64,6 +69,7 @@ Authenticated hub where users view, sort, filter, and manage the anime they have
     - `CTAButton` — "Explore Trending", links to `/trending`
 
 ## 6. Desktop Layout (≥1024px)
+
 - Max content width: 1280px, centered.
 - Grid: 4 columns at 1024px, 5 columns at 1280px.
 - Card aspect ratio: 2:3 (poster), 16px padding, 12px gap.
@@ -72,6 +78,7 @@ Authenticated hub where users view, sort, filter, and manage the anime they have
 - Section gap: 32px between header, filter, and grid.
 
 ## 7. Tablet Layout (768–1023px)
+
 - Grid: 3 columns.
 - Card padding: 12px, gap: 8px.
 - Filter bar: horizontal scroll with snap points; no wrapping.
@@ -79,6 +86,7 @@ Authenticated hub where users view, sort, filter, and manage the anime they have
 - Section gap: 24px.
 
 ## 8. Mobile Layout (<768px)
+
 - Grid: 2 columns, 12px gap, 16px horizontal padding.
 - Header stacks: title + badge on first row, sort dropdown full-width on second row.
 - Filter bar: horizontal scroll, full-bleed with 16px padding, sticky with `backdrop-blur`.
@@ -87,18 +95,21 @@ Authenticated hub where users view, sort, filter, and manage the anime they have
 - Section gap: 16px.
 
 ## 9. Navigation Behavior
+
 - Clicking a card navigates to `/anime/[slug]`.
 - Sort and filter changes update query params (`?sort=recent&status=watching`) via `router.replace` to preserve browser history.
 - Authenticated gate: unauthenticated visitors are redirected to `/login?next=/bookmarks`.
 - Header "Bookmarks" link shows active state on this route.
 
 ## 10. Scroll Behavior
+
 - Header and filter bar remain sticky with `position: sticky; top: 0` and `z-index: 20`.
 - Grid uses infinite scroll with cursor-based pagination (IntersectionObserver, 200px root margin).
 - On filter or sort change, scroll position resets to top smoothly (`scrollIntoView({ behavior: 'smooth' })`).
 - Scroll container has `scroll-padding-top` equal to combined sticky height (~120px desktop, ~160px mobile).
 
 ## 11. Motion & Animation
+
 - Card entrance: fade-in + 8px upward translate, 200ms, spring easing `cubic-bezier(0.22, 1, 0.36, 1)`, stagger 40ms per card.
 - Filter/sort change: crossfade 150ms; no layout shift.
 - Reorder: card translates vertically 250ms spring easing; siblings shift 200ms.
@@ -107,23 +118,27 @@ Authenticated hub where users view, sort, filter, and manage the anime they have
 - All motion respects `prefers-reduced-motion: reduce` — replace with instant opacity swap.
 
 ## 12. Loading Experience
+
 - Page-level: `React.Suspense` boundary with skeleton matching final layout (header skeleton, filter chip row, 8-card grid skeleton).
 - Skeleton cards: poster aspect ratio placeholder (`surface-raised` bg), two text lines (16px, 12px) shimmering.
 - Sort/filter change: inline spinner inside the grid area (no full-page reload); previous grid remains visible until new data arrives.
 - Infinite scroll: skeleton card appended at grid bottom while next page loads.
 
 ## 13. Empty States
+
 - **No bookmarks at all:** illustration of empty bookmark ribbon, title "Your watchlist is empty.", subtitle "Browse recommendations.", CTA "Explore Trending" → `/trending`. Background: `surface-base`, card surface: `surface-raised`.
 - **Filter returns zero:** illustration of empty filter, title "No anime match this filter.", subtitle "Try a different status.", secondary CTA "Clear filters" → resets `status` param.
 - **Search within bookmarks (future):** illustration of empty search, title "No results found.", subtitle "Try a different search term."
 
 ## 14. Error Handling
+
 - Grid fetch failure: inline error card with message "Could not load bookmarks." and retry button; preserves header and filter bar.
 - Network error during sort/filter: toast notification "Failed to update. Please try again."; UI reverts to previous state.
 - Auth session expired: redirect to `/login` with toast "Session expired. Please sign in again."
 - Image fallback: poster images use `next/image` with fallback placeholder (`surface-raised` bg, anime icon SVG).
 
 ## 15. SEO Metadata Requirements
+
 - `<title>`: `My Bookmarks — Nexus Anime`
 - `<meta name="description">`: `Manage your anime watchlist on Nexus Anime — track what you want to watch, what you're watching, and what you've completed.`
 - `robots`: `noindex` (personalized data, not for crawlers).
@@ -134,6 +149,7 @@ Authenticated hub where users view, sort, filter, and manage the anime they have
 - JSON-LD: not applicable (personal page, no structured data benefit).
 
 ## 16. Accessibility Requirements
+
 - Page landmark: `<main>` with `aria-labelledby` pointing to "Bookmarks" heading.
 - Count badge: live region `aria-live="polite"` announces "X bookmarks" on load and after add/remove.
 - Filter chips: `role="group"` with `aria-label="Filter by status"`; active chip has `aria-pressed="true"`.
@@ -147,6 +163,7 @@ Authenticated hub where users view, sort, filter, and manage the anime they have
 - Color contrast: `text-primary` on `surface-base` ≥ 15:1; `text-secondary` on `surface-raised` ≥ 4.5:1.
 
 ## 17. Future Enhancements
+
 - Drag-and-drop reorder with pointer-based fallback (WCAG 2.2 2.5.7 compliance already covered by up/down buttons).
 - Bulk select mode: multi-edit status or remove.
 - Search within bookmarks (client-side fuzzy filter).

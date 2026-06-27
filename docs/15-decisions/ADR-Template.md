@@ -52,13 +52,13 @@ additional sections.
 
 **Status definitions:**
 
-| Status | Meaning |
-|---|---|
-| `proposed` | The decision is under discussion. No code has been written against it yet. |
-| `accepted` | The decision is final and the team is building against it. |
+| Status                                      | Meaning                                                                                      |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `proposed`                                  | The decision is under discussion. No code has been written against it yet.                   |
+| `accepted`                                  | The decision is final and the team is building against it.                                   |
 | `accepted` ADRs become the source of truth. |
-| `deprecated` | The decision is no longer recommended, but nothing has replaced it yet. |
-| `superseded` | Another ADR has replaced this one. The superseded ADR stays on disk; the new ADR links back. |
+| `deprecated`                                | The decision is no longer recommended, but nothing has replaced it yet.                      |
+| `superseded`                                | Another ADR has replaced this one. The superseded ADR stays on disk; the new ADR links back. |
 
 ### 2. Context
 

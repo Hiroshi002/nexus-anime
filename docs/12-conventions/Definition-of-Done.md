@@ -16,12 +16,12 @@ The DoD is not a suggestion. It is the minimum acceptable state before work can 
 
 Every level of done has a verifier. The author is always the first verifier — quality starts with the person who wrote the code.
 
-| Level | Primary verifier | Escalation |
-|-------|------------------|------------|
-| Task | Author (self-review) | Reviewer catches gaps at PR |
-| PR | Reviewer (≥ 1 approval) | Tech lead adjudicates disagreements |
-| Milestone | Tech lead (acceptance criteria) | Product confirms demo-ability |
-| Release | Tech lead (tag, deploy) | Product + engineering lead sign-off |
+| Level     | Primary verifier                | Escalation                          |
+| --------- | ------------------------------- | ----------------------------------- |
+| Task      | Author (self-review)            | Reviewer catches gaps at PR         |
+| PR        | Reviewer (≥ 1 approval)         | Tech lead adjudicates disagreements |
+| Milestone | Tech lead (acceptance criteria) | Product confirms demo-ability       |
+| Release   | Tech lead (tag, deploy)         | Product + engineering lead sign-off |
 
 Authors do not self-approve. Reviewers do not rubber-stamp. Tech leads do not sign off on work they have not verified. Every handoff has a human being accountable for it.
 
@@ -80,15 +80,18 @@ Reviewers use this to structure their review. Authors can use it to preempt revi
 ## PR Done Checklist
 
 ### CI
+
 - [ ] All five CI gates green (lint, typecheck, test, build, format)
 - [ ] Branch up to date with `main`
 
 ### Review
+
 - [ ] At least one non-author approval
 - [ ] All review conversations resolved
 - [ ] Security-sensitive changes reviewed by a security-aware reviewer
 
 ### Code Quality
+
 - [ ] Follows applicable ADRs
 - [ ] Respects package boundaries (ADR-001 layering)
 - [ ] Zod validation at every boundary
@@ -97,16 +100,19 @@ Reviewers use this to structure their review. Authors can use it to preempt revi
 - [ ] Files under 300 lines (or justified)
 
 ### Testing
+
 - [ ] New logic has tests
 - [ ] Bug fixes have regression tests
 - [ ] Happy path and error path tested
 
 ### Documentation
+
 - [ ] ADR updated or created if architecture changed
 - [ ] Public APIs have TSDoc
 - [ ] README updated for new module or behavior
 
 ### PR Hygiene
+
 - [ ] PR description explains what, why, and where to verify
 - [ ] Diff is under 400 lines (or justified)
 - [ ] No unrelated changes
@@ -136,17 +142,20 @@ The tech lead verifies each item before declaring the milestone complete:
 ## Milestone Done Checklist
 
 ### Deliverables
+
 - [ ] All deliverables from the milestone spec implemented and merged
 - [ ] All acceptance criteria demonstrably met
 - [ ] Any descoped items documented with rationale
 
 ### Quality
+
 - [ ] No open critical or high-severity bugs
 - [ ] Medium and low bugs triaged and scheduled
 - [ ] Performance measured — no regressions beyond threshold
 - [ ] Security review passed for auth, payment, and user-data paths
 
 ### Documentation
+
 - [ ] Architecture docs updated
 - [ ] API docs updated
 - [ ] ADRs created or updated
@@ -154,6 +163,7 @@ The tech lead verifies each item before declaring the milestone complete:
 - [ ] Changelog drafted
 
 ### Demo-ability
+
 - [ ] End-to-end demo passes on staging
 - [ ] Happy path works without dead ends or placeholders
 - [ ] Error paths work with user-friendly messages
@@ -183,6 +193,7 @@ The tech lead owns this checklist. Product signs off on user-visible messaging:
 ## Release Done Checklist
 
 ### Pre-Release
+
 - [ ] All included milestones meet milestone DoD
 - [ ] All CI gates green on release branch
 - [ ] No critical or high-severity bugs
@@ -190,16 +201,19 @@ The tech lead owns this checklist. Product signs off on user-visible messaging:
 - [ ] Changelog generated and reviewed
 
 ### Versioning
+
 - [ ] Version bump follows SemVer
 - [ ] Pre-release suffix appropriate (alpha/beta/rc/stable)
 - [ ] Version number matches changelog
 
 ### Tag and Deploy
+
 - [ ] Annotated tag created on `main`
 - [ ] Tag deployed to production
 - [ ] Smoke tests pass on production
 
 ### Post-Release
+
 - [ ] Error rates monitored for 24 hours
 - [ ] No spike in 5xx or client exceptions
 - [ ] Performance within acceptable thresholds

@@ -8,12 +8,12 @@
 
 State in a Next.js App Router application falls into four categories, each with a distinct management strategy.
 
-| Category | Source | Mutated by | Strategy |
-|----------|--------|------------|----------|
-| **Server state** | Database, Redis, external APIs | Server Actions, Route Handlers | Server Components + React.cache() |
-| **Client cache state** | Server state mirrored on client | React Query mutations | TanStack Query |
-| **Client UI state** | Component-local (modals, forms, toggles) | User interactions | useState / useReducer |
-| **URL state** | Query params, hash | Navigation | next/navigation (useSearchParams, useRouter) |
+| Category               | Source                                   | Mutated by                     | Strategy                                     |
+| ---------------------- | ---------------------------------------- | ------------------------------ | -------------------------------------------- |
+| **Server state**       | Database, Redis, external APIs           | Server Actions, Route Handlers | Server Components + React.cache()            |
+| **Client cache state** | Server state mirrored on client          | React Query mutations          | TanStack Query                               |
+| **Client UI state**    | Component-local (modals, forms, toggles) | User interactions              | useState / useReducer                        |
+| **URL state**          | Query params, hash                       | Navigation                     | next/navigation (useSearchParams, useRouter) |
 
 ---
 
@@ -54,12 +54,12 @@ export async function toggleWatchlistAction(animeId: string) {
 
 ### Why Server Components over React Query for initial data
 
-| Criterion | Server Components | React Query |
-|-----------|-----------------|-------------|
-| Initial load JS | Zero (HTML only) | React Query + serialized data (~10KB+) |
-| TTFB | Streaming (progressive) | Blocked until JS loads + data fetch |
-| SEO | Full HTML (crawlable) | Client-only (not crawlable without SSR) |
-| Cache invalidation | Built-in (revalidatePath/Tag) | Manual (queryClient.invalidateQueries) |
+| Criterion          | Server Components             | React Query                             |
+| ------------------ | ----------------------------- | --------------------------------------- |
+| Initial load JS    | Zero (HTML only)              | React Query + serialized data (~10KB+)  |
+| TTFB               | Streaming (progressive)       | Blocked until JS loads + data fetch     |
+| SEO                | Full HTML (crawlable)         | Client-only (not crawlable without SSR) |
+| Cache invalidation | Built-in (revalidatePath/Tag) | Manual (queryClient.invalidateQueries)  |
 
 **Decision:** Initial page data uses Server Components. React Query is reserved for interactive mutations and client-side revalidation.
 
@@ -77,11 +77,11 @@ React Query manages **mirrored server state on the client** for interactive feat
 
 React Query is **not** used for initial page loads. It is used for:
 
-| Feature | Query key | When | Stale time |
-|---------|-----------|------|-----------|
-| Watchlist | `["watchlist", userId]` | After watchlist mutation | 30s |
-| Watch progress | `["progress", animeId, episodeId]` | During playback (poll every 30s) | 0 (always fresh) |
-| Search suggestions | `["search", query]` | Debounced keystrokes | 60s |
+| Feature            | Query key                          | When                             | Stale time       |
+| ------------------ | ---------------------------------- | -------------------------------- | ---------------- |
+| Watchlist          | `["watchlist", userId]`            | After watchlist mutation         | 30s              |
+| Watch progress     | `["progress", animeId, episodeId]` | During playback (poll every 30s) | 0 (always fresh) |
+| Search suggestions | `["search", query]`                | Debounced keystrokes             | 60s              |
 
 ### QueryClient configuration
 
@@ -89,13 +89,13 @@ React Query is **not** used for initial page loads. It is used for:
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60 * 1000,        // 1 min — data is fresh for 1 min
-      gcTime: 5 * 60 * 1000,       // 5 min — garbage collection after 5 min
-      refetchOnWindowFocus: false,  // No refetch on tab switch (reduces noise)
-      retry: 2,                    // Retry failed queries twice
+      staleTime: 60 * 1000, // 1 min — data is fresh for 1 min
+      gcTime: 5 * 60 * 1000, // 5 min — garbage collection after 5 min
+      refetchOnWindowFocus: false, // No refetch on tab switch (reduces noise)
+      retry: 2, // Retry failed queries twice
     },
     mutations: {
-      retry: 1,                    // Retry failed mutations once
+      retry: 1, // Retry failed mutations once
     },
   },
 });
@@ -103,13 +103,13 @@ const queryClient = new QueryClient({
 
 ### Why TanStack Query over SWR
 
-| Criterion | TanStack Query | SWR |
-|-----------|---------------|-----|
-| Optimistic updates | Built-in `onMutate` + `onError` rollback | Requires manual implementation |
-| Devtools | Official devtools extension | Community devtools |
-| Server-side integration | Supports SSR/hydration | Supported but less ergonomic |
-| Mutation management | Dedicated mutation hooks | Mutations are add-on |
-| Ecosystem | Broader (React, Vue, Solid, Svelte) | React only |
+| Criterion               | TanStack Query                           | SWR                            |
+| ----------------------- | ---------------------------------------- | ------------------------------ |
+| Optimistic updates      | Built-in `onMutate` + `onError` rollback | Requires manual implementation |
+| Devtools                | Official devtools extension              | Community devtools             |
+| Server-side integration | Supports SSR/hydration                   | Supported but less ergonomic   |
+| Mutation management     | Dedicated mutation hooks                 | Mutations are add-on           |
+| Ecosystem               | Broader (React, Vue, Solid, Svelte)      | React only                     |
 
 For our use case (optimistic watchlist updates, mutation retry), TanStack Query's mutation API is more complete than SWR's.
 
@@ -138,7 +138,9 @@ Simple, component-local state uses React primitives. **No global state store for
 ```tsx
 // ❌ Anti-pattern: mirroring server state in useState
 const [anime, setAnime] = useState(null);
-useEffect(() => { fetchAnime(id).then(setAnime); }, [id]);
+useEffect(() => {
+  fetchAnime(id).then(setAnime);
+}, [id]);
 
 // ✅ Correct: Server Component fetches, Client Component renders
 // Parent (Server): const anime = await getAnime(id);
@@ -153,9 +155,9 @@ Zustand manages a small set of **truly global, non-server UI state** that must s
 
 ### Store surfaces
 
-| Store | State | Why Zustand |
-|-------|-------|------------|
-| `useUiStore` | Sidebar open/closed, active theme | Must survive route transitions. Not server data. |
+| Store            | State                                       | Why Zustand                                                   |
+| ---------------- | ------------------------------------------- | ------------------------------------------------------------- |
+| `useUiStore`     | Sidebar open/closed, active theme           | Must survive route transitions. Not server data.              |
 | `usePlayerStore` | Current episode, playback position, quality | Complex player state machine shared across player components. |
 
 ### Store anatomy
@@ -180,20 +182,20 @@ export const useUiStore = create<UiState>()(
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
       setTheme: (theme) => set({ theme }),
     }),
-    { name: "nexus-ui", partialize: (s) => ({ theme: s.theme }) } // Persist theme only
-  )
+    { name: "nexus-ui", partialize: (s) => ({ theme: s.theme }) }, // Persist theme only
+  ),
 );
 ```
 
 ### Why Zustand over Redux / Context
 
-| Criterion | Zustand | Redux | Context |
-|-----------|---------|-------|---------|
-| Bundle size | ~1KB | ~7KB (toolkit ~30KB) | 0 (built-in) |
-| Boilerplate | Minimal (create + setters) | Significant (slices, actions, selectors) | Minimal (provider + hook) |
-| Re-render optimization | Built-in selectors | Requires reselect | Requires memo/manual optimization |
-| Persistence middleware | Built-in `persist` | Requires redux-persist | Manual implementation |
-| Devtools | Built-in | Excellent (Redux DevTools) | None |
+| Criterion              | Zustand                    | Redux                                    | Context                           |
+| ---------------------- | -------------------------- | ---------------------------------------- | --------------------------------- |
+| Bundle size            | ~1KB                       | ~7KB (toolkit ~30KB)                     | 0 (built-in)                      |
+| Boilerplate            | Minimal (create + setters) | Significant (slices, actions, selectors) | Minimal (provider + hook)         |
+| Re-render optimization | Built-in selectors         | Requires reselect                        | Requires memo/manual optimization |
+| Persistence middleware | Built-in `persist`         | Requires redux-persist                   | Manual implementation             |
+| Devtools               | Built-in                   | Excellent (Redux DevTools)               | None                              |
 
 **Why Zustand:** Our global state is small (sidebar, theme, player). Redux's ceremony is disproportionate. Context causes re-renders on every state change unless carefully memoized. Zustand's selector-based subscriptions re-render only the components that read the changed slice.
 
@@ -205,11 +207,11 @@ export const useUiStore = create<UiState>()(
 
 Query parameters are the source of truth for filterable/sortable state. This ensures URL sharing works and browser back/forward preserves state.
 
-| Route | Params | Managed by |
-|-------|--------|-----------|
+| Route                                       | Params                           | Managed by                            |
+| ------------------------------------------- | -------------------------------- | ------------------------------------- |
 | `/search?q=naruto&genre=action&sort=rating` | Search query, genre filter, sort | `useSearchParams()` + `router.push()` |
-| `/watchlist?view=grid&sort=recent` | View mode, sort order | `useSearchParams()` |
-| `/settings?tab=notifications` | Active settings tab | `useSearchParams()` |
+| `/watchlist?view=grid&sort=recent`          | View mode, sort order            | `useSearchParams()`                   |
+| `/settings?tab=notifications`               | Active settings tab              | `useSearchParams()`                   |
 
 ### Why URL state over useState for filters
 
@@ -228,14 +230,14 @@ For mutations where the server response is expected to succeed, we show the resu
 export function WatchlistToggle({ animeId, isInWatchlist }: Props) {
   const [optimisticIsInList, toggleOptimistic] = useOptimistic(
     isInWatchlist,
-    (current, willAdd: boolean) => willAdd
+    (current, willAdd: boolean) => willAdd,
   );
 
   async function handleToggle() {
     const willAdd = !optimisticIsInList;
-    toggleOptimistic(willAdd);  // Instant UI update
+    toggleOptimistic(willAdd); // Instant UI update
     try {
-      await toggleWatchlistAction(animeId);  // Server mutation
+      await toggleWatchlistAction(animeId); // Server mutation
     } catch {
       // useOptimistic automatically rolls back on re-render
       // Error toast handled by error boundary or action state

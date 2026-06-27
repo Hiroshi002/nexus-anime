@@ -13,13 +13,13 @@ paths:
   - src
 
 paths-ignore:
-  - '**/*.test.*'
-  - '**/*.spec.*'
-  - '**/__tests__/**'
-  - '**/node_modules/**'
-  - '**/dist/**'
-  - '**/.next/**'
-  - '**/build/**'
-  - '**/coverage/**'
-  - '**/fixtures/**'
-  - 'tmp/'
+  - "**/*.test.*"
+  - "**/*.spec.*"
+  - "**/__tests__/**"
+  - "**/node_modules/**"
+  - "**/dist/**"
+  - "**/.next/**"
+  - "**/build/**"
+  - "**/coverage/**"
+  - "**/fixtures/**"
+  - "tmp/"

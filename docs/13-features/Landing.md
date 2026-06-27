@@ -83,35 +83,35 @@ Convert anonymous visitors into registered users with a cinematic, marketing-dri
 
 ## 7. UI Components
 
-| Component | Responsibility | Reusable? | Package |
-|-----------|---------------|-----------|---------|
-| `LandingShell` | Page wrapper with glass header and section ordering | No | `apps/web` |
-| `HeroSection` | Full-viewport hero with background trailer/image and centered content | No | `apps/web` |
-| `HeroBackground` | Muted looping video (desktop) or static image (mobile) | Yes | `apps/web` |
-| `HeroContent` | Headline + subheadline + CTAs | Yes | `apps/web` |
-| `FeaturedCarousel` | Horizontal snap-scroll carousel of anime cards | No | `apps/web` |
-| `FeaturesGrid` | 4-column grid of feature highlight cards | No | `apps/web` |
-| `FeatureCard` | Icon + title + description in a glass card | Yes | `@nexus/ui` |
-| `HowItWorks` | 3-step numbered section with connecting line | No | `apps/web` |
-| `StepCard` | Numbered circle + title + description | Yes | `@nexus/ui` |
-| `FinalCtaBanner` | Full-width glass panel with CTA text and button | Yes | `apps/web` |
-| `GlassHeader` | Sticky header with blur-on-scroll transition | Yes | `@nexus/ui` |
-| `Footer` | Links to Terms, Privacy, Contact | Yes | `@nexus/ui` |
-| `LandingAnimeCard` | Compact anime card for the featured carousel | Yes | `apps/web` |
+| Component          | Responsibility                                                        | Reusable? | Package     |
+| ------------------ | --------------------------------------------------------------------- | --------- | ----------- |
+| `LandingShell`     | Page wrapper with glass header and section ordering                   | No        | `apps/web`  |
+| `HeroSection`      | Full-viewport hero with background trailer/image and centered content | No        | `apps/web`  |
+| `HeroBackground`   | Muted looping video (desktop) or static image (mobile)                | Yes       | `apps/web`  |
+| `HeroContent`      | Headline + subheadline + CTAs                                         | Yes       | `apps/web`  |
+| `FeaturedCarousel` | Horizontal snap-scroll carousel of anime cards                        | No        | `apps/web`  |
+| `FeaturesGrid`     | 4-column grid of feature highlight cards                              | No        | `apps/web`  |
+| `FeatureCard`      | Icon + title + description in a glass card                            | Yes       | `@nexus/ui` |
+| `HowItWorks`       | 3-step numbered section with connecting line                          | No        | `apps/web`  |
+| `StepCard`         | Numbered circle + title + description                                 | Yes       | `@nexus/ui` |
+| `FinalCtaBanner`   | Full-width glass panel with CTA text and button                       | Yes       | `apps/web`  |
+| `GlassHeader`      | Sticky header with blur-on-scroll transition                          | Yes       | `@nexus/ui` |
+| `Footer`           | Links to Terms, Privacy, Contact                                      | Yes       | `@nexus/ui` |
+| `LandingAnimeCard` | Compact anime card for the featured carousel                          | Yes       | `apps/web`  |
 
 ## 8. API Dependencies
 
 | Endpoint | Method | Auth Required | Rate Limit | Cache |
-|----------|--------|---------------|------------|-------|
-| None | — | — | — | — |
+| -------- | ------ | ------------- | ---------- | ----- |
+| None     | —      | —             | —          | —     |
 
 The landing page has **no API dependencies**. All content is either statically known at build time or fetched client-side from the public anime catalog API (which itself is ISR-cached). The page itself produces no API calls.
 
 ## 9. Database Dependencies
 
 | Table / View | Operation | Index / Query Notes |
-|--------------|-----------|---------------------|
-| None | — | — |
+| ------------ | --------- | ------------------- |
+| None         | —         | —                   |
 
 The landing page has **no database dependencies**. It is a purely static page. Featured anime data is fetched client-side from the public `/api/anime/featured` endpoint (which is ISR-cached).
 
@@ -129,27 +129,27 @@ The landing page has **no database dependencies**. It is a purely static page. F
 
 ## 11. Error Handling
 
-| Error Condition | User-Facing Message | Recovery Action | Log Level |
-|-----------------|---------------------|-----------------|-----------|
-| Hero trailer load failure | Static hero image shown | Silent fallback | warn |
-| Featured carousel API failure | Section hidden | Other sections render | warn |
-| Featured carousel partial data | Render available items | Reduce to grid if < 4 items | info |
-| JavaScript disabled | Static HTML renders | Native scroll, link-based CTAs | — |
-| Invalid CTA deep link | 404 page | Standard Next.js 404 | — |
+| Error Condition                | User-Facing Message     | Recovery Action                | Log Level |
+| ------------------------------ | ----------------------- | ------------------------------ | --------- |
+| Hero trailer load failure      | Static hero image shown | Silent fallback                | warn      |
+| Featured carousel API failure  | Section hidden          | Other sections render          | warn      |
+| Featured carousel partial data | Render available items  | Reduce to grid if < 4 items    | info      |
+| JavaScript disabled            | Static HTML renders     | Native scroll, link-based CTAs | —         |
+| Invalid CTA deep link          | 404 page                | Standard Next.js 404           | —         |
 
 ## 12. Analytics Events
 
-| Event Name | Trigger | Properties | Surface |
-|------------|---------|------------|---------|
-| `landing_page_view` | Page loads | `{ source: 'direct' | 'search' | 'social' | 'referral' }` | Client |
-| `landing_hero_cta_click` | User clicks hero CTA | `{ cta_type: 'primary' | 'secondary', variant?: 'A' | 'B' }` | Client |
-| `landing_header_cta_click` | User clicks header CTA | `{ cta_type: 'signup' | 'signin' | 'home' }` | Client |
-| `landing_featured_card_click` | User clicks featured anime card | `{ anime_id, position }` | Client |
-| `landing_featured_scroll` | User scrolls featured carousel | `{ direction: 'left' | 'right', card_count }` | Client |
-| `landing_how_it_works_view` | How-it-works section enters viewport | `{ — }` | Client |
-| `landing_final_cta_click` | User clicks final CTA banner | `{ — }` | Client |
-| `landing_footer_link_click` | User clicks footer link | `{ link_type: 'terms' | 'privacy' | 'contact' }` | Client |
-| `landing_signup_redirect` | User redirected to signup | `{ source: 'hero' | 'header' | 'final_cta' }` | Client |
+| Event Name                    | Trigger                              | Properties               | Surface                    |
+| ----------------------------- | ------------------------------------ | ------------------------ | -------------------------- | -------------- | ------------- | ------ |
+| `landing_page_view`           | Page loads                           | `{ source: 'direct'      | 'search'                   | 'social'       | 'referral' }` | Client |
+| `landing_hero_cta_click`      | User clicks hero CTA                 | `{ cta_type: 'primary'   | 'secondary', variant?: 'A' | 'B' }`         | Client        |
+| `landing_header_cta_click`    | User clicks header CTA               | `{ cta_type: 'signup'    | 'signin'                   | 'home' }`      | Client        |
+| `landing_featured_card_click` | User clicks featured anime card      | `{ anime_id, position }` | Client                     |
+| `landing_featured_scroll`     | User scrolls featured carousel       | `{ direction: 'left'     | 'right', card_count }`     | Client         |
+| `landing_how_it_works_view`   | How-it-works section enters viewport | `{ — }`                  | Client                     |
+| `landing_final_cta_click`     | User clicks final CTA banner         | `{ — }`                  | Client                     |
+| `landing_footer_link_click`   | User clicks footer link              | `{ link_type: 'terms'    | 'privacy'                  | 'contact' }`   | Client        |
+| `landing_signup_redirect`     | User redirected to signup            | `{ source: 'hero'        | 'header'                   | 'final_cta' }` | Client        |
 
 ## 13. Security Considerations
 

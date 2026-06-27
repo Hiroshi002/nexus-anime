@@ -36,11 +36,11 @@ The Redis implementation uses a sliding-window counter (`EVALSHA` script) that a
 
 **Parameters per rule:**
 
-| Parameter   | Meaning                                    | Example  |
-| :---------- | :----------------------------------------- | :------- |
-| `limit`     | Maximum tokens in the bucket               | `20`     |
-| `window`    | Refill window in seconds                   | `60`     |
-| `key`       | Bucket key: `nexus:ratelimit:{scope}:{id}:{endpoint}` | — |
+| Parameter | Meaning                                               | Example |
+| :-------- | :---------------------------------------------------- | :------ |
+| `limit`   | Maximum tokens in the bucket                          | `20`    |
+| `window`  | Refill window in seconds                              | `60`    |
+| `key`     | Bucket key: `nexus:ratelimit:{scope}:{id}:{endpoint}` | —       |
 
 ---
 
@@ -48,10 +48,10 @@ The Redis implementation uses a sliding-window counter (`EVALSHA` script) that a
 
 A rate-limit bucket is scoped to an **actor** — the entity whose requests count toward the same counter.
 
-| Actor           | Key segment   | When used                                            |
-| :-------------- | :------------ | :--------------------------------------------------- |
-| **User ID**     | `user:{uid}`  | Authenticated requests — the Auth.js session `sub`    |
-| **IP address**  | `ip:{addr}`   | Unauthenticated requests — the caller's IP            |
+| Actor          | Key segment  | When used                                          |
+| :------------- | :----------- | :------------------------------------------------- |
+| **User ID**    | `user:{uid}` | Authenticated requests — the Auth.js session `sub` |
+| **IP address** | `ip:{addr}`  | Unauthenticated requests — the caller's IP         |
 
 ### 3.1 IP-based scoping
 
@@ -86,12 +86,12 @@ A request is never counted against both scopes simultaneously. Once a session is
 
 Every response — including rejected ones — includes rate-limit headers. Clients must parse these to implement self-throttle logic.
 
-| Header                    | Format          | Meaning                                                          |
-| :------------------------ | :-------------- | :--------------------------------------------------------------- |
-| `X-RateLimit-Limit`       | integer         | The maximum number of requests allowed in the current window     |
-| `X-RateLimit-Remaining`   | integer         | Requests remaining in the current window (≥ 0)                   |
-| `X-RateLimit-Reset`       | Unix timestamp  | The time at which the window resets and the bucket refills       |
-| `Retry-After`             | integer (seconds) or HTTP-date | Only present on `429` responses. Seconds until the client may retry |
+| Header                  | Format                         | Meaning                                                             |
+| :---------------------- | :----------------------------- | :------------------------------------------------------------------ |
+| `X-RateLimit-Limit`     | integer                        | The maximum number of requests allowed in the current window        |
+| `X-RateLimit-Remaining` | integer                        | Requests remaining in the current window (≥ 0)                      |
+| `X-RateLimit-Reset`     | Unix timestamp                 | The time at which the window resets and the bucket refills          |
+| `Retry-After`           | integer (seconds) or HTTP-date | Only present on `429` responses. Seconds until the client may retry |
 
 **Rules:**
 
@@ -105,26 +105,26 @@ Every response — including rejected ones — includes rate-limit headers. Clie
 
 The following table is the **authoritative quota registry**. Every rate-limited endpoint maps to exactly one row. New endpoints must be added here before they are deployed.
 
-| #  | Endpoint / Category               | Limit | Window (s) | Scope                       | Rationale                                               |
-| :--| :--------------------------------- | ----: | ---------: | :-------------------------- | :------------------------------------------------------ |
-| 1  | Login / Signup                    |     5 |        300 | IP (unauth) / User (auth)  | Brute-force prevention; 5 attempts per 5 minutes        |
-| 2  | Verify Email                      |     3 |        300 | IP                         | Prevent resend abuse                                    |
-| 3  | Password Reset                    |     3 |        300 | IP                         | Prevent credential-stuffing and spam                    |
-| 4  | Session Refresh                   |    10 |         60 | User                       | Normal tab-restore patterns                             |
-| 5  | Search                            |    20 |         60 | User / IP                  | Typahead debounce at client; 20 queries/minute is ample |
-| 6  | Catalog reads                     |   120 |         60 | User / IP                  | Browse-heavy; paginated cursors spread load             |
-| 7  | Bookmark toggle                   |    10 |         60 | User                       | Rate UI clicks, prevent script spam                    |
-| 8  | Watch history heartbeat           |    30 |         60 | User                       | Client pings every 10s; 30/60 accommodates jitter       |
-| 9  | Rating create / update            |    10 |         60 | User                       | Prevent rating-bot abuse                               |
-| 10 | Comment create                    |     5 |         60 | User                       | Anti-spam; 5 comments/minute is generous               |
-| 11 | Profile update                    |    10 |         60 | User                       | Avatar/bio edits are infrequent                        |
-| 12 | Notification read (mark-read)     |    30 |         60 | User                       | Batch mark-read on mount; 30/60 covers bulk UI         |
-| 13 | Upload (avatar, banner)           |     5 |        300 | User                       | Image processing is expensive; 5 per 5 minutes         |
-| 14 | Webhook — Stripe                  |   100 |         60 | Stripe-Sig header          | Stripe retries on failure; generous allowance           |
-| 15 | Webhook — Cloudflare Stream       |   100 |         60 | Stream-Sig header          | Same rationale as Stripe                               |
-| 16 | Stream signed URL issuance        |    30 |         60 | User                       | Each URL is short-lived; 30/min supports seek/reload   |
-| 17 | Export (data export, CSV)         |     1 |      3 600 | User                       | Heavy async job; 1 per hour                            |
-| 18 | Health check (`/api/health`)      |    30 |         60 | IP                         | Load-balancer probes; 30/min is conservative            |
+| #   | Endpoint / Category           | Limit | Window (s) | Scope                     | Rationale                                               |
+| :-- | :---------------------------- | ----: | ---------: | :------------------------ | :------------------------------------------------------ |
+| 1   | Login / Signup                |     5 |        300 | IP (unauth) / User (auth) | Brute-force prevention; 5 attempts per 5 minutes        |
+| 2   | Verify Email                  |     3 |        300 | IP                        | Prevent resend abuse                                    |
+| 3   | Password Reset                |     3 |        300 | IP                        | Prevent credential-stuffing and spam                    |
+| 4   | Session Refresh               |    10 |         60 | User                      | Normal tab-restore patterns                             |
+| 5   | Search                        |    20 |         60 | User / IP                 | Typahead debounce at client; 20 queries/minute is ample |
+| 6   | Catalog reads                 |   120 |         60 | User / IP                 | Browse-heavy; paginated cursors spread load             |
+| 7   | Bookmark toggle               |    10 |         60 | User                      | Rate UI clicks, prevent script spam                     |
+| 8   | Watch history heartbeat       |    30 |         60 | User                      | Client pings every 10s; 30/60 accommodates jitter       |
+| 9   | Rating create / update        |    10 |         60 | User                      | Prevent rating-bot abuse                                |
+| 10  | Comment create                |     5 |         60 | User                      | Anti-spam; 5 comments/minute is generous                |
+| 11  | Profile update                |    10 |         60 | User                      | Avatar/bio edits are infrequent                         |
+| 12  | Notification read (mark-read) |    30 |         60 | User                      | Batch mark-read on mount; 30/60 covers bulk UI          |
+| 13  | Upload (avatar, banner)       |     5 |        300 | User                      | Image processing is expensive; 5 per 5 minutes          |
+| 14  | Webhook — Stripe              |   100 |         60 | Stripe-Sig header         | Stripe retries on failure; generous allowance           |
+| 15  | Webhook — Cloudflare Stream   |   100 |         60 | Stream-Sig header         | Same rationale as Stripe                                |
+| 16  | Stream signed URL issuance    |    30 |         60 | User                      | Each URL is short-lived; 30/min supports seek/reload    |
+| 17  | Export (data export, CSV)     |     1 |      3 600 | User                      | Heavy async job; 1 per hour                             |
+| 18  | Health check (`/api/health`)  |    30 |         60 | IP                        | Load-balancer probes; 30/min is conservative            |
 
 **Notation:** "User / IP" means the scope is user-scoped when a session exists, IP-scoped otherwise.
 
@@ -136,10 +136,10 @@ The rate-limit middleware applies limits in two layers:
 
 ### 6.1 Global defaults
 
-| Scope           | Limit | Window (s) |
-| :-------------- | ----: | ---------: |
-| User (auth)     |   120 |         60 |
-| IP (unauth)     |    60 |         60 |
+| Scope       | Limit | Window (s) |
+| :---------- | ----: | ---------: |
+| User (auth) |   120 |         60 |
+| IP (unauth) |    60 |         60 |
 
 These apply to any endpoint that does not have an explicit entry in the rate table (section 5). Deploying a new endpoint without a table entry is legal — it falls back to the global default — but it must be added to the table before the next release.
 
@@ -205,11 +205,11 @@ Rationale:
 
 Other endpoints that **may** be promoted to fail-closed in future (after load testing confirms the blast radius is small):
 
-| Endpoint             | Reason                                     |
-| :------------------- | :----------------------------------------- |
-| Password Reset       | Credential recovery abuse                  |
-| Verify Email         | OTP brute-force                            |
-| Webhook endpoints    | Replay attack prevention (low stakes today) |
+| Endpoint          | Reason                                      |
+| :---------------- | :------------------------------------------ |
+| Password Reset    | Credential recovery abuse                   |
+| Verify Email      | OTP brute-force                             |
+| Webhook endpoints | Replay attack prevention (low stakes today) |
 
 Any promotion from fail-open to fail-closed requires a PR that updates this table and includes a blast-radius analysis.
 
@@ -268,12 +268,12 @@ Dashboard panels should track:
 
 ### 11.3 Alerting
 
-| Condition                                          | Severity | Action                                    |
-| :------------------------------------------------- | :------- | :---------------------------------------- |
-| 429 rate on Login exceeds 50/min across all IPs    | CRITICAL | Page on-call; possible credential attack   |
-| 429 rate on any single IP exceeds 100/min          | HIGH     | Investigate; consider temporary IP block   |
-| Redis error rate exceeds 1% of rate-limit checks   | HIGH     | Redis may be degraded; fail-closed at risk |
-| 429 rate on Password Reset exceeds 20/min          | MEDIUM   | Investigate; possible account takeover     |
+| Condition                                        | Severity | Action                                     |
+| :----------------------------------------------- | :------- | :----------------------------------------- |
+| 429 rate on Login exceeds 50/min across all IPs  | CRITICAL | Page on-call; possible credential attack   |
+| 429 rate on any single IP exceeds 100/min        | HIGH     | Investigate; consider temporary IP block   |
+| Redis error rate exceeds 1% of rate-limit checks | HIGH     | Redis may be degraded; fail-closed at risk |
+| 429 rate on Password Reset exceeds 20/min        | MEDIUM   | Investigate; possible account takeover     |
 
 Alert thresholds are per-deployment and should be tuned after the first two weeks of production traffic.
 
@@ -407,7 +407,9 @@ function parseRateLimitHeaders(headers: Headers): {
 // Usage:
 const rl = parseRateLimitHeaders(response.headers);
 if (rl.remaining <= 2) {
-  console.warn(`Approaching rate limit: ${rl.remaining} requests left until ${rl.reset.toISOString()}`);
+  console.warn(
+    `Approaching rate limit: ${rl.remaining} requests left until ${rl.reset.toISOString()}`,
+  );
 }
 ```
 

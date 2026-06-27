@@ -45,20 +45,20 @@ The forces at play were:
 We considered three alternatives:
 
 1. **Single repo, no monorepo tooling.** All code in one `src/` tree,
-  one `package.json`, one build. Rejected because there is no way to
-  enforce package boundaries — any file can import any other file. The
-  shared packages would have no contract, no build pipeline, and no
-  version history independent of the app.
+   one `package.json`, one build. Rejected because there is no way to
+   enforce package boundaries — any file can import any other file. The
+   shared packages would have no contract, no build pipeline, and no
+   version history independent of the app.
 2. **Multiple repos (polyrepo).** One repo per package (`nexus-ui`,
-  `nexus-db`, `nexus-cache`, `nexus-web`). Rejected because:
-  cross-repo changes require coordinated PRs across N repos, which
-  is slow and error-prone; version management (dependabot, semver)
-  is manual; local development requires cloning and linking N repos.
+   `nexus-db`, `nexus-cache`, `nexus-web`). Rejected because:
+   cross-repo changes require coordinated PRs across N repos, which
+   is slow and error-prone; version management (dependabot, semver)
+   is manual; local development requires cloning and linking N repos.
 3. **Nx.** More powerful than Turborepo — generators, cross-cutting
-  dependencies, affected-graph analysis. Rejected because that power
-  comes with configuration overhead we do not need. Our repo has 3
-  packages + 1 app. Nx is designed for 10+ apps/packages with complex
-  cross-dependencies. Turborepo is proportional.
+   dependencies, affected-graph analysis. Rejected because that power
+   comes with configuration overhead we do not need. Our repo has 3
+   packages + 1 app. Nx is designed for 10+ apps/packages with complex
+   cross-dependencies. Turborepo is proportional.
 
 ## Decision
 
@@ -131,13 +131,13 @@ The `exports` field is enforced by `@nexus/eslint-config` rule
 
 `turbo.json` defines five pipeline tasks:
 
-| Task | Dependencies | Description |
-|---|---|---|
-| `build` | `^build` | Build this package and all packages it depends on |
-| `dev` | — | Start dev server (no cache) |
-| `lint` | — | Run ESLint |
-| `typecheck` | `^build` | Run tsc (needs built types from deps) |
-| `test` | `^build` | Run vitest (needs built types from deps) |
+| Task        | Dependencies | Description                                       |
+| ----------- | ------------ | ------------------------------------------------- |
+| `build`     | `^build`     | Build this package and all packages it depends on |
+| `dev`       | —            | Start dev server (no cache)                       |
+| `lint`      | —            | Run ESLint                                        |
+| `typecheck` | `^build`     | Run tsc (needs built types from deps)             |
+| `test`      | `^build`     | Run vitest (needs built types from deps)          |
 
 Remote caching is enabled via Vercel's Turborepo remote cache (free
 tier). Every PR shares a cache with CI and `main`, so an unchanged
@@ -146,6 +146,7 @@ package builds in < 5 s.
 ### Package addition process
 
 Adding a new package requires:
+
 1. Create the directory under `packages/`.
 2. Scope it `@nexus/*` with `private: true`.
 3. Add `exports` to `package.json`.
@@ -201,7 +202,7 @@ Adding a new package requires:
   dependencies immediately.
   **Mitigation:** This is a feature, not a bug. Engineers learn
   the correct habit of declaring dependencies in the right
-  `package.json`. The error message is clear: "ERR_PNPM_MISSING_…".
+  `package.json`. The error message is clear: "ERR*PNPM_MISSING*…".
 - **Tooling lock-in.** Turborepo is maintained by Vercel. If Vercel
   discontinues Turborepo or changes pricing, we must migrate.
   **Mitigation:** Turborepo's config (`turbo.json`) is a < 50-line

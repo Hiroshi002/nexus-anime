@@ -49,19 +49,19 @@ Comment {
 
 ### 2.1 Field rules
 
-| Field | Constraint | Notes |
-| :---- | :--------- | :---- |
-| `userId` | `NOT NULL` FK → `users.id` | Resolved from the session; the client cannot set it. |
-| `animeId` | `NOT NULL` FK → `anime.id` | Must reference an active anime. |
-| `parentCommentId` | nullable FK → `comments.id` | Self-reference. Null = top-level comment. Must reference a comment on the same anime. |
-| `body` | `char_length(trim(body)) BETWEEN 1 AND 5000` | Plain text only. Rendered through DOMPurify on the client — never interpreted as HTML. |
-| `isSpoiler` | `NOT NULL DEFAULT false` | Set at creation. Cannot be changed after creation (immutable). |
-| `isPinned` | `NOT NULL DEFAULT false` | Only a moderator may toggle (see §7.8). |
-| `isHidden` | `NOT NULL DEFAULT false` | Only a moderator may toggle (see §7.9). |
-| `upvotesCount` | `NOT NULL DEFAULT 0` | Denormalized. Incremented/decremented atomically on upvote toggle. |
-| `replyCount` | `NOT NULL DEFAULT 0` | Denormalized. Count of direct children (all states, including soft-deleted). |
-| `version` | `NOT NULL DEFAULT 1` | Optimistic concurrency token. Incremented on every successful PATCH. |
-| `deletedAt` | nullable | Soft-delete marker. Active comments have `deletedAt = null`. |
+| Field             | Constraint                                   | Notes                                                                                  |
+| :---------------- | :------------------------------------------- | :------------------------------------------------------------------------------------- |
+| `userId`          | `NOT NULL` FK → `users.id`                   | Resolved from the session; the client cannot set it.                                   |
+| `animeId`         | `NOT NULL` FK → `anime.id`                   | Must reference an active anime.                                                        |
+| `parentCommentId` | nullable FK → `comments.id`                  | Self-reference. Null = top-level comment. Must reference a comment on the same anime.  |
+| `body`            | `char_length(trim(body)) BETWEEN 1 AND 5000` | Plain text only. Rendered through DOMPurify on the client — never interpreted as HTML. |
+| `isSpoiler`       | `NOT NULL DEFAULT false`                     | Set at creation. Cannot be changed after creation (immutable).                         |
+| `isPinned`        | `NOT NULL DEFAULT false`                     | Only a moderator may toggle (see §7.8).                                                |
+| `isHidden`        | `NOT NULL DEFAULT false`                     | Only a moderator may toggle (see §7.9).                                                |
+| `upvotesCount`    | `NOT NULL DEFAULT 0`                         | Denormalized. Incremented/decremented atomically on upvote toggle.                     |
+| `replyCount`      | `NOT NULL DEFAULT 0`                         | Denormalized. Count of direct children (all states, including soft-deleted).           |
+| `version`         | `NOT NULL DEFAULT 1`                         | Optimistic concurrency token. Incremented on every successful PATCH.                   |
+| `deletedAt`       | nullable                                     | Soft-delete marker. Active comments have `deletedAt = null`.                           |
 
 ### 2.2 Threading rules
 
@@ -76,35 +76,35 @@ Comment {
 
 Mirrors `docs/07-database/Comments.md` §2.2.
 
-| Name | Type | Definition |
-| :--- | :--- | :--- |
+| Name                          | Type           | Definition                                                                                                                                                  |
+| :---------------------------- | :------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `uq_comments_user_anime_body` | partial unique | `UNIQUE (user_id, anime_id, md5(body)) WHERE deleted_at IS NULL AND parent_comment_id IS NULL` — prevents duplicate top-level comments with identical text. |
-| `uq_comments_reply_per_user` | partial unique | `UNIQUE (user_id, parent_comment_id) WHERE deleted_at IS NULL AND parent_comment_id IS NOT NULL` — one reply per user per parent. |
+| `uq_comments_reply_per_user`  | partial unique | `UNIQUE (user_id, parent_comment_id) WHERE deleted_at IS NULL AND parent_comment_id IS NOT NULL` — one reply per user per parent.                           |
 
 Indexes that matter for these endpoints:
 
-| Index | Columns | Serves |
-| :---- | :------ | :----- |
-| `idx_comments_anime_created` | `(anime_id, is_pinned DESC, created_at DESC) WHERE deleted_at IS NULL` | Top-level list sorted by newest. |
+| Index                        | Columns                                                                                    | Serves                            |
+| :--------------------------- | :----------------------------------------------------------------------------------------- | :-------------------------------- |
+| `idx_comments_anime_created` | `(anime_id, is_pinned DESC, created_at DESC) WHERE deleted_at IS NULL`                     | Top-level list sorted by newest.  |
 | `idx_comments_anime_upvotes` | `(anime_id, is_pinned DESC, upvotes_count DESC, created_at DESC) WHERE deleted_at IS NULL` | Top-level list sorted by upvotes. |
-| `idx_comments_parent` | `(parent_comment_id, created_at ASC) WHERE deleted_at IS NULL` | Reply thread scan. |
-| `idx_comments_user` | `(user_id, created_at DESC) WHERE deleted_at IS NULL` | User's comment history. |
+| `idx_comments_parent`        | `(parent_comment_id, created_at ASC) WHERE deleted_at IS NULL`                             | Reply thread scan.                |
+| `idx_comments_user`          | `(user_id, created_at DESC) WHERE deleted_at IS NULL`                                      | User's comment history.           |
 
 ---
 
 ## 4. Authentication
 
-| Method | URL | Auth | Role |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/anime/{animeId}/comments` | optional | Public read; hidden comments filtered for non-moderators and non-authors. |
-| `GET` | `/api/v1/comments/{id}` | optional | Same visibility rules as above. |
-| `GET` | `/api/v1/comments/{id}/replies` | optional | Same visibility rules as above. |
-| `POST` | `/api/v1/anime/{animeId}/comments` | required | Any authenticated user. |
-| `PATCH` | `/api/v1/comments/{id}` | required | Author only (within 24 h window). |
-| `DELETE` | `/api/v1/comments/{id}` | required | Author only. |
-| `POST` | `/api/v1/comments/{id}/upvote` | required | Any authenticated user (one per user; toggle). |
-| `POST` | `/api/v1/comments/{id}/pin` | required | Moderator+. |
-| `POST` | `/api/v1/comments/{id}/hide` | required | Moderator+. |
+| Method   | URL                                | Auth     | Role                                                                      |
+| :------- | :--------------------------------- | :------- | :------------------------------------------------------------------------ |
+| `GET`    | `/api/v1/anime/{animeId}/comments` | optional | Public read; hidden comments filtered for non-moderators and non-authors. |
+| `GET`    | `/api/v1/comments/{id}`            | optional | Same visibility rules as above.                                           |
+| `GET`    | `/api/v1/comments/{id}/replies`    | optional | Same visibility rules as above.                                           |
+| `POST`   | `/api/v1/anime/{animeId}/comments` | required | Any authenticated user.                                                   |
+| `PATCH`  | `/api/v1/comments/{id}`            | required | Author only (within 24 h window).                                         |
+| `DELETE` | `/api/v1/comments/{id}`            | required | Author only.                                                              |
+| `POST`   | `/api/v1/comments/{id}/upvote`     | required | Any authenticated user (one per user; toggle).                            |
+| `POST`   | `/api/v1/comments/{id}/pin`        | required | Moderator+.                                                               |
+| `POST`   | `/api/v1/comments/{id}/hide`       | required | Moderator+.                                                               |
 
 A missing or invalid session on an authenticated endpoint returns `401 Unauthorized`. A valid session without the required role returns `403 Forbidden`.
 
@@ -114,8 +114,8 @@ A missing or invalid session on an authenticated endpoint returns `401 Unauthori
 
 All endpoints in this document share the **user-scoped** quota defined in [`Rate-Limiting.md`](./Rate-Limiting.md):
 
-| Scope | Limit | Window |
-| :--- | :--- | :--- |
+| Scope              | Limit      | Window     |
+| :----------------- | :--------- | :--------- |
 | Authenticated user | 5 requests | 60 seconds |
 
 The bucket key is `nexus:ratelimit:user:{sub}:comments:*`. Standard rate-limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`) are emitted on every response. `Retry-After` is sent only on `429`. Clients implement self-throttle logic against the headers per `Rate-Limiting.md` §12.
@@ -176,19 +176,19 @@ Optional. Hidden comments are visible only to their author and to moderators.
 
 #### Query parameters
 
-| Parameter | Type | Default | Description |
-| :-------- | :--- | :------ | :---------- |
-| `sort` | `"createdAt"` \| `"upvotes"` | `"createdAt"` | Sort field. |
-| `order` | `"asc"` \| `"desc"` | `"desc"` for both sort values | Sort direction. |
-| `cursor` | string | — | Opaque cursor from `data.pagination.nextCursor`. Omit for the first page. |
-| `limit` | integer (1–100) | `20` | Page size. Hard cap 100. |
+| Parameter | Type                         | Default                       | Description                                                               |
+| :-------- | :--------------------------- | :---------------------------- | :------------------------------------------------------------------------ |
+| `sort`    | `"createdAt"` \| `"upvotes"` | `"createdAt"`                 | Sort field.                                                               |
+| `order`   | `"asc"` \| `"desc"`          | `"desc"` for both sort values | Sort direction.                                                           |
+| `cursor`  | string                       | —                             | Opaque cursor from `data.pagination.nextCursor`. Omit for the first page. |
+| `limit`   | integer (1–100)              | `20`                          | Page size. Hard cap 100.                                                  |
 
 #### Sort semantics
 
-| `sort` value | Indexed order |
-| :----------- | :------------ |
-| `createdAt` | `is_pinned DESC, created_at DESC, id DESC` |
-| `upvotes` | `is_pinned DESC, upvotes_count DESC, created_at DESC, id DESC` |
+| `sort` value | Indexed order                                                  |
+| :----------- | :------------------------------------------------------------- |
+| `createdAt`  | `is_pinned DESC, created_at DESC, id DESC`                     |
+| `upvotes`    | `is_pinned DESC, upvotes_count DESC, created_at DESC, id DESC` |
 
 Pinned comments always appear first regardless of sort choice, per the `is_pinned DESC` leading column.
 
@@ -211,10 +211,10 @@ Pinned comments always appear first regardless of sort choice, per the `is_pinne
 
 #### Error codes
 
-| HTTP | Code | Condition |
-| :--- | :--- | :--- |
-| `404` | `ANIME_NOT_FOUND` | `animeId` does not reference an active anime. |
-| `400` | `INVALID_QUERY` | Unknown `sort` value, or `limit` out of range. |
+| HTTP  | Code              | Condition                                      |
+| :---- | :---------------- | :--------------------------------------------- |
+| `404` | `ANIME_NOT_FOUND` | `animeId` does not reference an active anime.  |
+| `400` | `INVALID_QUERY`   | Unknown `sort` value, or `limit` out of range. |
 
 ---
 
@@ -237,8 +237,8 @@ Optional. Hidden comments are visible only to their author and to moderators.
 #### Path parameters
 
 | Parameter | Type | Description |
-| :-------- | :--- | :----------- |
-| `id` | uuid | Comment ID. |
+| :-------- | :--- | :---------- |
+| `id`      | uuid | Comment ID. |
 
 #### Response schema
 
@@ -263,8 +263,8 @@ Replies are paginated independently (default `limit=10`). The `replies.items` ar
 
 #### Error codes
 
-| HTTP | Code | Condition |
-| :--- | :--- | :--- |
+| HTTP  | Code                | Condition                                                                        |
+| :---- | :------------------ | :------------------------------------------------------------------------------- |
 | `404` | `COMMENT_NOT_FOUND` | Comment does not exist or is hidden and caller is not the author or a moderator. |
 
 ---
@@ -287,16 +287,16 @@ Optional. Hidden comments are visible only to their author and to moderators.
 
 #### Path parameters
 
-| Parameter | Type | Description |
-| :-------- | :--- | :----------- |
-| `id` | uuid | Parent comment ID. |
+| Parameter | Type | Description        |
+| :-------- | :--- | :----------------- |
+| `id`      | uuid | Parent comment ID. |
 
 #### Query parameters
 
-| Parameter | Type | Default | Description |
-| :-------- | :--- | :------ | :---------- |
-| `cursor` | string | — | Opaque cursor from `data.pagination.nextCursor`. Omit for the first page. |
-| `limit` | integer (1–100) | `10` | Page size. Hard cap 100. |
+| Parameter | Type            | Default | Description                                                               |
+| :-------- | :-------------- | :------ | :------------------------------------------------------------------------ |
+| `cursor`  | string          | —       | Opaque cursor from `data.pagination.nextCursor`. Omit for the first page. |
+| `limit`   | integer (1–100) | `10`    | Page size. Hard cap 100.                                                  |
 
 #### Response schema
 
@@ -318,8 +318,8 @@ Replies are sorted by `created_at ASC`.
 
 #### Error codes
 
-| HTTP | Code | Condition |
-| :--- | :--- | :--- |
+| HTTP  | Code                | Condition                                                                               |
+| :---- | :------------------ | :-------------------------------------------------------------------------------------- |
 | `404` | `COMMENT_NOT_FOUND` | Parent comment does not exist or is hidden and caller is not the author or a moderator. |
 
 ---
@@ -342,8 +342,8 @@ Required.
 
 #### Path parameters
 
-| Parameter | Type | Description |
-| :-------- | :--- | :----------- |
+| Parameter | Type | Description   |
+| :-------- | :--- | :------------ |
 | `animeId` | uuid | Target anime. |
 
 #### Request body
@@ -358,21 +358,21 @@ Required.
 
 #### Validation rules
 
-| Rule | Error |
-| :---- | :---- |
-| `body` must be 1–5000 chars after trim | `400 INVALID_BODY` |
-| `animeId` must reference an active anime | `404 ANIME_NOT_FOUND` |
-| If `parentCommentId` is provided, it must reference a comment on the same anime | `400 PARENT_ANIME_MISMATCH` |
-| If `parentCommentId` references a soft-deleted comment | `400 PARENT_DELETED` |
-| If the user already has a top-level comment with the same `md5(body)` on this anime | `409 DUPLICATE_COMMENT` |
-| If the user already has a reply on the same parent | `409 DUPLICATE_REPLY` |
+| Rule                                                                                | Error                       |
+| :---------------------------------------------------------------------------------- | :-------------------------- |
+| `body` must be 1–5000 chars after trim                                              | `400 INVALID_BODY`          |
+| `animeId` must reference an active anime                                            | `404 ANIME_NOT_FOUND`       |
+| If `parentCommentId` is provided, it must reference a comment on the same anime     | `400 PARENT_ANIME_MISMATCH` |
+| If `parentCommentId` references a soft-deleted comment                              | `400 PARENT_DELETED`        |
+| If the user already has a top-level comment with the same `md5(body)` on this anime | `409 DUPLICATE_COMMENT`     |
+| If the user already has a reply on the same parent                                  | `409 DUPLICATE_REPLY`       |
 
 #### Response schema
 
 ```ts
 {
   data: {
-    comment: Comment
+    comment: Comment;
   }
 }
 ```
@@ -381,16 +381,16 @@ Status: `201 Created`.
 
 #### Error codes
 
-| HTTP | Code | Condition |
-| :--- | :--- | :--- |
-| `400` | `INVALID_BODY` | `body` empty, whitespace-only, or exceeds 5000 chars. |
+| HTTP  | Code                    | Condition                                                    |
+| :---- | :---------------------- | :----------------------------------------------------------- |
+| `400` | `INVALID_BODY`          | `body` empty, whitespace-only, or exceeds 5000 chars.        |
 | `400` | `PARENT_ANIME_MISMATCH` | `parentCommentId` references a comment on a different anime. |
-| `400` | `PARENT_DELETED` | `parentCommentId` references a soft-deleted comment. |
-| `401` | `UNAUTHENTICATED` | Missing or invalid session. |
-| `404` | `ANIME_NOT_FOUND` | `animeId` does not reference an active anime. |
-| `409` | `DUPLICATE_COMMENT` | Duplicate top-level comment. |
-| `409` | `DUPLICATE_REPLY` | Duplicate reply on the same parent. |
-| `429` | `RATE_LIMITED` | Rate limit exceeded. |
+| `400` | `PARENT_DELETED`        | `parentCommentId` references a soft-deleted comment.         |
+| `401` | `UNAUTHENTICATED`       | Missing or invalid session.                                  |
+| `404` | `ANIME_NOT_FOUND`       | `animeId` does not reference an active anime.                |
+| `409` | `DUPLICATE_COMMENT`     | Duplicate top-level comment.                                 |
+| `409` | `DUPLICATE_REPLY`       | Duplicate reply on the same parent.                          |
+| `429` | `RATE_LIMITED`          | Rate limit exceeded.                                         |
 
 ---
 
@@ -413,50 +413,50 @@ Required. Author only.
 #### Path parameters
 
 | Parameter | Type | Description |
-| :-------- | :--- | :----------- |
-| `id` | uuid | Comment ID. |
+| :-------- | :--- | :---------- |
+| `id`      | uuid | Comment ID. |
 
 #### Request body
 
 ```ts
 {
-  body: string;       // required, 1–5000 chars after trim
-  version: number;    // required — current version for optimistic concurrency
+  body: string; // required, 1–5000 chars after trim
+  version: number; // required — current version for optimistic concurrency
 }
 ```
 
 #### Validation rules
 
-| Rule | Error |
-| :---- | :---- |
-| Caller must be the author (`userId`) | `403 FORBIDDEN` |
-| Comment must not be soft-deleted | `410 GONE` |
-| `now - createdAt <= 24h` | `403 EDIT_WINDOW_EXPIRED` |
-| `version` must match current `version` | `409 VERSION_CONFLICT` |
-| `body` must be 1–5000 chars after trim | `400 INVALID_BODY` |
+| Rule                                   | Error                     |
+| :------------------------------------- | :------------------------ |
+| Caller must be the author (`userId`)   | `403 FORBIDDEN`           |
+| Comment must not be soft-deleted       | `410 GONE`                |
+| `now - createdAt <= 24h`               | `403 EDIT_WINDOW_EXPIRED` |
+| `version` must match current `version` | `409 VERSION_CONFLICT`    |
+| `body` must be 1–5000 chars after trim | `400 INVALID_BODY`        |
 
 #### Response schema
 
 ```ts
 {
   data: {
-    comment: Comment  // updated; version incremented by 1
+    comment: Comment; // updated; version incremented by 1
   }
 }
 ```
 
 #### Error codes
 
-| HTTP | Code | Condition |
-| :--- | :--- | :--- |
-| `400` | `INVALID_BODY` | `body` empty, whitespace-only, or exceeds 5000 chars. |
-| `401` | `UNAUTHENTICATED` | Missing or invalid session. |
-| `403` | `FORBIDDEN` | Caller is not the author. |
-| `403` | `EDIT_WINDOW_EXPIRED` | 24-hour edit window has passed. |
-| `404` | `COMMENT_NOT_FOUND` | Comment does not exist. |
-| `409` | `VERSION_CONFLICT` | `version` does not match current row version. |
-| `410` | `GONE` | Comment is soft-deleted. |
-| `429` | `RATE_LIMITED` | Rate limit exceeded. |
+| HTTP  | Code                  | Condition                                             |
+| :---- | :-------------------- | :---------------------------------------------------- |
+| `400` | `INVALID_BODY`        | `body` empty, whitespace-only, or exceeds 5000 chars. |
+| `401` | `UNAUTHENTICATED`     | Missing or invalid session.                           |
+| `403` | `FORBIDDEN`           | Caller is not the author.                             |
+| `403` | `EDIT_WINDOW_EXPIRED` | 24-hour edit window has passed.                       |
+| `404` | `COMMENT_NOT_FOUND`   | Comment does not exist.                               |
+| `409` | `VERSION_CONFLICT`    | `version` does not match current row version.         |
+| `410` | `GONE`                | Comment is soft-deleted.                              |
+| `429` | `RATE_LIMITED`        | Rate limit exceeded.                                  |
 
 ---
 
@@ -479,8 +479,8 @@ Required. Author only.
 #### Path parameters
 
 | Parameter | Type | Description |
-| :-------- | :--- | :----------- |
-| `id` | uuid | Comment ID. |
+| :-------- | :--- | :---------- |
+| `id`      | uuid | Comment ID. |
 
 #### Request body
 
@@ -491,7 +491,7 @@ None.
 ```ts
 {
   data: {
-    comment: Comment  // updated; body = "[deleted]", deletedAt = now
+    comment: Comment; // updated; body = "[deleted]", deletedAt = now
   }
 }
 ```
@@ -506,13 +506,13 @@ Status: `200 OK`.
 
 #### Error codes
 
-| HTTP | Code | Condition |
-| :--- | :--- | :--- |
-| `401` | `UNAUTHENTICATED` | Missing or invalid session. |
-| `403` | `FORBIDDEN` | Caller is not the author. |
-| `404` | `COMMENT_NOT_FOUND` | Comment does not exist. |
-| `410` | `GONE` | Comment is already soft-deleted. |
-| `429` | `RATE_LIMITED` | Rate limit exceeded. |
+| HTTP  | Code                | Condition                        |
+| :---- | :------------------ | :------------------------------- |
+| `401` | `UNAUTHENTICATED`   | Missing or invalid session.      |
+| `403` | `FORBIDDEN`         | Caller is not the author.        |
+| `404` | `COMMENT_NOT_FOUND` | Comment does not exist.          |
+| `410` | `GONE`              | Comment is already soft-deleted. |
+| `429` | `RATE_LIMITED`      | Rate limit exceeded.             |
 
 ---
 
@@ -535,8 +535,8 @@ Required.
 #### Path parameters
 
 | Parameter | Type | Description |
-| :-------- | :--- | :----------- |
-| `id` | uuid | Comment ID. |
+| :-------- | :--- | :---------- |
+| `id`      | uuid | Comment ID. |
 
 #### Request body
 
@@ -547,7 +547,7 @@ None.
 ```ts
 {
   data: {
-    comment: Comment  // updated; upvotesCount reflects new count
+    comment: Comment; // updated; upvotesCount reflects new count
   }
 }
 ```
@@ -556,21 +556,21 @@ The response includes the full comment so the client can update the UI in a sing
 
 #### Toggle semantics
 
-| Prior state | Action | `upvotesCount` delta |
-| :---------- | :----- | :------------------- |
-| No upvote from this user | Insert upvote row | `+1` |
-| Existing upvote from this user | Delete upvote row | `-1` |
+| Prior state                    | Action            | `upvotesCount` delta |
+| :----------------------------- | :---------------- | :------------------- |
+| No upvote from this user       | Insert upvote row | `+1`                 |
+| Existing upvote from this user | Delete upvote row | `-1`                 |
 
 The toggle is idempotent-safe: two rapid calls from the same user result in the original state. The handler uses a transaction to keep `upvotesCount` consistent with the upvote rows.
 
 #### Error codes
 
-| HTTP | Code | Condition |
-| :--- | :--- | :--- |
-| `401` | `UNAUTHENTICATED` | Missing or invalid session. |
+| HTTP  | Code                | Condition                                                                        |
+| :---- | :------------------ | :------------------------------------------------------------------------------- |
+| `401` | `UNAUTHENTICATED`   | Missing or invalid session.                                                      |
 | `404` | `COMMENT_NOT_FOUND` | Comment does not exist or is hidden and caller is not the author or a moderator. |
-| `410` | `GONE` | Comment is soft-deleted. |
-| `429` | `RATE_LIMITED` | Rate limit exceeded. |
+| `410` | `GONE`              | Comment is soft-deleted.                                                         |
+| `429` | `RATE_LIMITED`      | Rate limit exceeded.                                                             |
 
 ---
 
@@ -593,14 +593,14 @@ Required. Moderator role or higher.
 #### Path parameters
 
 | Parameter | Type | Description |
-| :-------- | :--- | :----------- |
-| `id` | uuid | Comment ID. |
+| :-------- | :--- | :---------- |
+| `id`      | uuid | Comment ID. |
 
 #### Request body
 
 ```ts
 {
-  isPinned: boolean;  // required — true to pin, false to unpin
+  isPinned: boolean; // required — true to pin, false to unpin
 }
 ```
 
@@ -609,19 +609,19 @@ Required. Moderator role or higher.
 ```ts
 {
   data: {
-    comment: Comment  // updated; isPinned reflects new state
+    comment: Comment; // updated; isPinned reflects new state
   }
 }
 ```
 
 #### Error codes
 
-| HTTP | Code | Condition |
-| :--- | :--- | :--- |
-| `401` | `UNAUTHENTICATED` | Missing or invalid session. |
-| `403` | `FORBIDDEN` | Caller lacks moderator role. |
-| `404` | `COMMENT_NOT_FOUND` | Comment does not exist. |
-| `429` | `RATE_LIMITED` | Rate limit exceeded. |
+| HTTP  | Code                | Condition                    |
+| :---- | :------------------ | :--------------------------- |
+| `401` | `UNAUTHENTICATED`   | Missing or invalid session.  |
+| `403` | `FORBIDDEN`         | Caller lacks moderator role. |
+| `404` | `COMMENT_NOT_FOUND` | Comment does not exist.      |
+| `429` | `RATE_LIMITED`      | Rate limit exceeded.         |
 
 ---
 
@@ -648,14 +648,14 @@ Required. Moderator role or higher.
 #### Path parameters
 
 | Parameter | Type | Description |
-| :-------- | :--- | :----------- |
-| `id` | uuid | Comment ID. |
+| :-------- | :--- | :---------- |
+| `id`      | uuid | Comment ID. |
 
 #### Request body
 
 ```ts
 {
-  isHidden: boolean;  // required — true to hide, false to unhide
+  isHidden: boolean; // required — true to hide, false to unhide
 }
 ```
 
@@ -664,31 +664,31 @@ Required. Moderator role or higher.
 ```ts
 {
   data: {
-    comment: Comment  // updated; isHidden reflects new state
+    comment: Comment; // updated; isHidden reflects new state
   }
 }
 ```
 
 #### Error codes
 
-| HTTP | Code | Condition |
-| :--- | :--- | :--- |
-| `401` | `UNAUTHENTICATED` | Missing or invalid session. |
-| `403` | `FORBIDDEN` | Caller lacks moderator role. |
-| `404` | `COMMENT_NOT_FOUND` | Comment does not exist. |
-| `429` | `RATE_LIMITED` | Rate limit exceeded. |
+| HTTP  | Code                | Condition                    |
+| :---- | :------------------ | :--------------------------- |
+| `401` | `UNAUTHENTICATED`   | Missing or invalid session.  |
+| `403` | `FORBIDDEN`         | Caller lacks moderator role. |
+| `404` | `COMMENT_NOT_FOUND` | Comment does not exist.      |
+| `429` | `RATE_LIMITED`      | Rate limit exceeded.         |
 
 ---
 
 ## 8. Visibility rules summary
 
-| Comment state | Unauthenticated | Author | Moderator | Other authenticated |
-| :------------ | :-------------- | :----- | :-------- | :------------------ |
-| Active | Full | Full | Full | Full |
-| Active + spoiler | Blurred | Full (opt-in) | Full (opt-in) | Blurred |
-| Hidden | `[hidden]` | Full | Full | `[hidden]` |
-| Soft-deleted | `[deleted]` | `[deleted]` | Full | `[deleted]` |
-| Soft-deleted + hidden | `[hidden]` | `[deleted]` | Full | `[hidden]` |
+| Comment state         | Unauthenticated | Author        | Moderator     | Other authenticated |
+| :-------------------- | :-------------- | :------------ | :------------ | :------------------ |
+| Active                | Full            | Full          | Full          | Full                |
+| Active + spoiler      | Blurred         | Full (opt-in) | Full (opt-in) | Blurred             |
+| Hidden                | `[hidden]`      | Full          | Full          | `[hidden]`          |
+| Soft-deleted          | `[deleted]`     | `[deleted]`   | Full          | `[deleted]`         |
+| Soft-deleted + hidden | `[hidden]`      | `[deleted]`   | Full          | `[hidden]`          |
 
 "Full" means the original `body` is returned. "Blurred" means the `body` is returned but the client must render a blur overlay (the `isSpoiler` flag is always set so the client knows to blur). `[hidden]` and `[deleted]` are literal string replacements for the `body` field.
 

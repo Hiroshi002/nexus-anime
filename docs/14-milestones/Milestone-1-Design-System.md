@@ -29,6 +29,7 @@ Out of scope: application-specific composite components (e.g., AnimeCard, VideoP
 ### D1 — Token Registry
 
 `packages/ui/src/tokens/` containing JSONC token files implementing the 3-tier architecture:
+
 - `colors.jsonc` — Void (13-step), Aether (8-step), Nova (6-step), semantic colors, glow presets, gradient presets
 - `typography.jsonc` — font families, type scale (11 steps, base 14px), weights, letter spacing, responsive scaling
 - `spacing.jsonc` — 8px grid scale, inset/stack/inline presets
@@ -52,6 +53,7 @@ Out of scope: application-specific composite components (e.g., AnimeCard, VideoP
 ### D5 — Component Primitives
 
 `packages/ui/src/components/` containing the following components, each with full variant support, accessibility attributes, and Tailwind-only styling:
+
 - `Button` — variants: primary, secondary, ghost, destructive, outline; sizes: sm, md, lg; loading state with spinner
 - `Input` — text, email, password, search; with label, helper text, error state, icon slot
 - `Card` — with header, body, footer sections; glass variant support
@@ -70,6 +72,7 @@ Out of scope: application-specific composite components (e.g., AnimeCard, VideoP
 ### D6 — Theme Provider
 
 `packages/ui/src/components/ThemeProvider.tsx` — a client component that:
+
 - Sets `data-theme` attribute on `<html>` based on cookie preference
 - Reads preference from cookie, falls back to `prefers-color-scheme`, defaults to "midnight"
 - Supports high-contrast and forced-colors media queries
@@ -98,14 +101,14 @@ Out of scope: application-specific composite components (e.g., AnimeCard, VideoP
 
 ## Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| **Token drift between JSONC source and generated CSS** | Medium | High | The generator (`generate-css.ts`) is the single source of output; CI step verifies `globals.css` matches the generated output (checksum or `format:check`). |
-| **Tailwind v4 `@theme` API instability** | Medium | High | Pin to a specific Tailwind v4 minor version; the `@theme` block is isolated in one file (`tailwind.ts`) so API changes are localized. |
-| **Glassmorphism performance on low-end devices** | Medium | Medium | Implement the 3-region blur budget; use `opaque` fallback class for `prefers-reduced-motion`; test on Moto G Power before M1 closes. |
-| **OKLCH color space browser support** | Low | Medium | Provide hex fallbacks in generated CSS (OKLCH first, then hex in a `@supports` block); Safari 15.4+ supports OKLCH. |
-| **Component API inconsistency across primitives** | Medium | Medium | Define a shared `BaseComponentProps` interface (className, children, aria-*) before building any components; review all component APIs in a single PR. |
-| **Accessibility audit reveals contrast failures** | Medium | High | Run contrast validation at token-design time (in the token spec), not at component-build time; the Color System doc includes a pre-computed contrast table. |
+| Risk                                                   | Likelihood | Impact | Mitigation                                                                                                                                                  |
+| ------------------------------------------------------ | ---------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Token drift between JSONC source and generated CSS** | Medium     | High   | The generator (`generate-css.ts`) is the single source of output; CI step verifies `globals.css` matches the generated output (checksum or `format:check`). |
+| **Tailwind v4 `@theme` API instability**               | Medium     | High   | Pin to a specific Tailwind v4 minor version; the `@theme` block is isolated in one file (`tailwind.ts`) so API changes are localized.                       |
+| **Glassmorphism performance on low-end devices**       | Medium     | Medium | Implement the 3-region blur budget; use `opaque` fallback class for `prefers-reduced-motion`; test on Moto G Power before M1 closes.                        |
+| **OKLCH color space browser support**                  | Low        | Medium | Provide hex fallbacks in generated CSS (OKLCH first, then hex in a `@supports` block); Safari 15.4+ supports OKLCH.                                         |
+| **Component API inconsistency across primitives**      | Medium     | Medium | Define a shared `BaseComponentProps` interface (className, children, aria-\*) before building any components; review all component APIs in a single PR.     |
+| **Accessibility audit reveals contrast failures**      | Medium     | High   | Run contrast validation at token-design time (in the token spec), not at component-build time; the Color System doc includes a pre-computed contrast table. |
 
 ## Acceptance Criteria
 
@@ -145,33 +148,33 @@ Out of scope: application-specific composite components (e.g., AnimeCard, VideoP
 
 ## Estimated Tasks
 
-| # | Task | Estimate | Owner | Dependencies |
-|---|------|----------|-------|--------------|
-| T1 | Initialize `packages/ui/` package structure (`package.json`, `tsconfig.json`, entry point) | 1h | Frontend | M0 complete |
-| T2 | Write all 7 JSONC token files | 6h | Design + Frontend | T1 |
-| T3 | Implement `generate-css.ts` (token-to-CSS custom properties) | 3h | Frontend | T2 |
-| T4 | Implement `tailwind.ts` (Tailwind v4 `@theme` block) | 3h | Frontend | T2 |
-| T5 | Implement `glass.css` (5-layer recipe, 5 variants, responsive reduction) | 2h | Frontend | T2 |
-| T6 | Implement `ThemeProvider.tsx` and `useTheme` hook | 2h | Frontend | T1 |
-| T7 | Implement Button component (all variants, loading state) | 2h | Frontend | T4, T5 |
-| T8 | Implement Input component (all types, error state, icon slot) | 2h | Frontend | T4, T5 |
-| T9 | Implement Card component (header, body, footer, glass variant) | 1.5h | Frontend | T4, T5 |
-| T10 | Implement Badge component (all variants, sizes) | 1h | Frontend | T4 |
-| T11 | Implement Dialog component (modal, focus trap, overlay) | 3h | Frontend | T4, T5 |
-| T12 | Implement Tabs component (horizontal, vertical, keyboard nav) | 2.5h | Frontend | T4 |
-| T13 | Implement Avatar component (image, initials, fallback) | 1.5h | Frontend | T4 |
-| T14 | Implement Skeleton component (text, circular, rectangular, shimmer) | 1.5h | Frontend | T4, T5 |
-| T15 | Implement Tooltip component (4 directions, delay, focus trigger) | 2h | Frontend | T4 |
-| T16 | Implement Dropdown component (divider, icon slots, keyboard nav) | 2.5h | Frontend | T4 |
-| T17 | Implement Select component (single, search, mobile fallback) | 3h | Frontend | T4 |
-| T18 | Implement Checkbox and Switch components | 2h | Frontend | T4 |
-| T19 | Implement Toast component (variants, auto-dismiss, action) | 2h | Frontend | T4 |
-| T20 | Build `/dev/components` showcase page | 3h | Frontend | T7–T19 |
-| T21 | Write `docs/04-design-system/` 17 documents | 8h | Design + Docs | T2–T6 |
-| T22 | Accessibility audit (contrast, focus, keyboard, touch targets) | 3h | QA + Frontend | T20 |
-| T23 | Performance audit (blur budget, paint count on glass surfaces) | 2h | Frontend | T20 |
-| T24 | Cross-browser testing (Chrome, Firefox, Safari, Edge) | 2h | QA | T20 |
-| T25 | Final typecheck, lint, and build verification | 1h | Frontend | T22–T24 |
+| #   | Task                                                                                       | Estimate | Owner             | Dependencies |
+| --- | ------------------------------------------------------------------------------------------ | -------- | ----------------- | ------------ |
+| T1  | Initialize `packages/ui/` package structure (`package.json`, `tsconfig.json`, entry point) | 1h       | Frontend          | M0 complete  |
+| T2  | Write all 7 JSONC token files                                                              | 6h       | Design + Frontend | T1           |
+| T3  | Implement `generate-css.ts` (token-to-CSS custom properties)                               | 3h       | Frontend          | T2           |
+| T4  | Implement `tailwind.ts` (Tailwind v4 `@theme` block)                                       | 3h       | Frontend          | T2           |
+| T5  | Implement `glass.css` (5-layer recipe, 5 variants, responsive reduction)                   | 2h       | Frontend          | T2           |
+| T6  | Implement `ThemeProvider.tsx` and `useTheme` hook                                          | 2h       | Frontend          | T1           |
+| T7  | Implement Button component (all variants, loading state)                                   | 2h       | Frontend          | T4, T5       |
+| T8  | Implement Input component (all types, error state, icon slot)                              | 2h       | Frontend          | T4, T5       |
+| T9  | Implement Card component (header, body, footer, glass variant)                             | 1.5h     | Frontend          | T4, T5       |
+| T10 | Implement Badge component (all variants, sizes)                                            | 1h       | Frontend          | T4           |
+| T11 | Implement Dialog component (modal, focus trap, overlay)                                    | 3h       | Frontend          | T4, T5       |
+| T12 | Implement Tabs component (horizontal, vertical, keyboard nav)                              | 2.5h     | Frontend          | T4           |
+| T13 | Implement Avatar component (image, initials, fallback)                                     | 1.5h     | Frontend          | T4           |
+| T14 | Implement Skeleton component (text, circular, rectangular, shimmer)                        | 1.5h     | Frontend          | T4, T5       |
+| T15 | Implement Tooltip component (4 directions, delay, focus trigger)                           | 2h       | Frontend          | T4           |
+| T16 | Implement Dropdown component (divider, icon slots, keyboard nav)                           | 2.5h     | Frontend          | T4           |
+| T17 | Implement Select component (single, search, mobile fallback)                               | 3h       | Frontend          | T4           |
+| T18 | Implement Checkbox and Switch components                                                   | 2h       | Frontend          | T4           |
+| T19 | Implement Toast component (variants, auto-dismiss, action)                                 | 2h       | Frontend          | T4           |
+| T20 | Build `/dev/components` showcase page                                                      | 3h       | Frontend          | T7–T19       |
+| T21 | Write `docs/04-design-system/` 17 documents                                                | 8h       | Design + Docs     | T2–T6        |
+| T22 | Accessibility audit (contrast, focus, keyboard, touch targets)                             | 3h       | QA + Frontend     | T20          |
+| T23 | Performance audit (blur budget, paint count on glass surfaces)                             | 2h       | Frontend          | T20          |
+| T24 | Cross-browser testing (Chrome, Firefox, Safari, Edge)                                      | 2h       | QA                | T20          |
+| T25 | Final typecheck, lint, and build verification                                              | 1h       | Frontend          | T22–T24      |
 
 **Total estimate: ~57 engineer-hours** (approximately 1.5 weeks for a single engineer, or 1 week for a design-system engineer + technical writer pair).
 

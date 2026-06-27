@@ -39,14 +39,14 @@ Bookmark {
 
 ### 2.1 Field rules
 
-| Field | Constraint | Notes |
-| :---- | :--------- | :---- |
-| `userId` | `NOT NULL` FK → `users.id` | Resolved from the session; the client cannot set it. |
-| `animeId` | `NOT NULL` FK → `anime.id` | Must reference an active anime. |
-| `note` | nullable, `char_length(note) <= 500` | Plain text only. Rendered through DOMPurify on the client — never interpreted as HTML. |
-| `sortOrder` | `NOT NULL DEFAULT 0` | Manual order. Gaps are allowed; values need not be contiguous. |
-| `notifyOnNew_episode` | `NOT NULL DEFAULT true` | Users are opted in by default; opt-out is explicit. |
-| `deletedAt` | nullable | Soft-delete marker. Active bookmarks have `deletedAt = null`. |
+| Field                 | Constraint                           | Notes                                                                                  |
+| :-------------------- | :----------------------------------- | :------------------------------------------------------------------------------------- |
+| `userId`              | `NOT NULL` FK → `users.id`           | Resolved from the session; the client cannot set it.                                   |
+| `animeId`             | `NOT NULL` FK → `anime.id`           | Must reference an active anime.                                                        |
+| `note`                | nullable, `char_length(note) <= 500` | Plain text only. Rendered through DOMPurify on the client — never interpreted as HTML. |
+| `sortOrder`           | `NOT NULL DEFAULT 0`                 | Manual order. Gaps are allowed; values need not be contiguous.                         |
+| `notifyOnNew_episode` | `NOT NULL DEFAULT true`              | Users are opted in by default; opt-out is explicit.                                    |
+| `deletedAt`           | nullable                             | Soft-delete marker. Active bookmarks have `deletedAt = null`.                          |
 
 ---
 
@@ -54,20 +54,20 @@ Bookmark {
 
 Mirrors `docs/07-database/Bookmark.md` §2.2. The partial unique is the load-bearing invariant for this resource.
 
-| Name | Type | Definition |
-| :--- | :--- | :--- |
+| Name                      | Type           | Definition                                            |
+| :------------------------ | :------------- | :---------------------------------------------------- |
 | `uq_bookmarks_user_anime` | partial unique | `UNIQUE (user_id, anime_id) WHERE deleted_at IS NULL` |
 
 The partial unique enforces **one active bookmark per (user, anime)**. A removed bookmark (`deleted_at IS NOT NULL`) frees the (user, anime) pair so the user can re-add the anime later. Re-adding inserts a new row rather than restoring the old one, so `createdAt` stays accurate for "date added" display.
 
 Indexes that matter for these endpoints:
 
-| Index | Columns | Serves |
-| :---- | :------ | :----- |
-| `idx_bookmarks_user_id` | `(user_id, sort_order) WHERE deleted_at IS NULL` | Ordered watchlist scan (list endpoint). |
-| `idx_bookmarks_user_anime` | `(user_id, anime_id) WHERE deleted_at IS NULL` | "Is this in my list?" toggle check (singleton GET, POST conflict check). |
-| `idx_bookmarks_anime_id` | `anime_id WHERE deleted_at IS NULL` | Bookmark count for an anime (maintained on the `anime` row). |
-| `idx_bookmarks_notify` | `anime_id WHERE notify_on_new_episode = true AND deleted_at IS NULL` | Notification fan-out on new episode. |
+| Index                      | Columns                                                              | Serves                                                                   |
+| :------------------------- | :------------------------------------------------------------------- | :----------------------------------------------------------------------- |
+| `idx_bookmarks_user_id`    | `(user_id, sort_order) WHERE deleted_at IS NULL`                     | Ordered watchlist scan (list endpoint).                                  |
+| `idx_bookmarks_user_anime` | `(user_id, anime_id) WHERE deleted_at IS NULL`                       | "Is this in my list?" toggle check (singleton GET, POST conflict check). |
+| `idx_bookmarks_anime_id`   | `anime_id WHERE deleted_at IS NULL`                                  | Bookmark count for an anime (maintained on the `anime` row).             |
+| `idx_bookmarks_notify`     | `anime_id WHERE notify_on_new_episode = true AND deleted_at IS NULL` | Notification fan-out on new episode.                                     |
 
 ---
 
@@ -75,13 +75,13 @@ Indexes that matter for these endpoints:
 
 Every endpoint in this document requires an authenticated session. The user scope is tied to the session identity — `userId` is derived from `session.sub`, never from the request body.
 
-| Method | URL | Auth |
-| :--- | :--- | :--- |
-| `GET` | `/api/v1/users/me/bookmarks` | required |
-| `POST` | `/api/v1/users/me/bookmarks` | required |
-| `PATCH` | `/api/v1/users/me/bookmarks/{animeId}` | required |
+| Method   | URL                                    | Auth     |
+| :------- | :------------------------------------- | :------- |
+| `GET`    | `/api/v1/users/me/bookmarks`           | required |
+| `POST`   | `/api/v1/users/me/bookmarks`           | required |
+| `PATCH`  | `/api/v1/users/me/bookmarks/{animeId}` | required |
 | `DELETE` | `/api/v1/users/me/bookmarks/{animeId}` | required |
-| `GET` | `/api/v1/users/me/bookmarks/{animeId}` | required |
+| `GET`    | `/api/v1/users/me/bookmarks/{animeId}` | required |
 
 A missing or invalid session returns `401 UNAUTHORIZED`. There is no admin or cross-user read scope for private bookmarks in M3.
 
@@ -91,8 +91,8 @@ A missing or invalid session returns `401 UNAUTHORIZED`. There is no admin or cr
 
 All endpoints in this document share the **user-scoped** quota defined in [`Rate-Limiting.md`](./Rate-Limiting.md) §5 row 7 ("Bookmark toggle"):
 
-| Scope | Limit | Window |
-| :--- | :--- | :--- |
+| Scope              | Limit       | Window     |
+| :----------------- | :---------- | :--------- |
 | Authenticated user | 10 requests | 60 seconds |
 
 The bucket key is `nexus:ratelimit:user:{sub}:bookmarks:*`. Standard rate-limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`) are emitted on every response. `Retry-After` is sent only on `429`. Clients implement self-throttle logic against the headers per `Rate-Limiting.md` §12.
@@ -150,19 +150,19 @@ Required.
 
 #### Query parameters
 
-| Parameter | Type | Default | Description |
-| :-------- | :--- | :------ | :---------- |
-| `sort` | `"sortOrder"` \| `"createdAt"` | `"sortOrder"` | Sort field. |
-| `order` | `"asc"` \| `"desc"` | `"asc"` for `sortOrder`, `"desc"` for `createdAt"` | Sort direction. |
-| `cursor` | string | — | Opaque cursor from `data.pagination.nextCursor`. Omit for the first page. |
-| `limit` | integer (1–100) | `20` | Page size. Hard cap 100. |
+| Parameter | Type                           | Default                                            | Description                                                               |
+| :-------- | :----------------------------- | :------------------------------------------------- | :------------------------------------------------------------------------ |
+| `sort`    | `"sortOrder"` \| `"createdAt"` | `"sortOrder"`                                      | Sort field.                                                               |
+| `order`   | `"asc"` \| `"desc"`            | `"asc"` for `sortOrder`, `"desc"` for `createdAt"` | Sort direction.                                                           |
+| `cursor`  | string                         | —                                                  | Opaque cursor from `data.pagination.nextCursor`. Omit for the first page. |
+| `limit`   | integer (1–100)                | `20`                                               | Page size. Hard cap 100.                                                  |
 
 #### Sort semantics
 
-| `sort` value | Indexed order | Default `order` |
-| :----------- | :------------ | :-------------- |
-| `sortOrder` | `sort_order ASC, id ASC` | `asc` |
-| `createdAt` | `created_at DESC, id DESC` | `desc` |
+| `sort` value | Indexed order              | Default `order` |
+| :----------- | :------------------------- | :-------------- |
+| `sortOrder`  | `sort_order ASC, id ASC`   | `asc`           |
+| `createdAt`  | `created_at DESC, id DESC` | `desc`          |
 
 Both sort paths are backed by the `idx_bookmarks_user_id` partial index (`WHERE deleted_at IS NULL`), so the scan never touches soft-deleted rows.
 
@@ -237,11 +237,11 @@ HTTP: `200`
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `limit` outside 1–100 | 400 | `VALIDATION_ERROR` | `errors[]` on `limit` |
-| Malformed `cursor` | 400 | `VALIDATION_ERROR` | `errors[]` on `cursor` |
-| Invalid `sort` / `order` | 400 | `VALIDATION_ERROR` | `errors[]` |
+| Scenario                 | HTTP | `code`             | `details`              |
+| :----------------------- | :--- | :----------------- | :--------------------- |
+| `limit` outside 1–100    | 400  | `VALIDATION_ERROR` | `errors[]` on `limit`  |
+| Malformed `cursor`       | 400  | `VALIDATION_ERROR` | `errors[]` on `cursor` |
+| Invalid `sort` / `order` | 400  | `VALIDATION_ERROR` | `errors[]`             |
 
 ---
 
@@ -263,11 +263,11 @@ Required.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Content-Type` | `application/json` |
-| `Idempotency-Key` | uuid-v4 or opaque token, max 128 chars — **required** |
-| `Cache-Control` (response) | `no-store, no-cache, must-revalidate` |
+| Header                     | Value                                                 |
+| :------------------------- | :---------------------------------------------------- |
+| `Content-Type`             | `application/json`                                    |
+| `Idempotency-Key`          | uuid-v4 or opaque token, max 128 chars — **required** |
+| `Cache-Control` (response) | `no-store, no-cache, must-revalidate`                 |
 
 `Idempotency-Key` is **required** on this endpoint. A missing or malformed key returns `400 Bad Request` with code `IDEMPOTENCY_KEY_REQUIRED` per [`API-Standards.md`](./API-Standards.md) §9. The key is stored in `@nexus/cache` under `nexus:idem:{sha256(key)}` with a 24-hour TTL; repeat requests within the TTL return the byte-identical original response (including the original `X-Request-Id`).
 
@@ -339,14 +339,14 @@ HTTP: `201`. `Location: /api/v1/users/me/bookmarks/c3d4e5f6-a7b8-9012-cdef-12345
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| Missing `Idempotency-Key` | 400 | `IDEMPOTENCY_KEY_REQUIRED` | — |
-| Missing required `animeId` | 400 | `VALIDATION_ERROR` | `errors[].code: "FIELD_REQUIRED"` on `animeId` |
-| `note` exceeds 500 chars | 400 | `VALIDATION_ERROR` | `errors[]` on `note` |
-| `animeId` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `animeId` |
-| No active anime with that `animeId` | 404 | `ANIME_NOT_FOUND` | `{ animeId }` |
-| Already actively bookmarked | 409 | `DUPLICATE_BOOKMARK` | `{ animeId }` |
+| Scenario                            | HTTP | `code`                     | `details`                                      |
+| :---------------------------------- | :--- | :------------------------- | :--------------------------------------------- |
+| Missing `Idempotency-Key`           | 400  | `IDEMPOTENCY_KEY_REQUIRED` | —                                              |
+| Missing required `animeId`          | 400  | `VALIDATION_ERROR`         | `errors[].code: "FIELD_REQUIRED"` on `animeId` |
+| `note` exceeds 500 chars            | 400  | `VALIDATION_ERROR`         | `errors[]` on `note`                           |
+| `animeId` not a valid UUID          | 400  | `VALIDATION_ERROR`         | `errors[]` on `animeId`                        |
+| No active anime with that `animeId` | 404  | `ANIME_NOT_FOUND`          | `{ animeId }`                                  |
+| Already actively bookmarked         | 409  | `DUPLICATE_BOOKMARK`       | `{ animeId }`                                  |
 
 On `DUPLICATE_BOOKMARK`, the client should treat the anime as already in the list and, if needed, surface the existing bookmark via `GET /api/v1/users/me/bookmarks/{animeId}`.
 
@@ -366,9 +366,9 @@ PATCH /api/v1/users/me/bookmarks/{animeId}
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `animeId` | string (uuid) | yes | Anime whose bookmark is being updated. |
+| Parameter | Type          | Required | Description                            |
+| :-------- | :------------ | :------- | :------------------------------------- |
+| `animeId` | string (uuid) | yes      | Anime whose bookmark is being updated. |
 
 #### Auth
 
@@ -376,9 +376,9 @@ Required.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
-| `Content-Type` | `application/json` |
+| Header                     | Value                                 |
+| :------------------------- | :------------------------------------ |
+| `Content-Type`             | `application/json`                    |
 | `Cache-Control` (response) | `no-store, no-cache, must-revalidate` |
 
 `Idempotency-Key` is **recommended** (not required) on PATCH per `API-Standards.md` §9 — useful when the client retries a note edit after a network timeout.
@@ -446,11 +446,11 @@ HTTP: `200`.
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `animeId` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `animeId` |
-| `note` exceeds 500 chars | 400 | `VALIDATION_ERROR` | `errors[]` on `note` |
-| No active bookmark for `(userId, animeId)` | 404 | `BOOKMARK_NOT_FOUND` | `{ animeId }` |
+| Scenario                                   | HTTP | `code`               | `details`               |
+| :----------------------------------------- | :--- | :------------------- | :---------------------- |
+| `animeId` not a valid UUID                 | 400  | `VALIDATION_ERROR`   | `errors[]` on `animeId` |
+| `note` exceeds 500 chars                   | 400  | `VALIDATION_ERROR`   | `errors[]` on `note`    |
+| No active bookmark for `(userId, animeId)` | 404  | `BOOKMARK_NOT_FOUND` | `{ animeId }`           |
 
 ---
 
@@ -468,9 +468,9 @@ DELETE /api/v1/users/me/bookmarks/{animeId}
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `animeId` | string (uuid) | yes | Anime to remove from the list. |
+| Parameter | Type          | Required | Description                    |
+| :-------- | :------------ | :------- | :----------------------------- |
+| `animeId` | string (uuid) | yes      | Anime to remove from the list. |
 
 #### Auth
 
@@ -478,8 +478,8 @@ Required.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
+| Header                     | Value                                 |
+| :------------------------- | :------------------------------------ |
 | `Cache-Control` (response) | `no-store, no-cache, must-revalidate` |
 
 #### Body
@@ -524,10 +524,10 @@ HTTP: `200`.
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `animeId` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `animeId` |
-| No active bookmark for `(userId, animeId)` | 404 | `BOOKMARK_NOT_FOUND` | `{ animeId }` |
+| Scenario                                   | HTTP | `code`               | `details`               |
+| :----------------------------------------- | :--- | :------------------- | :---------------------- |
+| `animeId` not a valid UUID                 | 400  | `VALIDATION_ERROR`   | `errors[]` on `animeId` |
+| No active bookmark for `(userId, animeId)` | 404  | `BOOKMARK_NOT_FOUND` | `{ animeId }`           |
 
 ---
 
@@ -545,9 +545,9 @@ GET /api/v1/users/me/bookmarks/{animeId}
 
 #### Path parameters
 
-| Parameter | Type | Required | Description |
-| :-------- | :--- | :------- | :---------- |
-| `animeId` | string (uuid) | yes | Anime to check. |
+| Parameter | Type          | Required | Description     |
+| :-------- | :------------ | :------- | :-------------- |
+| `animeId` | string (uuid) | yes      | Anime to check. |
 
 #### Auth
 
@@ -555,8 +555,8 @@ Required.
 
 #### Headers
 
-| Header | Value |
-| :----- | :---- |
+| Header                     | Value                                  |
+| :------------------------- | :------------------------------------- |
 | `Cache-Control` (response) | `private, max-age=30, must-revalidate` |
 
 #### Response schema
@@ -597,10 +597,10 @@ HTTP: `200`.
 
 #### Error responses
 
-| Scenario | HTTP | `code` | `details` |
-| :------- | :--- | :----- | :-------- |
-| `animeId` not a valid UUID | 400 | `VALIDATION_ERROR` | `errors[]` on `animeId` |
-| No active bookmark for `(userId, animeId)` | 404 | `BOOKMARK_NOT_FOUND` | `{ animeId }` |
+| Scenario                                   | HTTP | `code`               | `details`               |
+| :----------------------------------------- | :--- | :------------------- | :---------------------- |
+| `animeId` not a valid UUID                 | 400  | `VALIDATION_ERROR`   | `errors[]` on `animeId` |
+| No active bookmark for `(userId, animeId)` | 404  | `BOOKMARK_NOT_FOUND` | `{ animeId }`           |
 
 A `404` here means "not in list" — the client should render the outlined (not-bookmarked) icon. A soft-deleted bookmark is indistinguishable from a never-existing one at the API layer.
 
@@ -608,13 +608,13 @@ A `404` here means "not in list" — the client should render the outlined (not-
 
 ## 8. Endpoint map reference
 
-| Method | URL | Auth | Idempotency-Key | Cache (response) |
-| :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/users/me/bookmarks` | required | optional | `private, max-age=30, must-revalidate` |
-| `POST` | `/api/v1/users/me/bookmarks` | required | **required** | `no-store, no-cache, must-revalidate` |
-| `PATCH` | `/api/v1/users/me/bookmarks/{animeId}` | required | recommended | `no-store, no-cache, must-revalidate` |
-| `DELETE` | `/api/v1/users/me/bookmarks/{animeId}` | required | optional | `no-store, no-cache, must-revalidate` |
-| `GET` | `/api/v1/users/me/bookmarks/{animeId}` | required | optional | `private, max-age=30, must-revalidate` |
+| Method   | URL                                    | Auth     | Idempotency-Key | Cache (response)                       |
+| :------- | :------------------------------------- | :------- | :-------------- | :------------------------------------- |
+| `GET`    | `/api/v1/users/me/bookmarks`           | required | optional        | `private, max-age=30, must-revalidate` |
+| `POST`   | `/api/v1/users/me/bookmarks`           | required | **required**    | `no-store, no-cache, must-revalidate`  |
+| `PATCH`  | `/api/v1/users/me/bookmarks/{animeId}` | required | recommended     | `no-store, no-cache, must-revalidate`  |
+| `DELETE` | `/api/v1/users/me/bookmarks/{animeId}` | required | optional        | `no-store, no-cache, must-revalidate`  |
+| `GET`    | `/api/v1/users/me/bookmarks/{animeId}` | required | optional        | `private, max-age=30, must-revalidate` |
 
 ---
 
@@ -622,18 +622,18 @@ A `404` here means "not in list" — the client should render the outlined (not-
 
 All endpoints share the error envelope and code registry defined in [`Error-Codes.md`](./Error-Codes.md). The codes you will see here:
 
-| Code | HTTP | Trigger in this resource |
-| :---| :--- | :---|
-| `VALIDATION_ERROR` | 400 | Path/body/query failed Zod schema |
-| `FIELD_REQUIRED` | 400 | Nested in `VALIDATION_ERROR.details` |
-| `FIELD_INVALID` | 400 | Nested in `VALIDATION_ERROR.details` |
-| `IDEMPOTENCY_KEY_REQUIRED` | 400 | POST without `Idempotency-Key` |
-| `UNAUTHORIZED` | 401 | Missing or invalid session |
-| `ANIME_NOT_FOUND` | 404 | `animeId` lookup miss (no active anime) |
-| `BOOKMARK_NOT_FOUND` | 404 | No active bookmark for `(userId, animeId)` |
-| `DUPLICATE_BOOKMARK` | 409 | POST for an already-bookmarked anime |
-| `RATE_LIMITED` | 429 | Bookmark quota (10/60s) exhausted |
-| `INTERNAL_ERROR` | 500 | Unhandled failure |
+| Code                       | HTTP | Trigger in this resource                   |
+| :------------------------- | :--- | :----------------------------------------- |
+| `VALIDATION_ERROR`         | 400  | Path/body/query failed Zod schema          |
+| `FIELD_REQUIRED`           | 400  | Nested in `VALIDATION_ERROR.details`       |
+| `FIELD_INVALID`            | 400  | Nested in `VALIDATION_ERROR.details`       |
+| `IDEMPOTENCY_KEY_REQUIRED` | 400  | POST without `Idempotency-Key`             |
+| `UNAUTHORIZED`             | 401  | Missing or invalid session                 |
+| `ANIME_NOT_FOUND`          | 404  | `animeId` lookup miss (no active anime)    |
+| `BOOKMARK_NOT_FOUND`       | 404  | No active bookmark for `(userId, animeId)` |
+| `DUPLICATE_BOOKMARK`       | 409  | POST for an already-bookmarked anime       |
+| `RATE_LIMITED`             | 429  | Bookmark quota (10/60s) exhausted          |
+| `INTERNAL_ERROR`           | 500  | Unhandled failure                          |
 
 `BOOKMARK_NOT_FOUND` is a `NOT_FOUND` subtype reserved for this resource. It is **not yet** promoted to a top-level code in `Error-Codes.md` §3.2 — it currently lives in `details.reason` under a `NOT_FOUND` envelope. Promote it to a standalone `code` in the same PR that ships these endpoints.
 
@@ -783,9 +783,9 @@ Retry-After: 47
 
 ## 11. Changelog
 
-| Date | Change | Ticket / PR |
-| :--- | :----- | :--------- |
-| 2026-06-26 | Initial bookmark endpoint specification | — |
+| Date       | Change                                  | Ticket / PR |
+| :--------- | :-------------------------------------- | :---------- |
+| 2026-06-26 | Initial bookmark endpoint specification | —           |
 
 ---
 

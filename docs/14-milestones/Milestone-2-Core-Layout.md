@@ -28,6 +28,7 @@ Out of scope: authentication flows (M3), user profiles (M4), payments (M5), vide
 ### D1 — Root Layout and Shell
 
 `apps/web/app/layout.tsx` — the root layout that:
+
 - Sets `<html lang="en" data-theme="midnight">` and applies global CSS
 - Wraps the app in `ThemeProvider` (from `@nexus/ui`)
 - Renders the sidebar, header, and main content area
@@ -130,15 +131,15 @@ Out of scope: authentication flows (M3), user profiles (M4), payments (M5), vide
 
 ## Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| **Neon cold-start latency on first request** | Medium | Medium | Use Neon HTTP pooler (not direct TCP); warm the connection in `generateStaticParams` for ISR routes; add a health check that pings the DB on app start. |
-| **Redis cache stampede on popular anime detail** | Medium | High | Use `getOrSet` with a lock or probabilistic early expiration; serve stale data while revalidating (`stale-while-revalidate` header). |
-| **ISR revalidation delay after content update** | Medium | Low | `revalidate: 3600` is acceptable for catalog data that changes infrequently; on-demand revalidation via webhook can be added in M5. |
-| **Route group naming confusion in App Router** | Low | Medium | Route groups use parentheses and do not affect the URL path; document this clearly in `Routing.md` and add a comment in each `layout.tsx`. |
-| **Skeleton loading states cause layout shift (CLS)** | Medium | High | Skeleton dimensions match the real content dimensions exactly; use `Skeleton` component with explicit `width`/`height` or `aspect-ratio` to prevent CLS. |
-| **API envelope inconsistency across routes** | Medium | Medium | The `success()` and `error()` helpers in `envelope.ts` are the only way to return responses; ESLint rule or code review enforces their use. |
-| **Middleware auth guard blocks public routes** | Medium | High | Middleware matcher explicitly excludes public routes (`_next`, `dev`, `login`, `signup`, `verify`, `pricing`, `about`, `terms`); test all public routes with middleware active. |
+| Risk                                                 | Likelihood | Impact | Mitigation                                                                                                                                                                      |
+| ---------------------------------------------------- | ---------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Neon cold-start latency on first request**         | Medium     | Medium | Use Neon HTTP pooler (not direct TCP); warm the connection in `generateStaticParams` for ISR routes; add a health check that pings the DB on app start.                         |
+| **Redis cache stampede on popular anime detail**     | Medium     | High   | Use `getOrSet` with a lock or probabilistic early expiration; serve stale data while revalidating (`stale-while-revalidate` header).                                            |
+| **ISR revalidation delay after content update**      | Medium     | Low    | `revalidate: 3600` is acceptable for catalog data that changes infrequently; on-demand revalidation via webhook can be added in M5.                                             |
+| **Route group naming confusion in App Router**       | Low        | Medium | Route groups use parentheses and do not affect the URL path; document this clearly in `Routing.md` and add a comment in each `layout.tsx`.                                      |
+| **Skeleton loading states cause layout shift (CLS)** | Medium     | High   | Skeleton dimensions match the real content dimensions exactly; use `Skeleton` component with explicit `width`/`height` or `aspect-ratio` to prevent CLS.                        |
+| **API envelope inconsistency across routes**         | Medium     | Medium | The `success()` and `error()` helpers in `envelope.ts` are the only way to return responses; ESLint rule or code review enforces their use.                                     |
+| **Middleware auth guard blocks public routes**       | Medium     | High   | Middleware matcher explicitly excludes public routes (`_next`, `dev`, `login`, `signup`, `verify`, `pricing`, `about`, `terms`); test all public routes with middleware active. |
 
 ## Acceptance Criteria
 
@@ -185,27 +186,27 @@ Out of scope: authentication flows (M3), user profiles (M4), payments (M5), vide
 
 ## Estimated Tasks
 
-| # | Task | Estimate | Owner | Dependencies |
-|---|------|----------|-------|--------------|
-| T1 | Set up `@nexus/db` package: Drizzle client, Neon connection, schema definition | 3h | Backend | M0 complete |
-| T2 | Set up `@nexus/cache` package: Redis client, key factory, TTL constants, `getOrSet` | 2h | Backend | M0 complete |
-| T3 | Write initial Drizzle migration and apply to Neon | 1.5h | Backend | T1 |
-| T4 | Implement `envelope.ts`, `errors.ts`, `validate.ts`, and `api.ts` types | 2h | Full-stack | None |
-| T5 | Implement root layout with ThemeProvider, sidebar, header, footer | 3h | Frontend | M1 complete |
-| T6 | Implement route groups: `(public)`, `(authenticated)`, `(auth)`, `(api)` | 1h | Frontend | T5 |
-| T7 | Implement Sidebar, Header, Footer, MobileTabBar, NavLink components | 4h | Frontend | M1 complete |
-| T8 | Implement Container, Grid, useBreakpoint hook | 1.5h | Frontend | M1 complete |
-| T9 | Implement loading states: root `loading.tsx`, route-specific skeletons | 2h | Frontend | T5, M1 complete |
-| T10 | Implement error boundaries: root `error.tsx`, `not-found.tsx`, route-specific | 2h | Frontend | T5, M1 complete |
-| T11 | Implement home page with trending/popular/new sections | 3h | Frontend | T1, T2, T5 |
-| T12 | Implement anime detail page (`/[id]`) with ISR | 3h | Frontend | T1, T2, T11 |
-| T13 | Implement season episode list (`/[id]/season/[seasonId]`) with ISR | 2h | Frontend | T1, T2, T12 |
-| T14 | Implement search page with query params | 2h | Frontend | T1, T2 |
-| T15 | Implement `/api/health` route handler | 0.5h | Backend | T4 |
-| T16 | Configure redirects and rewrites in `next.config.ts` | 0.5h | Frontend | None |
-| T17 | Write `docs/03-architecture/Architecture.md` and `Routing.md` | 4h | Docs | T5–T16 |
-| T18 | QA pass: responsive, error states, cache degradation, CLS audit | 3h | QA | T11–T16 |
-| T19 | Final typecheck, lint, build verification | 1h | Full-stack | T18 |
+| #   | Task                                                                                | Estimate | Owner      | Dependencies    |
+| --- | ----------------------------------------------------------------------------------- | -------- | ---------- | --------------- |
+| T1  | Set up `@nexus/db` package: Drizzle client, Neon connection, schema definition      | 3h       | Backend    | M0 complete     |
+| T2  | Set up `@nexus/cache` package: Redis client, key factory, TTL constants, `getOrSet` | 2h       | Backend    | M0 complete     |
+| T3  | Write initial Drizzle migration and apply to Neon                                   | 1.5h     | Backend    | T1              |
+| T4  | Implement `envelope.ts`, `errors.ts`, `validate.ts`, and `api.ts` types             | 2h       | Full-stack | None            |
+| T5  | Implement root layout with ThemeProvider, sidebar, header, footer                   | 3h       | Frontend   | M1 complete     |
+| T6  | Implement route groups: `(public)`, `(authenticated)`, `(auth)`, `(api)`            | 1h       | Frontend   | T5              |
+| T7  | Implement Sidebar, Header, Footer, MobileTabBar, NavLink components                 | 4h       | Frontend   | M1 complete     |
+| T8  | Implement Container, Grid, useBreakpoint hook                                       | 1.5h     | Frontend   | M1 complete     |
+| T9  | Implement loading states: root `loading.tsx`, route-specific skeletons              | 2h       | Frontend   | T5, M1 complete |
+| T10 | Implement error boundaries: root `error.tsx`, `not-found.tsx`, route-specific       | 2h       | Frontend   | T5, M1 complete |
+| T11 | Implement home page with trending/popular/new sections                              | 3h       | Frontend   | T1, T2, T5      |
+| T12 | Implement anime detail page (`/[id]`) with ISR                                      | 3h       | Frontend   | T1, T2, T11     |
+| T13 | Implement season episode list (`/[id]/season/[seasonId]`) with ISR                  | 2h       | Frontend   | T1, T2, T12     |
+| T14 | Implement search page with query params                                             | 2h       | Frontend   | T1, T2          |
+| T15 | Implement `/api/health` route handler                                               | 0.5h     | Backend    | T4              |
+| T16 | Configure redirects and rewrites in `next.config.ts`                                | 0.5h     | Frontend   | None            |
+| T17 | Write `docs/03-architecture/Architecture.md` and `Routing.md`                       | 4h       | Docs       | T5–T16          |
+| T18 | QA pass: responsive, error states, cache degradation, CLS audit                     | 3h       | QA         | T11–T16         |
+| T19 | Final typecheck, lint, build verification                                           | 1h       | Full-stack | T18             |
 
 **Total estimate: ~40 engineer-hours** (approximately 1 week for a full-stack engineer, or 2 days for a frontend + backend pair).
 

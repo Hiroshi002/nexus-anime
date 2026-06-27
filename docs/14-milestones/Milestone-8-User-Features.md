@@ -78,68 +78,68 @@ API references: `docs/06-api/Bookmarks.md`, `docs/06-api/Continue-Watching.md`, 
 
 ## 3. Deliverables
 
-| # | Deliverable | Location | Acceptance |
-| :-- | :-- | :-- | :-- |
-| D1 | Watchlist page (grid/list view, sort, filter) | `apps/web/src/app/watchlist/page.tsx` | Renders `WatchlistPage`; reads URL params for view/sort/filter; updates URL on change |
-| D2 | `WatchlistPage` orchestrator | `apps/web/src/components/watchlist/WatchlistPage.tsx` | Composes header, filter bar, sort, view toggle, grid/list, empty state |
-| D3 | `WatchlistHeader` | `apps/web/src/components/watchlist/WatchlistHeader.tsx` | Page title "Watchlist", count badge with `aria-live`, sort dropdown |
-| D4 | `FilterBar` (status chips) | `apps/web/src/components/watchlist/FilterBar.tsx` | 5 filter chips (all/want_to_watch/watching/completed/dropped); `aria-pressed`; sticky on scroll |
-| D5 | `ViewToggle` (grid/list) | `apps/web/src/components/watchlist/ViewToggle.tsx` | Toggle buttons; active = `primary`; state in URL param `?view=grid` |
-| D6 | `WatchlistGrid` | `apps/web/src/components/watchlist/WatchlistGrid.tsx` | Responsive grid (4-col desktop, 3-col tablet, 2-col mobile); `AnimeCard` with status badge |
-| D7 | `WatchlistList` | `apps/web/src/components/watchlist/WatchlistList.tsx` | List view with larger cards; thumbnail + metadata + status + overflow menu |
-| D8 | `AnimeCard` (watchlist variant) | `apps/web/src/components/watchlist/AnimeCard.tsx` | 2:3 aspect ratio; `StatusBadge`; `OverflowMenu` (edit status, remove); `ReorderControls` |
-| D9 | `ReorderControls` | `apps/web/src/components/watchlist/ReorderControls.tsx` | Up/down buttons; `aria-label="Move {title} up/down"`; keyboard accessible |
-| D10 | `WatchlistEmptyState` | `apps/web/src/components/watchlist/EmptyState.tsx` | Illustration + "Your watchlist is empty." + "Explore Trending" CTA button |
-| D11 | Watch history page | `apps/web/src/app/history/page.tsx` | Renders `HistoryPage` with list of watched episodes |
-| D12 | `HistoryPage` orchestrator | `apps/web/src/components/history/HistoryPage.tsx` | Composes header, filter, history list, empty state |
-| D13 | `HistoryEntry` with progress bar | `apps/web/src/components/history/HistoryEntry.tsx` | Thumbnail, anime title, episode number, progress bar (`role="progressbar"`), watched-at timestamp |
-| D14 | `HistoryEmptyState` | `apps/web/src/components/history/HistoryEmptyState.tsx` | Illustration + "No watch history yet." + "Browse trending" CTA |
-| D15 | Continue-watching page | `apps/web/src/app/continue-watching/page.tsx` | Renders `ContinueWatchingPage` |
-| D16 | `ContinueWatchingPage` orchestrator | `apps/web/src/components/continue-watching/ContinueWatchingPage.tsx` | Composes header, progress grid, empty state |
-| D17 | `ProgressCard` | `apps/web/src/components/continue-watching/ProgressCard.tsx` | Thumbnail (240×135), progress bar (4px), episode number, "Resume" + "Restart" buttons |
-| D18 | `AnimeGroup` (accordion) | `src/components/continue-watching/AnimeGroup.tsx` | Groups episodes by anime; collapsed by default; `aria-expanded`, `aria-controls` |
-| D19 | `ContinueWatchingEmptyState` | `src/components/continue-watching/ContinueWatchingEmptyState.tsx` | Illustration + "Nothing to resume." + "Browse trending" CTA |
-| D20 | Profile page | `apps/web/src/app/profile/page.tsx` | Renders `ProfilePage` with stats, bio, activity, quick links |
-| D21 | `ProfilePage` orchestrator | `apps/web/src/components/profile/ProfilePage.tsx` | Composes header, stats, about, activity, quick links, edit modal |
-| D22 | `ProfileHeader` | `apps/web/src/components/profile/ProfileHeader.tsx` | 96px avatar, display name, username, join date, plan badge, Edit button |
-| D23 | `AvatarUpload` | `apps/web/src/components/profile/AvatarUpload.tsx` | File picker (jpeg/png/webp, 5MB max); preview; cancel/save; `aria-label="Upload avatar"` |
-| D24 | `StatsRow` | `apps/web/src/components/profile/StatsRow.tsx` | 4 `StatBadge` (anime watched, episodes, hours, watchlist count) |
-| D25 | `AboutSection` | `apps/web/src/components/profile/AboutSection.tsx` | Bio text (max 280 chars); Edit bio ghost button; empty state |
-| D26 | `ActivitySection` | `apps/web/src/components/profile/ActivitySection.tsx` | Last 5 activities (icon + text + timestamp); empty state |
-| D27 | `QuickLinksSection` | `apps/web/src/components/profile/QuickLinksSection.tsx` | Links to /watchlist, /history, /settings |
-| D28 | `ProfileEditModal` | `apps/web/src/components/profile/ProfileEditModal.tsx` | Display name input (max 32), bio textarea (max 280), Cancel/Save; focus trap |
-| D29 | Settings page with tab navigation | `apps/web/src/app/settings/page.tsx` | Renders `SettingsLayout`; reads `?tab=` param; default `account` |
-| D30 | `SettingsLayout` + `SettingsSidebar` | `src/components/settings/SettingsLayout.tsx` | Desktop: 240px sidebar; Tablet/Mobile: horizontal tab bar; `role="tablist"` |
-| D31 | `AccountPanel` | `src/components/settings/AccountPanel.tsx` | Profile section, password section, danger zone |
-| D32 | `BillingPanel` (stub) | `src/components/settings/BillingPanel.tsx` | Current plan badge, "Manage Subscription" link (Stripe portal stub), billing history placeholder |
-| D33 | `NotificationsPanel` | `src/components/settings/NotificationsPanel.tsx` | Email preferences, push preferences (disabled), per-anime notification toggle |
-| D34 | `AccessibilityPanel` | `src/components/settings/AccessibilityPanel.tsx` | Reduced motion, font size (sm/md/lg radio), high contrast, autoplay, captions default |
-| D35 | `DeleteAccountModal` | `src/components/settings/DeleteAccountModal.tsx` | Confirmation modal with type-to-confirm; focus trap; ESC closes |
-| D36 | Notifications page | `apps/web/src/app/notifications/page.tsx` | Renders `NotificationList` |
-| D37 | `NotificationList` + `NotificationItem` | `src/components/notifications/NotificationList.tsx` | List of notifications; unread indicator; mark-read on click; empty state |
-| D38 | `NotificationBadge` | `src/components/notifications/NotificationBadge.tsx` | Unread count badge in header/nav; `aria-live="polite"` |
-| D39 | Watchlist API routes (CRUD) | `apps/web/app/api/v1/users/me/bookmarks/*` | GET list, POST add, PATCH update, DELETE remove, GET check; all auth-required; rate-limited |
-| D40 | Watch history API routes | `apps/web/app/api/v1/users/me/watch-history/*` | GET list, DELETE single; auth-required |
-| D41 | Continue-watching API routes | `apps/web/app/api/v1/users/me/continue-watching/*` | GET list, POST upsert, PATCH heartbeat, DELETE; auth-required; rate-limited |
-| D42 | Profile API routes | `apps/web/app/api/v1/users/me/profile/*` | GET read, PATCH update; auth-required |
-| D43 | Avatar upload API route | `apps/web/app/api/v1/users/me/avatar/route.ts` | POST; multipart form; 5MB limit; auth-required; returns `avatar_url` |
-| D44 | Settings API routes | `apps/web/app/api/v1/users/me/settings/*` | GET read, PATCH update; auth-required; persists to `users.preferences` |
-| D45 | Notification API routes | `apps/web/app/api/v1/users/me/notifications/*` | GET list, POST mark-read, PATCH mark-read single, DELETE; auth-required |
-| D46 | `addToWatchlist` Server Action | `apps/web/src/actions/addToWatchlist.ts` | Zod validation; requireUser; optimistic update; idempotency key |
-| D47 | `removeFromWatchlist` Server Action | `apps/web/src/actions/removeFromWatchlist.ts` | Zod validation; requireUser; optimistic update |
-| D48 | `reorderWatchlist` Server Action | `apps/web/src/actions/reorderWatchlist.ts` | Zod validation; requireUser; gap-based sort order |
-| D49 | `updateProfile` Server Action | `apps/web/src/actions/updateProfile.ts` | Zod validation; requireUser; updates display_name, bio |
-| D50 | `uploadAvatar` Server Action | `apps/web/src/actions/uploadAvatar.ts` | Zod validation; requireUser; file upload to R2/Cloudflare; returns URL |
-| D51 | `updateSettings` Server Action | `apps/web/src/actions/updateSettings.ts` | Zod validation; requireUser; merges into `users.preferences` |
-| D52 | `markNotificationRead` Server Action | `apps/web/src/actions/markNotificationRead.ts` | Zod validation; requireUser; marks single or all as read |
-| D53 | `clearWatchHistory` Server Action | `apps/web/src/actions/clearWatchHistory.ts` | Zod validation; requireUser; anonymizes all watch history entries |
-| D54 | `useWatchlist` hook | `apps/web/src/hooks/useWatchlist.ts` | Fetches watchlist; manages local state for optimistic updates |
-| D55 | `useWatchHistory` hook | `apps/web/src/hooks/useWatchHistory.ts` | Fetches watch history with cursor pagination |
-| D56 | `useContinueWatching` hook | `apps/web/src/hooks/useContinueWatching.ts` | Fetches continue-watching list |
-| D57 | `useNotifications` hook | `apps/web/src/hooks/useNotifications.ts` | Fetches notifications; manages unread count |
-| D58 | `useProfile` hook | `apps/web/src/hooks/useProfile.ts` | Fetches current user profile |
-| D59 | `useSettings` hook | `apps/web/src/hooks/useSettings.ts` | Fetches + updates user settings |
-| D60 | Service wrappers | `apps/web/src/lib/services/` | `watchlistService`, `historyService`, `profileService`, `settingsService`, `notificationService` |
+| #   | Deliverable                                   | Location                                                             | Acceptance                                                                                        |
+| :-- | :-------------------------------------------- | :------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------ |
+| D1  | Watchlist page (grid/list view, sort, filter) | `apps/web/src/app/watchlist/page.tsx`                                | Renders `WatchlistPage`; reads URL params for view/sort/filter; updates URL on change             |
+| D2  | `WatchlistPage` orchestrator                  | `apps/web/src/components/watchlist/WatchlistPage.tsx`                | Composes header, filter bar, sort, view toggle, grid/list, empty state                            |
+| D3  | `WatchlistHeader`                             | `apps/web/src/components/watchlist/WatchlistHeader.tsx`              | Page title "Watchlist", count badge with `aria-live`, sort dropdown                               |
+| D4  | `FilterBar` (status chips)                    | `apps/web/src/components/watchlist/FilterBar.tsx`                    | 5 filter chips (all/want_to_watch/watching/completed/dropped); `aria-pressed`; sticky on scroll   |
+| D5  | `ViewToggle` (grid/list)                      | `apps/web/src/components/watchlist/ViewToggle.tsx`                   | Toggle buttons; active = `primary`; state in URL param `?view=grid`                               |
+| D6  | `WatchlistGrid`                               | `apps/web/src/components/watchlist/WatchlistGrid.tsx`                | Responsive grid (4-col desktop, 3-col tablet, 2-col mobile); `AnimeCard` with status badge        |
+| D7  | `WatchlistList`                               | `apps/web/src/components/watchlist/WatchlistList.tsx`                | List view with larger cards; thumbnail + metadata + status + overflow menu                        |
+| D8  | `AnimeCard` (watchlist variant)               | `apps/web/src/components/watchlist/AnimeCard.tsx`                    | 2:3 aspect ratio; `StatusBadge`; `OverflowMenu` (edit status, remove); `ReorderControls`          |
+| D9  | `ReorderControls`                             | `apps/web/src/components/watchlist/ReorderControls.tsx`              | Up/down buttons; `aria-label="Move {title} up/down"`; keyboard accessible                         |
+| D10 | `WatchlistEmptyState`                         | `apps/web/src/components/watchlist/EmptyState.tsx`                   | Illustration + "Your watchlist is empty." + "Explore Trending" CTA button                         |
+| D11 | Watch history page                            | `apps/web/src/app/history/page.tsx`                                  | Renders `HistoryPage` with list of watched episodes                                               |
+| D12 | `HistoryPage` orchestrator                    | `apps/web/src/components/history/HistoryPage.tsx`                    | Composes header, filter, history list, empty state                                                |
+| D13 | `HistoryEntry` with progress bar              | `apps/web/src/components/history/HistoryEntry.tsx`                   | Thumbnail, anime title, episode number, progress bar (`role="progressbar"`), watched-at timestamp |
+| D14 | `HistoryEmptyState`                           | `apps/web/src/components/history/HistoryEmptyState.tsx`              | Illustration + "No watch history yet." + "Browse trending" CTA                                    |
+| D15 | Continue-watching page                        | `apps/web/src/app/continue-watching/page.tsx`                        | Renders `ContinueWatchingPage`                                                                    |
+| D16 | `ContinueWatchingPage` orchestrator           | `apps/web/src/components/continue-watching/ContinueWatchingPage.tsx` | Composes header, progress grid, empty state                                                       |
+| D17 | `ProgressCard`                                | `apps/web/src/components/continue-watching/ProgressCard.tsx`         | Thumbnail (240×135), progress bar (4px), episode number, "Resume" + "Restart" buttons             |
+| D18 | `AnimeGroup` (accordion)                      | `src/components/continue-watching/AnimeGroup.tsx`                    | Groups episodes by anime; collapsed by default; `aria-expanded`, `aria-controls`                  |
+| D19 | `ContinueWatchingEmptyState`                  | `src/components/continue-watching/ContinueWatchingEmptyState.tsx`    | Illustration + "Nothing to resume." + "Browse trending" CTA                                       |
+| D20 | Profile page                                  | `apps/web/src/app/profile/page.tsx`                                  | Renders `ProfilePage` with stats, bio, activity, quick links                                      |
+| D21 | `ProfilePage` orchestrator                    | `apps/web/src/components/profile/ProfilePage.tsx`                    | Composes header, stats, about, activity, quick links, edit modal                                  |
+| D22 | `ProfileHeader`                               | `apps/web/src/components/profile/ProfileHeader.tsx`                  | 96px avatar, display name, username, join date, plan badge, Edit button                           |
+| D23 | `AvatarUpload`                                | `apps/web/src/components/profile/AvatarUpload.tsx`                   | File picker (jpeg/png/webp, 5MB max); preview; cancel/save; `aria-label="Upload avatar"`          |
+| D24 | `StatsRow`                                    | `apps/web/src/components/profile/StatsRow.tsx`                       | 4 `StatBadge` (anime watched, episodes, hours, watchlist count)                                   |
+| D25 | `AboutSection`                                | `apps/web/src/components/profile/AboutSection.tsx`                   | Bio text (max 280 chars); Edit bio ghost button; empty state                                      |
+| D26 | `ActivitySection`                             | `apps/web/src/components/profile/ActivitySection.tsx`                | Last 5 activities (icon + text + timestamp); empty state                                          |
+| D27 | `QuickLinksSection`                           | `apps/web/src/components/profile/QuickLinksSection.tsx`              | Links to /watchlist, /history, /settings                                                          |
+| D28 | `ProfileEditModal`                            | `apps/web/src/components/profile/ProfileEditModal.tsx`               | Display name input (max 32), bio textarea (max 280), Cancel/Save; focus trap                      |
+| D29 | Settings page with tab navigation             | `apps/web/src/app/settings/page.tsx`                                 | Renders `SettingsLayout`; reads `?tab=` param; default `account`                                  |
+| D30 | `SettingsLayout` + `SettingsSidebar`          | `src/components/settings/SettingsLayout.tsx`                         | Desktop: 240px sidebar; Tablet/Mobile: horizontal tab bar; `role="tablist"`                       |
+| D31 | `AccountPanel`                                | `src/components/settings/AccountPanel.tsx`                           | Profile section, password section, danger zone                                                    |
+| D32 | `BillingPanel` (stub)                         | `src/components/settings/BillingPanel.tsx`                           | Current plan badge, "Manage Subscription" link (Stripe portal stub), billing history placeholder  |
+| D33 | `NotificationsPanel`                          | `src/components/settings/NotificationsPanel.tsx`                     | Email preferences, push preferences (disabled), per-anime notification toggle                     |
+| D34 | `AccessibilityPanel`                          | `src/components/settings/AccessibilityPanel.tsx`                     | Reduced motion, font size (sm/md/lg radio), high contrast, autoplay, captions default             |
+| D35 | `DeleteAccountModal`                          | `src/components/settings/DeleteAccountModal.tsx`                     | Confirmation modal with type-to-confirm; focus trap; ESC closes                                   |
+| D36 | Notifications page                            | `apps/web/src/app/notifications/page.tsx`                            | Renders `NotificationList`                                                                        |
+| D37 | `NotificationList` + `NotificationItem`       | `src/components/notifications/NotificationList.tsx`                  | List of notifications; unread indicator; mark-read on click; empty state                          |
+| D38 | `NotificationBadge`                           | `src/components/notifications/NotificationBadge.tsx`                 | Unread count badge in header/nav; `aria-live="polite"`                                            |
+| D39 | Watchlist API routes (CRUD)                   | `apps/web/app/api/v1/users/me/bookmarks/*`                           | GET list, POST add, PATCH update, DELETE remove, GET check; all auth-required; rate-limited       |
+| D40 | Watch history API routes                      | `apps/web/app/api/v1/users/me/watch-history/*`                       | GET list, DELETE single; auth-required                                                            |
+| D41 | Continue-watching API routes                  | `apps/web/app/api/v1/users/me/continue-watching/*`                   | GET list, POST upsert, PATCH heartbeat, DELETE; auth-required; rate-limited                       |
+| D42 | Profile API routes                            | `apps/web/app/api/v1/users/me/profile/*`                             | GET read, PATCH update; auth-required                                                             |
+| D43 | Avatar upload API route                       | `apps/web/app/api/v1/users/me/avatar/route.ts`                       | POST; multipart form; 5MB limit; auth-required; returns `avatar_url`                              |
+| D44 | Settings API routes                           | `apps/web/app/api/v1/users/me/settings/*`                            | GET read, PATCH update; auth-required; persists to `users.preferences`                            |
+| D45 | Notification API routes                       | `apps/web/app/api/v1/users/me/notifications/*`                       | GET list, POST mark-read, PATCH mark-read single, DELETE; auth-required                           |
+| D46 | `addToWatchlist` Server Action                | `apps/web/src/actions/addToWatchlist.ts`                             | Zod validation; requireUser; optimistic update; idempotency key                                   |
+| D47 | `removeFromWatchlist` Server Action           | `apps/web/src/actions/removeFromWatchlist.ts`                        | Zod validation; requireUser; optimistic update                                                    |
+| D48 | `reorderWatchlist` Server Action              | `apps/web/src/actions/reorderWatchlist.ts`                           | Zod validation; requireUser; gap-based sort order                                                 |
+| D49 | `updateProfile` Server Action                 | `apps/web/src/actions/updateProfile.ts`                              | Zod validation; requireUser; updates display_name, bio                                            |
+| D50 | `uploadAvatar` Server Action                  | `apps/web/src/actions/uploadAvatar.ts`                               | Zod validation; requireUser; file upload to R2/Cloudflare; returns URL                            |
+| D51 | `updateSettings` Server Action                | `apps/web/src/actions/updateSettings.ts`                             | Zod validation; requireUser; merges into `users.preferences`                                      |
+| D52 | `markNotificationRead` Server Action          | `apps/web/src/actions/markNotificationRead.ts`                       | Zod validation; requireUser; marks single or all as read                                          |
+| D53 | `clearWatchHistory` Server Action             | `apps/web/src/actions/clearWatchHistory.ts`                          | Zod validation; requireUser; anonymizes all watch history entries                                 |
+| D54 | `useWatchlist` hook                           | `apps/web/src/hooks/useWatchlist.ts`                                 | Fetches watchlist; manages local state for optimistic updates                                     |
+| D55 | `useWatchHistory` hook                        | `apps/web/src/hooks/useWatchHistory.ts`                              | Fetches watch history with cursor pagination                                                      |
+| D56 | `useContinueWatching` hook                    | `apps/web/src/hooks/useContinueWatching.ts`                          | Fetches continue-watching list                                                                    |
+| D57 | `useNotifications` hook                       | `apps/web/src/hooks/useNotifications.ts`                             | Fetches notifications; manages unread count                                                       |
+| D58 | `useProfile` hook                             | `apps/web/src/hooks/useProfile.ts`                                   | Fetches current user profile                                                                      |
+| D59 | `useSettings` hook                            | `apps/web/src/hooks/useSettings.ts`                                  | Fetches + updates user settings                                                                   |
+| D60 | Service wrappers                              | `apps/web/src/lib/services/`                                         | `watchlistService`, `historyService`, `profileService`, `settingsService`, `notificationService`  |
 
 ---
 
@@ -159,34 +159,34 @@ Before M8 begins, the following must be complete:
 
 ### Upstream (must exist before M8 starts)
 
-| Dependency | Type | Source | Contract |
-| :-- | :-- | :-- | :-- |
-| `users` table | Database | M3 | id, username, email, display_name, avatar_url, bio, role, preferences (JSONB) |
-| `bookmarks` table | Database | M3 | id, user_id, anime_id, note, sort_order, notify_on_new_episode, deleted_at |
-| `continue_watching` table | Database | M3 | id, user_id, anime_id, episode_id, position_seconds, duration_seconds, progress_pct, device, is_completed, version |
-| `watch_history` table | Database | M3 | id, user_id, anime_id, episode_id, watched_at, watch_duration_seconds, completion_pct |
-| `notifications` table | Database | M3 | id, user_id, type, title, body, resource_url, is_read, created_at |
-| Auth.js v5 `requireUser` | Library | M3 | Returns `{ user: { id } }` or throws `UNAUTHORIZED` |
-| `@nexus/ui` components | Package | M1 | `Button`, `Badge`, `Card`, `Modal`, `Tabs`, `Toggle`, `Input`, `Textarea`, `Avatar`, `ProgressBar`, `Skeleton`, `ErrorBoundary` |
-| `@nexus/cache` | Package | M2 | Redis for bookmark list caching (30s TTL), notification caching |
-| `@nexus/db` | Package | M2 | Drizzle query builder; transaction support |
-| Cloudflare R2 (or equivalent) | External | Infrastructure | Avatar image storage; public-read bucket |
+| Dependency                    | Type     | Source         | Contract                                                                                                                        |
+| :---------------------------- | :------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------ |
+| `users` table                 | Database | M3             | id, username, email, display_name, avatar_url, bio, role, preferences (JSONB)                                                   |
+| `bookmarks` table             | Database | M3             | id, user_id, anime_id, note, sort_order, notify_on_new_episode, deleted_at                                                      |
+| `continue_watching` table     | Database | M3             | id, user_id, anime_id, episode_id, position_seconds, duration_seconds, progress_pct, device, is_completed, version              |
+| `watch_history` table         | Database | M3             | id, user_id, anime_id, episode_id, watched_at, watch_duration_seconds, completion_pct                                           |
+| `notifications` table         | Database | M3             | id, user_id, type, title, body, resource_url, is_read, created_at                                                               |
+| Auth.js v5 `requireUser`      | Library  | M3             | Returns `{ user: { id } }` or throws `UNAUTHORIZED`                                                                             |
+| `@nexus/ui` components        | Package  | M1             | `Button`, `Badge`, `Card`, `Modal`, `Tabs`, `Toggle`, `Input`, `Textarea`, `Avatar`, `ProgressBar`, `Skeleton`, `ErrorBoundary` |
+| `@nexus/cache`                | Package  | M2             | Redis for bookmark list caching (30s TTL), notification caching                                                                 |
+| `@nexus/db`                   | Package  | M2             | Drizzle query builder; transaction support                                                                                      |
+| Cloudflare R2 (or equivalent) | External | Infrastructure | Avatar image storage; public-read bucket                                                                                        |
 
 ### Downstream (will consume M8)
 
-| Consumer | What they need | Milestone |
-| :-- | :-- | :-- |
-| M9 — Social | Watchlist data for "friends watched" feature; notification preferences for delivery routing | M9 |
-| M10 — Production | Notification delivery pipeline; settings sync monitoring | M10 |
+| Consumer         | What they need                                                                              | Milestone |
+| :--------------- | :------------------------------------------------------------------------------------------ | :-------- |
+| M9 — Social      | Watchlist data for "friends watched" feature; notification preferences for delivery routing | M9        |
+| M10 — Production | Notification delivery pipeline; settings sync monitoring                                    | M10       |
 
 ### External services
 
-| Service | Purpose | Failure mode |
-| :-- | :-- | :-- |
-| Upstash Redis | Cache bookmark lists (30s TTL), notification unread counts | Cache miss → direct DB query; serve stale if available |
-| Postgres (Neon) | All user feature tables | Query timeout → 503; connection pool exhaustion → queue + retry |
-| Cloudflare R2 | Avatar image storage | Upload failure → retry with exponential backoff; serve default avatar on read failure |
-| Vercel Edge | Rate limiting (10/60s bookmarks, 30/60s continue-watching) | Fail open for reads; 429 with `Retry-After` for writes |
+| Service         | Purpose                                                    | Failure mode                                                                          |
+| :-------------- | :--------------------------------------------------------- | :------------------------------------------------------------------------------------ |
+| Upstash Redis   | Cache bookmark lists (30s TTL), notification unread counts | Cache miss → direct DB query; serve stale if available                                |
+| Postgres (Neon) | All user feature tables                                    | Query timeout → 503; connection pool exhaustion → queue + retry                       |
+| Cloudflare R2   | Avatar image storage                                       | Upload failure → retry with exponential backoff; serve default avatar on read failure |
+| Vercel Edge     | Rate limiting (10/60s bookmarks, 30/60s continue-watching) | Fail open for reads; 429 with `Retry-After` for writes                                |
 
 ---
 
@@ -199,6 +199,7 @@ Before M8 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Medium (UI shows item in watchlist when server rejected the add)
 
 **Mitigation:**
+
 - `useWatchlist` hook maintains a local `pendingState` that is committed only on Server Action success. On failure, the hook reverts to the server-confirmed state and surfaces a toast notification.
 - The Server Action returns a discriminated union `{ data } | { error }`. The hook checks the response before committing the optimistic update.
 - Idempotency keys on bookmark POST prevent duplicate entries if the client retries a failed request.
@@ -211,6 +212,7 @@ Before M8 begins, the following must be complete:
 **Likelihood:** Low · **Impact:** Low (minor visual ordering issue)
 
 **Mitigation:**
+
 - Debounce reorder actions: 300ms delay before sending the request; accumulate rapid clicks into a single final reorder.
 - The `reorderWatchlist` action uses a transaction: read current sort orders, compute new gap-based values, write all affected rows atomically.
 - If the transaction fails due to a serialization conflict (Postgres `SERIALIZABLE`), retry up to 3 times with exponential backoff.
@@ -223,6 +225,7 @@ Before M8 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Medium (storage cost abuse; large images break layout)
 
 **Mitigation:**
+
 - Validate on both client (instant feedback) and server (Zod: `z.instanceof(File).refine(f => f.size <= 5 * 1024 * 1024)` and MIME type check).
 - The avatar upload API route streams the file through a size-checking middleware before writing to R2; abort if size exceeds limit.
 - Post-upload, resize the image to 256×256 via Cloudflare Images or a server-side sharp pipeline; store only the resized version.
@@ -235,6 +238,7 @@ Before M8 begins, the following must be complete:
 **Likelihood:** Low · **Impact:** Low (minor settings loss; user re-applies)
 
 **Mitigation:**
+
 - Use Postgres `jsonb_patch` or atomic JSONB merge (`||` operator) at the SQL level to avoid read-modify-write.
 - The `updateSettings` action accepts a partial settings object and merges it with the existing value using Drizzle's JSONB merge: `sql\`${users.preferences} || ${patch}::jsonb\``.
 - Document: settings are last-writer-wins at the field level, not the object level. Concurrent edits to the same field will lose one.
@@ -246,6 +250,7 @@ Before M8 begins, the following must be complete:
 **Likelihood:** Medium (if M7 is not yet complete) · **Impact:** Low (empty or stale list)
 
 **Mitigation:**
+
 - M8 continue-watching UI handles empty state gracefully with a "Nothing to resume" message and CTA.
 - The continue-watching page shows `updated_at` timestamp so users can see when data was last refreshed.
 - If M7 is not complete, the continue-watching page still renders correctly with empty state; no broken UI.
@@ -258,6 +263,7 @@ Before M8 begins, the following must be complete:
 **Likelihood:** Low (in M8; scales in M10) · **Impact:** Medium (notification delay for popular titles)
 
 **Mitigation:**
+
 - M8 creates notifications synchronously for single-user actions (e.g., "episode available"). Bulk notifications (new episode for all bookmarkers) are deferred to a background job queue (M10).
 - The `notifications` table is indexed on `(user_id, created_at DESC)` and `(user_id, is_read)` for fast unread count queries.
 - For M8, limit bulk notification creation to anime with < 10K bookmarks; larger titles are queued.
@@ -270,6 +276,7 @@ Before M8 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Low (minor UI inconsistency)
 
 **Mitigation:**
+
 - Single source of truth: `searchParams` from `useSearchParams()`. All filter/view reads derive from URL; all writes call `router.replace()`.
 - Zod schema validates URL params; invalid values fall back to defaults.
 - Listen for `popstate` events and re-sync state from URL on browser back/forward.
@@ -398,65 +405,65 @@ Each criterion is binary pass/fail. All must pass for the milestone to be consid
 
 ## 9. Estimated Tasks
 
-| # | Task | Estimate | Dependencies | Notes |
-| :-- | :-- | :-- | :-- | :-- |
-| T1 | Scaffold `apps/web/src/components/` directories (watchlist, history, continue-watching, profile, settings, notifications) | 0.5d | M1 | |
-| T2 | Implement type definitions (`watchlist-types.ts`, `settings-types.ts`, `notification-types.ts`) | 0.5d | — | |
-| T3 | Implement `watchlistService` | 0.5d | M3 bookmarks table | |
-| T4 | Implement `historyService` | 0.5d | M3 watch_history table | |
-| T5 | Implement `profileService` | 0.5d | M3 users table | |
-| T6 | Implement `settingsService` | 0.5d | M3 users.preferences | JSONB merge logic |
-| T7 | Implement `notificationService` | 0.5d | M3 notifications table | |
-| T8 | Implement bookmark API routes (list, add, update, remove, check) | 2d | T3, M3 auth | Rate-limited; idempotency keys |
-| T9 | Implement watch history API routes (list, delete) | 1d | T4, M3 auth | |
-| T10 | Implement continue-watching API routes (list, upsert, heartbeat, delete) | 1.5d | M3 auth | Rate-limited; version conflict handling |
-| T11 | Implement profile API routes (read, update) | 1d | T5, M3 auth | |
-| T12 | Implement avatar upload API route | 1.5d | M3 auth, R2 | Multipart form; size validation |
-| T13 | Implement settings API routes (read, update) | 1d | T6, M3 auth | JSONB merge |
-| T14 | Implement notification API routes (list, mark-read, delete) | 1d | T7, M3 auth | |
-| T15 | Implement `addToWatchlist` Server Action | 0.5d | T8, M3 auth | Zod; optimistic update support |
-| T16 | Implement `removeFromWatchlist` Server Action | 0.5d | T8, M3 auth | Zod; optimistic update support |
-| T17 | Implement `reorderWatchlist` Server Action | 1d | T8, M3 auth | Transaction; gap-based sort |
-| T18 | Implement `updateProfile` Server Action | 0.5d | T11, M3 auth | Zod; max 32/280 chars |
-| T19 | Implement `uploadAvatar` Server Action | 1d | T12, M3 auth | File validation; R2 upload |
-| T20 | Implement `updateSettings` Server Action | 0.5d | T13, M3 auth | JSONB merge; Zod |
-| T21 | Implement `markNotificationRead` Server Action | 0.5d | T14, M3 auth | Single or bulk |
-| T22 | Implement `clearWatchHistory` Server Action | 0.5d | T9, M3 auth | Anonymize; not hard-delete |
-| T23 | Implement `useWatchlist` hook with optimistic updates | 1.5d | T15, T16 | Local state management |
-| T24 | Implement `useWatchHistory` hook | 0.5d | T9 | Cursor pagination |
-| T25 | Implement `useContinueWatching` hook | 0.5d | T10 | Refetch on focus |
-| T26 | Implement `useNotifications` hook | 0.5d | T14 | Polling; unread count |
-| T27 | Implement `useProfile` hook | 0.5d | T11 | |
-| T28 | Implement `useSettings` hook | 0.5d | T13 | |
-| T29 | Implement `WatchlistPage` + `WatchlistHeader` + `FilterBar` + `SortDropdown` + `ViewToggle` | 1.5d | T23 | URL-driven state |
-| T30 | Implement `WatchlistGrid` + `WatchlistList` + `AnimeCard` + `StatusBadge` + `OverflowMenu` | 2d | T29 | |
-| T31 | Implement `ReorderControls` | 0.5d | T17 | |
-| T32 | Implement `WatchlistEmptyState` | 0.25d | — | |
-| T33 | Implement `HistoryPage` + `HistoryHeader` + `HistoryList` + `HistoryEntry` | 1.5d | T24 | Progress bars |
-| T34 | Implement `HistoryEmptyState` | 0.25d | — | |
-| T35 | Implement `ContinueWatchingPage` + `ProgressGrid` + `ProgressCard` + `AnimeGroup` | 1.5d | T25 | Accordion |
-| T36 | Implement `ContinueWatchingEmptyState` | 0.25d | — | |
-| T37 | Implement `ProfilePage` + `ProfileHeader` + `StatsRow` + `AboutSection` + `ActivitySection` + `QuickLinksSection` | 2d | T27 | |
-| T38 | Implement `AvatarUpload` | 1d | T19 | File picker; preview |
-| T39 | Implement `ProfileEditModal` | 1d | T18 | Focus trap; char count |
-| T40 | Implement `SettingsLayout` + `SettingsSidebar` | 1d | — | Responsive tabs |
-| T41 | Implement `AccountPanel` | 1d | T39 | Reuses profile edit |
-| T42 | Implement `BillingPanel` (stub) | 0.5d | — | Static placeholder |
-| T43 | Implement `NotificationsPanel` | 1d | T20 | Toggle switches |
-| T44 | Implement `AccessibilityPanel` | 1d | T20 | Reduced motion, font size, etc. |
-| T45 | Implement `DangerZoneSection` + `DeleteAccountModal` | 1d | M3 auth | Type-to-confirm |
-| T46 | Implement `NotificationList` + `NotificationItem` + `NotificationBadge` | 1d | T26 | |
-| T47 | Implement `NotificationEmptyState` | 0.25d | — | |
-| T48 | Implement URL-driven state parser/serializer for watchlist | 0.5d | T29 | Zod schema |
-| T49 | Implement page layouts and responsive CSS | 1.5d | T29-T47 | |
-| T50 | Implement loading skeletons for all pages | 1d | M1 `Skeleton` | |
-| T51 | Implement error boundaries for all pages | 1d | M1 `ErrorBoundary` | |
-| T52 | Implement SEO metadata for all pages | 0.5d | — | |
-| T53 | Accessibility audit + fixes | 2d | T29-T47 | Focus trap, ARIA, keyboard |
-| T54 | Performance audit + fixes | 1d | T29-T47 | |
-| T55 | Integration tests (Server Actions, optimistic updates, reorder) | 2.5d | T15-T22 | |
-| T56 | E2E tests (watchlist flow, profile edit, settings, notifications) | 2d | T29-T47 | Playwright |
-| **Total** | | **~47.25d** | | ~7-8 weeks with 1 engineer; parallelizable across 2 engineers to ~4 weeks |
+| #         | Task                                                                                                                      | Estimate    | Dependencies           | Notes                                                                     |
+| :-------- | :------------------------------------------------------------------------------------------------------------------------ | :---------- | :--------------------- | :------------------------------------------------------------------------ |
+| T1        | Scaffold `apps/web/src/components/` directories (watchlist, history, continue-watching, profile, settings, notifications) | 0.5d        | M1                     |                                                                           |
+| T2        | Implement type definitions (`watchlist-types.ts`, `settings-types.ts`, `notification-types.ts`)                           | 0.5d        | —                      |                                                                           |
+| T3        | Implement `watchlistService`                                                                                              | 0.5d        | M3 bookmarks table     |                                                                           |
+| T4        | Implement `historyService`                                                                                                | 0.5d        | M3 watch_history table |                                                                           |
+| T5        | Implement `profileService`                                                                                                | 0.5d        | M3 users table         |                                                                           |
+| T6        | Implement `settingsService`                                                                                               | 0.5d        | M3 users.preferences   | JSONB merge logic                                                         |
+| T7        | Implement `notificationService`                                                                                           | 0.5d        | M3 notifications table |                                                                           |
+| T8        | Implement bookmark API routes (list, add, update, remove, check)                                                          | 2d          | T3, M3 auth            | Rate-limited; idempotency keys                                            |
+| T9        | Implement watch history API routes (list, delete)                                                                         | 1d          | T4, M3 auth            |                                                                           |
+| T10       | Implement continue-watching API routes (list, upsert, heartbeat, delete)                                                  | 1.5d        | M3 auth                | Rate-limited; version conflict handling                                   |
+| T11       | Implement profile API routes (read, update)                                                                               | 1d          | T5, M3 auth            |                                                                           |
+| T12       | Implement avatar upload API route                                                                                         | 1.5d        | M3 auth, R2            | Multipart form; size validation                                           |
+| T13       | Implement settings API routes (read, update)                                                                              | 1d          | T6, M3 auth            | JSONB merge                                                               |
+| T14       | Implement notification API routes (list, mark-read, delete)                                                               | 1d          | T7, M3 auth            |                                                                           |
+| T15       | Implement `addToWatchlist` Server Action                                                                                  | 0.5d        | T8, M3 auth            | Zod; optimistic update support                                            |
+| T16       | Implement `removeFromWatchlist` Server Action                                                                             | 0.5d        | T8, M3 auth            | Zod; optimistic update support                                            |
+| T17       | Implement `reorderWatchlist` Server Action                                                                                | 1d          | T8, M3 auth            | Transaction; gap-based sort                                               |
+| T18       | Implement `updateProfile` Server Action                                                                                   | 0.5d        | T11, M3 auth           | Zod; max 32/280 chars                                                     |
+| T19       | Implement `uploadAvatar` Server Action                                                                                    | 1d          | T12, M3 auth           | File validation; R2 upload                                                |
+| T20       | Implement `updateSettings` Server Action                                                                                  | 0.5d        | T13, M3 auth           | JSONB merge; Zod                                                          |
+| T21       | Implement `markNotificationRead` Server Action                                                                            | 0.5d        | T14, M3 auth           | Single or bulk                                                            |
+| T22       | Implement `clearWatchHistory` Server Action                                                                               | 0.5d        | T9, M3 auth            | Anonymize; not hard-delete                                                |
+| T23       | Implement `useWatchlist` hook with optimistic updates                                                                     | 1.5d        | T15, T16               | Local state management                                                    |
+| T24       | Implement `useWatchHistory` hook                                                                                          | 0.5d        | T9                     | Cursor pagination                                                         |
+| T25       | Implement `useContinueWatching` hook                                                                                      | 0.5d        | T10                    | Refetch on focus                                                          |
+| T26       | Implement `useNotifications` hook                                                                                         | 0.5d        | T14                    | Polling; unread count                                                     |
+| T27       | Implement `useProfile` hook                                                                                               | 0.5d        | T11                    |                                                                           |
+| T28       | Implement `useSettings` hook                                                                                              | 0.5d        | T13                    |                                                                           |
+| T29       | Implement `WatchlistPage` + `WatchlistHeader` + `FilterBar` + `SortDropdown` + `ViewToggle`                               | 1.5d        | T23                    | URL-driven state                                                          |
+| T30       | Implement `WatchlistGrid` + `WatchlistList` + `AnimeCard` + `StatusBadge` + `OverflowMenu`                                | 2d          | T29                    |                                                                           |
+| T31       | Implement `ReorderControls`                                                                                               | 0.5d        | T17                    |                                                                           |
+| T32       | Implement `WatchlistEmptyState`                                                                                           | 0.25d       | —                      |                                                                           |
+| T33       | Implement `HistoryPage` + `HistoryHeader` + `HistoryList` + `HistoryEntry`                                                | 1.5d        | T24                    | Progress bars                                                             |
+| T34       | Implement `HistoryEmptyState`                                                                                             | 0.25d       | —                      |                                                                           |
+| T35       | Implement `ContinueWatchingPage` + `ProgressGrid` + `ProgressCard` + `AnimeGroup`                                         | 1.5d        | T25                    | Accordion                                                                 |
+| T36       | Implement `ContinueWatchingEmptyState`                                                                                    | 0.25d       | —                      |                                                                           |
+| T37       | Implement `ProfilePage` + `ProfileHeader` + `StatsRow` + `AboutSection` + `ActivitySection` + `QuickLinksSection`         | 2d          | T27                    |                                                                           |
+| T38       | Implement `AvatarUpload`                                                                                                  | 1d          | T19                    | File picker; preview                                                      |
+| T39       | Implement `ProfileEditModal`                                                                                              | 1d          | T18                    | Focus trap; char count                                                    |
+| T40       | Implement `SettingsLayout` + `SettingsSidebar`                                                                            | 1d          | —                      | Responsive tabs                                                           |
+| T41       | Implement `AccountPanel`                                                                                                  | 1d          | T39                    | Reuses profile edit                                                       |
+| T42       | Implement `BillingPanel` (stub)                                                                                           | 0.5d        | —                      | Static placeholder                                                        |
+| T43       | Implement `NotificationsPanel`                                                                                            | 1d          | T20                    | Toggle switches                                                           |
+| T44       | Implement `AccessibilityPanel`                                                                                            | 1d          | T20                    | Reduced motion, font size, etc.                                           |
+| T45       | Implement `DangerZoneSection` + `DeleteAccountModal`                                                                      | 1d          | M3 auth                | Type-to-confirm                                                           |
+| T46       | Implement `NotificationList` + `NotificationItem` + `NotificationBadge`                                                   | 1d          | T26                    |                                                                           |
+| T47       | Implement `NotificationEmptyState`                                                                                        | 0.25d       | —                      |                                                                           |
+| T48       | Implement URL-driven state parser/serializer for watchlist                                                                | 0.5d        | T29                    | Zod schema                                                                |
+| T49       | Implement page layouts and responsive CSS                                                                                 | 1.5d        | T29-T47                |                                                                           |
+| T50       | Implement loading skeletons for all pages                                                                                 | 1d          | M1 `Skeleton`          |                                                                           |
+| T51       | Implement error boundaries for all pages                                                                                  | 1d          | M1 `ErrorBoundary`     |                                                                           |
+| T52       | Implement SEO metadata for all pages                                                                                      | 0.5d        | —                      |                                                                           |
+| T53       | Accessibility audit + fixes                                                                                               | 2d          | T29-T47                | Focus trap, ARIA, keyboard                                                |
+| T54       | Performance audit + fixes                                                                                                 | 1d          | T29-T47                |                                                                           |
+| T55       | Integration tests (Server Actions, optimistic updates, reorder)                                                           | 2.5d        | T15-T22                |                                                                           |
+| T56       | E2E tests (watchlist flow, profile edit, settings, notifications)                                                         | 2d          | T29-T47                | Playwright                                                                |
+| **Total** |                                                                                                                           | **~47.25d** |                        | ~7-8 weeks with 1 engineer; parallelizable across 2 engineers to ~4 weeks |
 
 ---
 

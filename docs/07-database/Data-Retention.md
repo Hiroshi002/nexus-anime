@@ -15,14 +15,14 @@ This is **documentation only** — the purge jobs and anonymization workflows it
 
 ## 2. Retention Principles
 
-| Principle | Meaning |
-|-----------|---------|
-| **Minimize first.** | Collect only what we need, keep it only as long as we need it. |
-| **Anonymize before deleting.** | When we dispose of PII, we first sever the link to the person, then keep the statistical value. |
-| **Aggregate before purging.** | High-volume raw data (watch events, searches) is rolled up into daily summaries before the raw rows are deleted. |
-| **Audit log is sacred.** | The audit log is retained for compliance even when the underlying data is deleted. |
-| **Respect the law.** | GDPR (EU), CCPA (California), and other regulations drive minimum and maximum retention periods. |
-| **Automate everything.** | Retention is enforced by scheduled jobs, not human memory. |
+| Principle                      | Meaning                                                                                                          |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| **Minimize first.**            | Collect only what we need, keep it only as long as we need it.                                                   |
+| **Anonymize before deleting.** | When we dispose of PII, we first sever the link to the person, then keep the statistical value.                  |
+| **Aggregate before purging.**  | High-volume raw data (watch events, searches) is rolled up into daily summaries before the raw rows are deleted. |
+| **Audit log is sacred.**       | The audit log is retained for compliance even when the underlying data is deleted.                               |
+| **Respect the law.**           | GDPR (EU), CCPA (California), and other regulations drive minimum and maximum retention periods.                 |
+| **Automate everything.**       | Retention is enforced by scheduled jobs, not human memory.                                                       |
 
 ---
 
@@ -30,36 +30,36 @@ This is **documentation only** — the purge jobs and anonymization workflows it
 
 ### 3.1 Per-Table Retention
 
-| Table | Raw retention | Disposition after retention | Aggregates retained? | Rationale |
-|-------|--------------|----------------------------|----------------------|-----------|
-| `users` | Until erasure request | Hard-delete (GDPR) or anonymize. | No. | User data belongs to the user; they can request deletion anytime. |
-| `user_accounts` | Life of user | Hard-delete with user. | No. | Credentials are PII; no value after account closure. |
-| `user_sessions` | 30 days or until expiry | Hard-delete (whichever first). | No. | Sessions are ephemeral by nature. |
-| `anime` | Until catalog removal | Soft-delete → hard-delete after 90 days. | No. | Catalog data is re-importable from upstream. |
-| `seasons` | Life of anime | Soft-delete with anime. | No. | Same as anime. |
-| `episodes` | Life of anime | Soft-delete with anime. | No. | Same as anime. |
-| `genres` | Indefinite | Deactivate, never delete. | N/A | Tiny taxonomy; historical associations must survive. |
-| `studios` | Indefinite | Soft-delete (reversible). | N/A | Small taxonomy; historical credits must survive. |
-| `anime_genres` / `anime_studios` | Life of anime | Hard-delete with anime. | No. | Associations are re-importable. |
-| `watch_history` | **90 days** raw | Anonymize `user_id`, then purge raw rows after 1 year. | **Yes** — daily per-anime view counts, monthly per-user watch time. | Raw events are huge; aggregates preserve analytics. |
-| `continue_watching` | Life of user | Hard-delete with user. | No. | Cursors are personal; no value after account closure. |
-| `bookmarks` | Life of user (active); 30 days after soft-delete | Hard-delete 30 days after `deleted_at`. | No. | Removed bookmarks have no long-term value. |
-| `comments` | Life of user | Soft-delete only; preserved on erasure as `[deleted]`. | No. | Community content outlives the account. |
-| `ratings` | Life of user (active); until erasure | Hard-delete on user erasure. | **Yes** — per-anime rating distribution (count per score bucket). | Individual ratings are PII; the distribution is valuable. |
-| `notifications` | 90 days | Hard-delete on expiry. | No. | Notifications are ephemeral by nature. |
-| `search_history` | 30 days | Hard-delete. | **Yes** — anonymized top-query trends (no user link). | Raw queries are PII-adjacent; trends are valuable. |
-| `audit_log` | **7 years** | Partitioned by year; archived to cold storage after 2 years. | No. | Regulatory compliance baseline. |
+| Table                            | Raw retention                                    | Disposition after retention                                  | Aggregates retained?                                                | Rationale                                                         |
+| -------------------------------- | ------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `users`                          | Until erasure request                            | Hard-delete (GDPR) or anonymize.                             | No.                                                                 | User data belongs to the user; they can request deletion anytime. |
+| `user_accounts`                  | Life of user                                     | Hard-delete with user.                                       | No.                                                                 | Credentials are PII; no value after account closure.              |
+| `user_sessions`                  | 30 days or until expiry                          | Hard-delete (whichever first).                               | No.                                                                 | Sessions are ephemeral by nature.                                 |
+| `anime`                          | Until catalog removal                            | Soft-delete → hard-delete after 90 days.                     | No.                                                                 | Catalog data is re-importable from upstream.                      |
+| `seasons`                        | Life of anime                                    | Soft-delete with anime.                                      | No.                                                                 | Same as anime.                                                    |
+| `episodes`                       | Life of anime                                    | Soft-delete with anime.                                      | No.                                                                 | Same as anime.                                                    |
+| `genres`                         | Indefinite                                       | Deactivate, never delete.                                    | N/A                                                                 | Tiny taxonomy; historical associations must survive.              |
+| `studios`                        | Indefinite                                       | Soft-delete (reversible).                                    | N/A                                                                 | Small taxonomy; historical credits must survive.                  |
+| `anime_genres` / `anime_studios` | Life of anime                                    | Hard-delete with anime.                                      | No.                                                                 | Associations are re-importable.                                   |
+| `watch_history`                  | **90 days** raw                                  | Anonymize `user_id`, then purge raw rows after 1 year.       | **Yes** — daily per-anime view counts, monthly per-user watch time. | Raw events are huge; aggregates preserve analytics.               |
+| `continue_watching`              | Life of user                                     | Hard-delete with user.                                       | No.                                                                 | Cursors are personal; no value after account closure.             |
+| `bookmarks`                      | Life of user (active); 30 days after soft-delete | Hard-delete 30 days after `deleted_at`.                      | No.                                                                 | Removed bookmarks have no long-term value.                        |
+| `comments`                       | Life of user                                     | Soft-delete only; preserved on erasure as `[deleted]`.       | No.                                                                 | Community content outlives the account.                           |
+| `ratings`                        | Life of user (active); until erasure             | Hard-delete on user erasure.                                 | **Yes** — per-anime rating distribution (count per score bucket).   | Individual ratings are PII; the distribution is valuable.         |
+| `notifications`                  | 90 days                                          | Hard-delete on expiry.                                       | No.                                                                 | Notifications are ephemeral by nature.                            |
+| `search_history`                 | 30 days                                          | Hard-delete.                                                 | **Yes** — anonymized top-query trends (no user link).               | Raw queries are PII-adjacent; trends are valuable.                |
+| `audit_log`                      | **7 years**                                      | Partitioned by year; archived to cold storage after 2 years. | No.                                                                 | Regulatory compliance baseline.                                   |
 
 ### 3.2 Retention Summary by Duration
 
-| Duration | Tables |
-|----------|--------|
-| 30 days | `user_sessions`, `search_history`, `bookmarks` (after soft-delete) |
-| 90 days | `watch_history` (raw), `notifications`, `anime` (soft-delete grace) |
-| 1 year | `watch_history` (anonymized raw) |
+| Duration     | Tables                                                               |
+| ------------ | -------------------------------------------------------------------- |
+| 30 days      | `user_sessions`, `search_history`, `bookmarks` (after soft-delete)   |
+| 90 days      | `watch_history` (raw), `notifications`, `anime` (soft-delete grace)  |
+| 1 year       | `watch_history` (anonymized raw)                                     |
 | Life of user | `user_accounts`, `continue_watching`, `comments`, `ratings` (active) |
-| 7 years | `audit_log` |
-| Indefinite | `genres`, `studios`, `comments` (preserved) |
+| 7 years      | `audit_log`                                                          |
+| Indefinite   | `genres`, `studios`, `comments` (preserved)                          |
 
 ---
 
@@ -70,15 +70,18 @@ This is **documentation only** — the purge jobs and anonymization workflows it
 Used when we want to **keep the statistical value** of data but **remove the link to the person**.
 
 **`watch_history` anonymization:**
+
 1. Set `user_id = NULL` (or a sentinel `00000000-0000-0000-0000-000000000000`).
 2. Null out `device`, `os`, `browser`, `country`, `app_version`.
 3. Keep `anime_id`, `episode_id`, `watched_at`, `watch_duration_seconds`, `completion_pct`.
 
 **`search_history` anonymization (for trend aggregates):**
+
 1. Strip `user_id` from the aggregate — the trend table stores only `(date, query_normalized, count)`.
 2. The raw `search_history` rows are hard-deleted; the anonymized trend survives.
 
 **`audit_log` scrubbing (on user erasure):**
+
 1. Retain the audit row (it's the platform's record).
 2. Scrub `actor_context` of PII (ip, session id, email).
 3. Keep `actor_id` (needed for the audit trail) but it now points to a non-existent user — acceptable for an immutable log.
@@ -88,6 +91,7 @@ Used when we want to **keep the statistical value** of data but **remove the lin
 Used for **high-volume tables** where the raw data is too big to keep but the trends are valuable.
 
 **`watch_history` → daily rollup:**
+
 ```sql
 -- Daily per-anime aggregate (retained indefinitely)
 INSERT INTO stats.anime_daily_views (anime_id, date, total_views, unique_viewers, total_minutes)
@@ -96,9 +100,11 @@ FROM watch_history
 WHERE watched_at::date = :yesterday
 GROUP BY anime_id, watched_at::date;
 ```
+
 After the rollup, raw rows older than 90 days are purged.
 
 **`search_history` → trend aggregate:**
+
 ```sql
 INSERT INTO stats.daily_search_trends (date, query_normalized, count)
 SELECT searched_at::date, query_normalized, COUNT(*)
@@ -128,15 +134,15 @@ When a user soft-deletes an entity (bookmark, rating, comment), we wait **30 day
 
 ## 5. Compliance Mapping
 
-| Regulation | Requirement | How we satisfy it |
-|------------|-------------|-------------------|
-| **GDPR (EU)** | Right to erasure (Art. 17). | Hard-delete workflows for all user data; anonymization for statistical data. |
-| **GDPR** | Data minimization (Art. 5). | Retention schedules enforce minimum necessary retention. |
-| **GDPR** | Storage limitation (Art. 5). | Automated purge jobs enforce maximum retention. |
-| **CCPA (California)** | Right to delete. | Same erasure workflows; no sale of personal data (we don't sell data). |
-| **COPPA (US)** | Parental consent for <13. | Age gate at signup; accounts <13 require verified parental consent (future). |
-| **PCI-DSS** | Card data handling. | We never store raw card data — Stripe handles it. No DB impact. |
-| **SOC 2** | Audit trail. | 7-year audit log retention; immutable audit rows. |
+| Regulation            | Requirement                  | How we satisfy it                                                            |
+| --------------------- | ---------------------------- | ---------------------------------------------------------------------------- |
+| **GDPR (EU)**         | Right to erasure (Art. 17).  | Hard-delete workflows for all user data; anonymization for statistical data. |
+| **GDPR**              | Data minimization (Art. 5).  | Retention schedules enforce minimum necessary retention.                     |
+| **GDPR**              | Storage limitation (Art. 5). | Automated purge jobs enforce maximum retention.                              |
+| **CCPA (California)** | Right to delete.             | Same erasure workflows; no sale of personal data (we don't sell data).       |
+| **COPPA (US)**        | Parental consent for <13.    | Age gate at signup; accounts <13 require verified parental consent (future). |
+| **PCI-DSS**           | Card data handling.          | We never store raw card data — Stripe handles it. No DB impact.              |
+| **SOC 2**             | Audit trail.                 | 7-year audit log retention; immutable audit rows.                            |
 
 ---
 
@@ -144,12 +150,12 @@ When a user soft-deletes an entity (bookmark, rating, comment), we wait **30 day
 
 Without retention, storage grows unbounded:
 
-| Table | Annual growth (no retention) | Annual growth (with retention) |
-|-------|------------------------------|-------------------------------|
-| `watch_history` | ~100 GB/year | ~25 GB (90 days raw) + ~2 GB (aggregates) |
-| `audit_log` | ~30 GB/year | ~30 GB/year (7-year retention, archived after 2) |
-| `search_history` | ~15 GB/year | ~1.5 GB (30 days) + ~0.5 GB (trends) |
-| `notifications` | ~50 GB/year | ~12 GB (90 days) |
+| Table            | Annual growth (no retention) | Annual growth (with retention)                   |
+| ---------------- | ---------------------------- | ------------------------------------------------ |
+| `watch_history`  | ~100 GB/year                 | ~25 GB (90 days raw) + ~2 GB (aggregates)        |
+| `audit_log`      | ~30 GB/year                  | ~30 GB/year (7-year retention, archived after 2) |
+| `search_history` | ~15 GB/year                  | ~1.5 GB (30 days) + ~0.5 GB (trends)             |
+| `notifications`  | ~50 GB/year                  | ~12 GB (90 days)                                 |
 
 Retention reduces **annual storage growth by ~60%** and keeps query performance stable over time.
 
@@ -157,13 +163,13 @@ Retention reduces **annual storage growth by ~60%** and keeps query performance 
 
 ## 7. Implementation Notes (Future)
 
-| Concern | Approach |
-|---------|----------|
-| **Purge scheduling** | Cron jobs (or a job queue like Inngest/Temporal) run nightly. |
-| **Batching** | Deletes are batched in 10k-row chunks with `pg_sleep` between chunks to limit replication lag. |
-| **Monitoring** | Alert if a purge job fails or if table growth exceeds forecast. |
-| **Testing** | Retention jobs are tested against a clone of production data (Neon branching) before deployment. |
-| **Reversibility** | Soft-deleted data is recoverable for 30 days. Hard-deleted data is **not** recoverable — operators must confirm before running hard-delete jobs. |
+| Concern              | Approach                                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Purge scheduling** | Cron jobs (or a job queue like Inngest/Temporal) run nightly.                                                                                    |
+| **Batching**         | Deletes are batched in 10k-row chunks with `pg_sleep` between chunks to limit replication lag.                                                   |
+| **Monitoring**       | Alert if a purge job fails or if table growth exceeds forecast.                                                                                  |
+| **Testing**          | Retention jobs are tested against a clone of production data (Neon branching) before deployment.                                                 |
+| **Reversibility**    | Soft-deleted data is recoverable for 30 days. Hard-deleted data is **not** recoverable — operators must confirm before running hard-delete jobs. |
 
 ---
 

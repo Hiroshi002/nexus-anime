@@ -63,35 +63,35 @@ API reference: `docs/06-api/Episodes.md`, `docs/06-api/Continue-Watching.md`, `d
 
 ## 3. Deliverables
 
-| # | Deliverable | Location | Acceptance |
-| :-- | :-- | :-- | :-- |
-| D1 | Player route page (Server Component) | `apps/web/src/app/watch/[animeSlug]/[episodeNumber]/page.tsx` | Renders `PlayerContainer`; fetches episode metadata server-side; returns 404 for missing episode; `robots: noindex` |
-| D2 | `PlayerContainer` (Server Component) | `apps/web/src/components/player/PlayerContainer.tsx` | Fetches signed URL; passes URL + metadata to `PlayerIsland`; handles signed URL error with `ErrorOverlay` |
-| D3 | `PlayerIsland` (Client Component, dynamic import) | `apps/web/src/components/player/PlayerIsland.tsx` | Wraps Cloudflare Stream player; manages playback state; emits progress events; handles auto-next |
-| D4 | `PlayerControls` | `apps/web/src/components/player/PlayerControls.tsx` | Play/pause, seek bar, volume slider, quality selector, speed selector, fullscreen, theater mode; ARIA labels on all controls |
-| D5 | `QualitySelector` | `apps/web/src/components/player/QualitySelector.tsx` | Auto / 1080p / 720p / 480p / 360p; active state visible; keyboard accessible |
-| D6 | `PlaybackSpeedSelector` | `apps/web/src/components/player/PlaybackSpeedSelector.tsx` | 0.5x / 0.75x / 1x / 1.25x / 1.5x / 2x; persists across episodes in session |
-| D7 | `SubtitleSelector` | `apps/web/src/components/player/SubtitleSelector.tsx` | Lists available subtitle tracks; toggle on/off; keyboard accessible |
-| D8 | `UpNextOverlay` | `apps/web/src/components/player/UpNextOverlay.tsx` | Shows next episode thumbnail + title; 5-second countdown; "Next" and "Cancel" buttons; auto-navigates on zero |
-| D9 | `PlayerTopBar` | `apps/web/src/components/player/PlayerTopBar.tsx` | Back link to anime detail, anime title, episode number; "Up Next" countdown indicator |
-| D10 | `EpisodeSidebar` | `apps/web/src/components/player/EpisodeSidebar.tsx` | Season selector dropdown; scrollable episode list; active episode highlighted; keyboard navigable |
-| D11 | `EpisodeDescription` | `apps/web/src/components/player/EpisodeDescription.tsx` | Episode synopsis, metadata (air date, duration), tags |
-| D12 | `GeoBlockOverlay` | `apps/web/src/components/player/overlays/GeoBlockOverlay.tsx` | "This episode is not available in your region." with "Back to Anime" button |
-| D13 | `PaywallOverlay` | `apps/web/src/components/player/overlays/PaywallOverlay.tsx` | Premium episode paywall with upgrade CTA; shown to free users |
-| D14 | `ErrorOverlay` | `apps/web/src/components/player/overlays/ErrorOverlay.tsx` | Generic error message with "Retry" button; "Report a problem" link |
-| D15 | `PlayerSkeleton` | `apps/web/src/components/player/skeletons/PlayerSkeleton.tsx` | 16:9 skeleton with play icon; no layout shift when player loads |
-| D16 | Signed URL API route | `apps/web/app/api/v1/episodes/[id]/stream/route.ts` | Returns signed URL with 5-minute TTL; enforces auth for premium; geo-restriction; cache `private, no-cache, no-store, must-revalidate` |
-| D17 | Progress API route (upsert) | `apps/web/app/api/v1/watch/progress/route.ts` | POST: upsert progress; requires auth; rate-limit 30/60s; Zod validation |
-| D18 | Progress API route (read) | `apps/web/app/api/v1/watch/progress/[episodeId]/route.ts` | GET: return progress for single episode; 404 if not found; auth required |
-| D19 | `useProgressHeartbeat` hook | `apps/web/src/hooks/useProgressHeartbeat.ts` | Fires every 10s; fires on seek; cleans up on unmount; uses `navigator.sendBeacon` on page hide |
-| D20 | `useKeyboardShortcuts` hook | `apps/web/src/hooks/useKeyboardShortcuts.ts` | Maps keyboard events to player actions; respects focus state (disabled in inputs); shows OSD feedback |
-| D21 | `saveProgress` Server Action | `apps/web/src/actions/saveProgress.ts` | Zod-validated; requireUser; upsert via progress API; optimistic update on client |
-| D22 | `markEpisodeComplete` Server Action | `apps/web/src/actions/markEpisodeComplete.ts` | Sets `is_completed=true`, `progress_pct=100`; navigates to next episode or shows "Series Complete" |
-| D23 | `reportPlaybackError` Server Action | `apps/web/src/actions/reportPlaybackError.ts` | Logs client-side playback errors for monitoring; no auth required (anonymous OK); rate-limited |
-| D24 | Player utility constants | `apps/web/src/lib/player/player-constants.ts` | Key mappings, speed options, quality options, heartbeat interval, countdown duration |
-| D25 | Keyboard shortcut definitions | `apps/web/src/lib/player/keyboard-shortcuts.ts` | Key-to-action map; seek distances; volume step; shortcut labels for OSD |
-| D26 | Responsive layout (desktop / tablet / mobile) | `apps/web/src/components/player/` | Desktop: player 2/3 + sidebar 1/3 sticky; Tablet: full-width player + sidebar below; Mobile: stacked, no sidebar, full-width player |
-| D27 | SEO metadata + canonical | `apps/web/src/app/watch/[animeSlug]/[episodeNumber]/page.tsx` | `robots: noindex, nofollow`; canonical → anime detail; OG title "{Episode Title} — {Anime Title} \| Nexus Anime" |
+| #   | Deliverable                                       | Location                                                      | Acceptance                                                                                                                             |
+| :-- | :------------------------------------------------ | :------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Player route page (Server Component)              | `apps/web/src/app/watch/[animeSlug]/[episodeNumber]/page.tsx` | Renders `PlayerContainer`; fetches episode metadata server-side; returns 404 for missing episode; `robots: noindex`                    |
+| D2  | `PlayerContainer` (Server Component)              | `apps/web/src/components/player/PlayerContainer.tsx`          | Fetches signed URL; passes URL + metadata to `PlayerIsland`; handles signed URL error with `ErrorOverlay`                              |
+| D3  | `PlayerIsland` (Client Component, dynamic import) | `apps/web/src/components/player/PlayerIsland.tsx`             | Wraps Cloudflare Stream player; manages playback state; emits progress events; handles auto-next                                       |
+| D4  | `PlayerControls`                                  | `apps/web/src/components/player/PlayerControls.tsx`           | Play/pause, seek bar, volume slider, quality selector, speed selector, fullscreen, theater mode; ARIA labels on all controls           |
+| D5  | `QualitySelector`                                 | `apps/web/src/components/player/QualitySelector.tsx`          | Auto / 1080p / 720p / 480p / 360p; active state visible; keyboard accessible                                                           |
+| D6  | `PlaybackSpeedSelector`                           | `apps/web/src/components/player/PlaybackSpeedSelector.tsx`    | 0.5x / 0.75x / 1x / 1.25x / 1.5x / 2x; persists across episodes in session                                                             |
+| D7  | `SubtitleSelector`                                | `apps/web/src/components/player/SubtitleSelector.tsx`         | Lists available subtitle tracks; toggle on/off; keyboard accessible                                                                    |
+| D8  | `UpNextOverlay`                                   | `apps/web/src/components/player/UpNextOverlay.tsx`            | Shows next episode thumbnail + title; 5-second countdown; "Next" and "Cancel" buttons; auto-navigates on zero                          |
+| D9  | `PlayerTopBar`                                    | `apps/web/src/components/player/PlayerTopBar.tsx`             | Back link to anime detail, anime title, episode number; "Up Next" countdown indicator                                                  |
+| D10 | `EpisodeSidebar`                                  | `apps/web/src/components/player/EpisodeSidebar.tsx`           | Season selector dropdown; scrollable episode list; active episode highlighted; keyboard navigable                                      |
+| D11 | `EpisodeDescription`                              | `apps/web/src/components/player/EpisodeDescription.tsx`       | Episode synopsis, metadata (air date, duration), tags                                                                                  |
+| D12 | `GeoBlockOverlay`                                 | `apps/web/src/components/player/overlays/GeoBlockOverlay.tsx` | "This episode is not available in your region." with "Back to Anime" button                                                            |
+| D13 | `PaywallOverlay`                                  | `apps/web/src/components/player/overlays/PaywallOverlay.tsx`  | Premium episode paywall with upgrade CTA; shown to free users                                                                          |
+| D14 | `ErrorOverlay`                                    | `apps/web/src/components/player/overlays/ErrorOverlay.tsx`    | Generic error message with "Retry" button; "Report a problem" link                                                                     |
+| D15 | `PlayerSkeleton`                                  | `apps/web/src/components/player/skeletons/PlayerSkeleton.tsx` | 16:9 skeleton with play icon; no layout shift when player loads                                                                        |
+| D16 | Signed URL API route                              | `apps/web/app/api/v1/episodes/[id]/stream/route.ts`           | Returns signed URL with 5-minute TTL; enforces auth for premium; geo-restriction; cache `private, no-cache, no-store, must-revalidate` |
+| D17 | Progress API route (upsert)                       | `apps/web/app/api/v1/watch/progress/route.ts`                 | POST: upsert progress; requires auth; rate-limit 30/60s; Zod validation                                                                |
+| D18 | Progress API route (read)                         | `apps/web/app/api/v1/watch/progress/[episodeId]/route.ts`     | GET: return progress for single episode; 404 if not found; auth required                                                               |
+| D19 | `useProgressHeartbeat` hook                       | `apps/web/src/hooks/useProgressHeartbeat.ts`                  | Fires every 10s; fires on seek; cleans up on unmount; uses `navigator.sendBeacon` on page hide                                         |
+| D20 | `useKeyboardShortcuts` hook                       | `apps/web/src/hooks/useKeyboardShortcuts.ts`                  | Maps keyboard events to player actions; respects focus state (disabled in inputs); shows OSD feedback                                  |
+| D21 | `saveProgress` Server Action                      | `apps/web/src/actions/saveProgress.ts`                        | Zod-validated; requireUser; upsert via progress API; optimistic update on client                                                       |
+| D22 | `markEpisodeComplete` Server Action               | `apps/web/src/actions/markEpisodeComplete.ts`                 | Sets `is_completed=true`, `progress_pct=100`; navigates to next episode or shows "Series Complete"                                     |
+| D23 | `reportPlaybackError` Server Action               | `apps/web/src/actions/reportPlaybackError.ts`                 | Logs client-side playback errors for monitoring; no auth required (anonymous OK); rate-limited                                         |
+| D24 | Player utility constants                          | `apps/web/src/lib/player/player-constants.ts`                 | Key mappings, speed options, quality options, heartbeat interval, countdown duration                                                   |
+| D25 | Keyboard shortcut definitions                     | `apps/web/src/lib/player/keyboard-shortcuts.ts`               | Key-to-action map; seek distances; volume step; shortcut labels for OSD                                                                |
+| D26 | Responsive layout (desktop / tablet / mobile)     | `apps/web/src/components/player/`                             | Desktop: player 2/3 + sidebar 1/3 sticky; Tablet: full-width player + sidebar below; Mobile: stacked, no sidebar, full-width player    |
+| D27 | SEO metadata + canonical                          | `apps/web/src/app/watch/[animeSlug]/[episodeNumber]/page.tsx` | `robots: noindex, nofollow`; canonical → anime detail; OG title "{Episode Title} — {Anime Title} \| Nexus Anime"                       |
 
 ---
 
@@ -111,31 +111,31 @@ Before M7 begins, the following must be complete:
 
 ### Upstream (must exist before M7 starts)
 
-| Dependency | Type | Source | Contract |
-| :-- | :-- | :-- | :-- |
-| `GET /api/v1/episodes/{id}` | REST endpoint | M2 | Returns full `Episode` record including `video_asset_id`, `is_premium`, `number`, `season_id` |
-| `GET /api/v1/anime/{animeId}/episodes` | REST endpoint | M2 | Returns `EpisodeSummary[]` for sidebar; supports `season_id` filter |
-| `episodes` table with `video_asset_id` | Database | M2 | Opaque Cloudflare Stream asset ID; used to generate signed URLs |
-| Cloudflare Stream account + API | External | Infrastructure | Signed URL API; CORS config for `nexus-anime.com` origin |
-| Auth.js v5 session | Library | M3 | `requireUser` for progress tracking; premium gating |
-| `@nexus/ui` components | Package | M1 | `Button`, `Badge`, `Skeleton`, `Select`, `Slider`, `ErrorBoundary` |
-| `@nexus/cache` | Package | M2 | Redis caching for episode metadata (optional for player) |
+| Dependency                             | Type          | Source         | Contract                                                                                      |
+| :------------------------------------- | :------------ | :------------- | :-------------------------------------------------------------------------------------------- |
+| `GET /api/v1/episodes/{id}`            | REST endpoint | M2             | Returns full `Episode` record including `video_asset_id`, `is_premium`, `number`, `season_id` |
+| `GET /api/v1/anime/{animeId}/episodes` | REST endpoint | M2             | Returns `EpisodeSummary[]` for sidebar; supports `season_id` filter                           |
+| `episodes` table with `video_asset_id` | Database      | M2             | Opaque Cloudflare Stream asset ID; used to generate signed URLs                               |
+| Cloudflare Stream account + API        | External      | Infrastructure | Signed URL API; CORS config for `nexus-anime.com` origin                                      |
+| Auth.js v5 session                     | Library       | M3             | `requireUser` for progress tracking; premium gating                                           |
+| `@nexus/ui` components                 | Package       | M1             | `Button`, `Badge`, `Skeleton`, `Select`, `Slider`, `ErrorBoundary`                            |
+| `@nexus/cache`                         | Package       | M2             | Redis caching for episode metadata (optional for player)                                      |
 
 ### Downstream (will consume M7)
 
-| Consumer | What they need | Milestone |
-| :-- | :-- | :-- |
-| M8 — User Features | `useProgressHeartbeat` data feeds Continue Watching; watch history table populated by M7 progress writes | M8 |
-| M10 — Production | Signed URL monitoring, playback error tracking, progress write latency dashboards | M10 |
+| Consumer           | What they need                                                                                           | Milestone |
+| :----------------- | :------------------------------------------------------------------------------------------------------- | :-------- |
+| M8 — User Features | `useProgressHeartbeat` data feeds Continue Watching; watch history table populated by M7 progress writes | M8        |
+| M10 — Production   | Signed URL monitoring, playback error tracking, progress write latency dashboards                        | M10       |
 
 ### External services
 
-| Service | Purpose | Failure mode |
-| :-- | :-- | :-- |
-| Cloudflare Stream | Video delivery via signed HLS URLs | Signed URL failure → `ErrorOverlay` with retry; geo-fallback → `GeoBlockOverlay` |
-| Upstash Redis | Cache episode metadata; rate-limit progress writes | Cache miss → direct DB query; Redis down → fail open for reads, 429 for writes |
-| Postgres (Neon) | Episode metadata, `continue_watching` table, `watch_history` table | Query timeout → 503 `PROGRESS_BACKEND_UNAVAILABLE` |
-| Vercel Edge | Rate limiting (30/60s per user for progress) | Fail open; 429 with `Retry-After` header |
+| Service           | Purpose                                                            | Failure mode                                                                     |
+| :---------------- | :----------------------------------------------------------------- | :------------------------------------------------------------------------------- |
+| Cloudflare Stream | Video delivery via signed HLS URLs                                 | Signed URL failure → `ErrorOverlay` with retry; geo-fallback → `GeoBlockOverlay` |
+| Upstash Redis     | Cache episode metadata; rate-limit progress writes                 | Cache miss → direct DB query; Redis down → fail open for reads, 429 for writes   |
+| Postgres (Neon)   | Episode metadata, `continue_watching` table, `watch_history` table | Query timeout → 503 `PROGRESS_BACKEND_UNAVAILABLE`                               |
+| Vercel Edge       | Rate limiting (30/60s per user for progress)                       | Fail open; 429 with `Retry-After` header                                         |
 
 ---
 
@@ -148,6 +148,7 @@ Before M7 begins, the following must be complete:
 **Likelihood:** High · **Impact:** High (playback interruption — the most visible degradation)
 
 **Mitigation:**
+
 - Implement a silent refresh mechanism: `useSignedUrl` hook re-fetches a new signed URL 60 seconds before expiry, using the `expires_at` timestamp from the API response.
 - The player island listens for `signedUrlExpired` event from the SDK and calls the refresh function without tearing down the player instance.
 - Refresh uses `document.hidden` awareness: do not refresh if the tab is backgrounded (the URL will not expire if not actively playing).
@@ -160,6 +161,7 @@ Before M7 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Low (minor resume position discrepancy)
 
 **Mitigation:**
+
 - Use `navigator.sendBeacon()` in the `visibilitychange` handler (tab hide / beforeunload) to flush the current progress state. `sendBeacon` is more reliable than `fetch` for page-exit sends.
 - On episode switch within the player (sidebar click or auto-next), fire an immediate `POST /api/v1/watch/progress` before navigating.
 - The `useProgressHeartbeat` hook fires on `seek` events immediately, so manual seeking is always persisted.
@@ -172,6 +174,7 @@ Before M7 begins, the following must be complete:
 **Likelihood:** High · **Impact:** Medium (slow initial load on low-end devices and slow networks)
 
 **Mitigation:**
+
 - `PlayerIsland` is loaded via `next/dynamic` with `ssr: false` and a `PlayerSkeleton` fallback. The Stream SDK is never loaded during SSR.
 - Preconnect to Cloudflare Stream CDN (`<link rel="preconnect">`) in the player layout to reduce DNS/TLS latency.
 - The signed URL fetch happens server-side in `PlayerContainer`; the client only fetches the SDK + the URL from a lightweight API route.
@@ -184,6 +187,7 @@ Before M7 begins, the following must be complete:
 **Likelihood:** Low · **Impact:** Medium (legitimate users blocked = support tickets; bypass = licensing violation)
 
 **Mitigation:**
+
 - Geo-restriction is a business requirement imposed by licensing; inaccuracy is a known limitation.
 - The `GeoBlockOverlay` includes a "Report a problem" link so blocked users can request a review.
 - Log geo-block events with the user's country code for manual review; alert if block rate exceeds expected baseline.
@@ -196,6 +200,7 @@ Before M7 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Low (minor UX friction)
 
 **Mitigation:**
+
 - Store playback speed in a session-level `usePlaybackSpeed` hook that wraps the player island. The hook reads from `sessionStorage` on mount (default 1x) and writes on every speed change.
 - On auto-next, the `PlayerIsland` component is unmounted and remounted with the new episode; the `usePlaybackSpeed` hook persists via `sessionStorage` and applies the saved speed to the new player instance.
 - Test: set speed to 1.5x, trigger auto-next, verify new episode plays at 1.5x.
@@ -207,6 +212,7 @@ Before M7 begins, the following must be complete:
 **Likelihood:** Medium · **Impact:** Low (annoying but not breaking)
 
 **Mitigation:**
+
 - `useKeyboardShortcuts` hook calls `event.preventDefault()` only when the player is focused or fullscreen, and the key is in the shortcut map.
 - Shortcuts are disabled when focus is in an input, textarea, or contenteditable element (detected via `document.activeElement.tagName`).
 - The shortcut overlay (OSD) shows the action name and key, providing visual feedback that the shortcut was recognized.
@@ -219,6 +225,7 @@ Before M7 begins, the following must be complete:
 **Likelihood:** Low · **Impact:** Low (edge case — shared devices are uncommon for streaming)
 
 **Mitigation:**
+
 - The `PATCH /api/v1/users/me/continue-watching/{animeId}` endpoint requires `version`. On 409, the client re-fetches the latest progress and merges (server-wins for position).
 - Heartbeat interval (10s) is long enough to minimize contention; concurrent writes are unlikely in practice.
 - Document: shared-device concurrent playback is not a supported use case; last writer wins.
@@ -338,48 +345,48 @@ Each criterion is binary pass/fail. All must pass for the milestone to be consid
 
 ## 9. Estimated Tasks
 
-| # | Task | Estimate | Dependencies | Notes |
-| :-- | :-- | :-- | :-- | :-- |
-| T1 | Scaffold `apps/web/src/components/player/` directory structure and barrel exports | 0.5d | M1 | |
-| T2 | Implement `player-constants.ts` (key mappings, speed/quality options, heartbeat interval) | 0.25d | — | |
-| T3 | Implement `keyboard-shortcuts.ts` (key-to-action map, seek distances, labels) | 0.5d | T2 | |
-| T4 | Implement `player-utils.ts` (format time, calculate progress, etc.) | 0.25d | — | |
-| T5 | Implement `PlayerSkeleton` (16:9, play icon, shimmer) | 0.5d | M1 `Skeleton` | |
-| T6 | Implement `PlayerContainer` (Server Component — fetch signed URL + episode metadata) | 1.5d | M2 episode API, T5 | |
-| T7 | Implement `useSignedUrl` hook (fetch + auto-refresh 60s before expiry) | 1d | T6 | |
-| T8 | Implement `useProgressHeartbeat` hook (10s interval, sendBeacon on hide) | 1d | M3 auth | |
-| T9 | Implement `useKeyboardShortcuts` hook (key map, preventDefault, OSD events) | 1d | T2, T3 | |
-| T10 | Implement `usePlaybackSpeed` hook (sessionStorage persistence) | 0.5d | — | |
-| T11 | Implement `PlayerIsland` (client island — Cloudflare Stream SDK + state management) | 3d | T7, T8, T9, T10 | Most complex task; SDK integration |
-| T12 | Implement `PlayerControls` (play/pause, seek, volume, fullscreen, theater) | 2d | T11 | |
-| T13 | Implement `QualitySelector` | 0.5d | T11, T12 | |
-| T14 | Implement `PlaybackSpeedSelector` | 0.5d | T10, T12 | |
-| T15 | Implement `SubtitleSelector` | 0.5d | T11 | Cloudflare Stream subtitle API |
-| T16 | Implement `UpNextOverlay` (countdown, auto-navigate) | 1d | T11 | |
-| T17 | Implement `PlayerTopBar` (back link, title, episode number) | 0.5d | — | |
-| T18 | Implement `EpisodeSidebar` (season selector, episode list) | 1.5d | M2 episodes API | |
-| T19 | Implement `EpisodeDescription` (synopsis, metadata, tags) | 0.5d | — | |
-| T20 | Implement `GeoBlockOverlay` | 0.25d | — | |
-| T21 | Implement `PaywallOverlay` | 0.25d | M3 premium gating | |
-| T22 | Implement `ErrorOverlay` with retry | 0.5d | — | |
-| T23 | Implement `ErrorBoundary` (`error.tsx`) | 0.5d | T22 | |
-| T24 | Implement `not-found.tsx` for missing episodes | 0.25d | — | |
-| T25 | Implement `loading.tsx` (skeleton) | 0.25d | T5 | |
-| T26 | Implement signed URL API route (`/api/v1/episodes/[id]/stream`) | 1.5d | Cloudflare Stream API, M3 auth | |
-| T27 | Implement progress upsert API route (`POST /api/v1/watch/progress`) | 1d | M3 auth, continue_watching table | |
-| T28 | Implement progress read API route (`GET /api/v1/watch/progress/[episodeId]`) | 0.5d | M3 auth | |
-| T29 | Implement `saveProgress` Server Action | 0.5d | T27, M3 auth | |
-| T30 | Implement `markEpisodeComplete` Server Action | 0.5d | T27, T28 | |
-| T31 | Implement `reportPlaybackError` Server Action | 0.5d | — | Rate-limited, anonymous OK |
-| T32 | Implement `playerService` (signed URL fetch wrapper) | 0.5d | T26 | |
-| T33 | Implement `progressService` (heartbeat + save wrappers) | 0.5d | T27, T28 | |
-| T34 | Implement page layout + responsive CSS (desktop/tablet/mobile) | 1.5d | T6, T11, T18 | |
-| T35 | Implement SEO metadata + canonical | 0.5d | — | |
-| T36 | Accessibility audit + fixes (ARIA, focus trap, keyboard) | 1.5d | T11, T12 | |
-| T37 | Performance audit + fixes (SDK load, CLS, heartbeat) | 1d | T11 | |
-| T38 | Integration tests (signed URL flow, progress save, auto-next) | 2d | T11, T26, T27 | |
-| T39 | E2E tests (full playback flow, keyboard shortcuts, error recovery) | 1.5d | T11 | Playwright |
-| **Total** | | **~30.25d** | | ~5-6 weeks with 1 engineer |
+| #         | Task                                                                                      | Estimate    | Dependencies                     | Notes                              |
+| :-------- | :---------------------------------------------------------------------------------------- | :---------- | :------------------------------- | :--------------------------------- |
+| T1        | Scaffold `apps/web/src/components/player/` directory structure and barrel exports         | 0.5d        | M1                               |                                    |
+| T2        | Implement `player-constants.ts` (key mappings, speed/quality options, heartbeat interval) | 0.25d       | —                                |                                    |
+| T3        | Implement `keyboard-shortcuts.ts` (key-to-action map, seek distances, labels)             | 0.5d        | T2                               |                                    |
+| T4        | Implement `player-utils.ts` (format time, calculate progress, etc.)                       | 0.25d       | —                                |                                    |
+| T5        | Implement `PlayerSkeleton` (16:9, play icon, shimmer)                                     | 0.5d        | M1 `Skeleton`                    |                                    |
+| T6        | Implement `PlayerContainer` (Server Component — fetch signed URL + episode metadata)      | 1.5d        | M2 episode API, T5               |                                    |
+| T7        | Implement `useSignedUrl` hook (fetch + auto-refresh 60s before expiry)                    | 1d          | T6                               |                                    |
+| T8        | Implement `useProgressHeartbeat` hook (10s interval, sendBeacon on hide)                  | 1d          | M3 auth                          |                                    |
+| T9        | Implement `useKeyboardShortcuts` hook (key map, preventDefault, OSD events)               | 1d          | T2, T3                           |                                    |
+| T10       | Implement `usePlaybackSpeed` hook (sessionStorage persistence)                            | 0.5d        | —                                |                                    |
+| T11       | Implement `PlayerIsland` (client island — Cloudflare Stream SDK + state management)       | 3d          | T7, T8, T9, T10                  | Most complex task; SDK integration |
+| T12       | Implement `PlayerControls` (play/pause, seek, volume, fullscreen, theater)                | 2d          | T11                              |                                    |
+| T13       | Implement `QualitySelector`                                                               | 0.5d        | T11, T12                         |                                    |
+| T14       | Implement `PlaybackSpeedSelector`                                                         | 0.5d        | T10, T12                         |                                    |
+| T15       | Implement `SubtitleSelector`                                                              | 0.5d        | T11                              | Cloudflare Stream subtitle API     |
+| T16       | Implement `UpNextOverlay` (countdown, auto-navigate)                                      | 1d          | T11                              |                                    |
+| T17       | Implement `PlayerTopBar` (back link, title, episode number)                               | 0.5d        | —                                |                                    |
+| T18       | Implement `EpisodeSidebar` (season selector, episode list)                                | 1.5d        | M2 episodes API                  |                                    |
+| T19       | Implement `EpisodeDescription` (synopsis, metadata, tags)                                 | 0.5d        | —                                |                                    |
+| T20       | Implement `GeoBlockOverlay`                                                               | 0.25d       | —                                |                                    |
+| T21       | Implement `PaywallOverlay`                                                                | 0.25d       | M3 premium gating                |                                    |
+| T22       | Implement `ErrorOverlay` with retry                                                       | 0.5d        | —                                |                                    |
+| T23       | Implement `ErrorBoundary` (`error.tsx`)                                                   | 0.5d        | T22                              |                                    |
+| T24       | Implement `not-found.tsx` for missing episodes                                            | 0.25d       | —                                |                                    |
+| T25       | Implement `loading.tsx` (skeleton)                                                        | 0.25d       | T5                               |                                    |
+| T26       | Implement signed URL API route (`/api/v1/episodes/[id]/stream`)                           | 1.5d        | Cloudflare Stream API, M3 auth   |                                    |
+| T27       | Implement progress upsert API route (`POST /api/v1/watch/progress`)                       | 1d          | M3 auth, continue_watching table |                                    |
+| T28       | Implement progress read API route (`GET /api/v1/watch/progress/[episodeId]`)              | 0.5d        | M3 auth                          |                                    |
+| T29       | Implement `saveProgress` Server Action                                                    | 0.5d        | T27, M3 auth                     |                                    |
+| T30       | Implement `markEpisodeComplete` Server Action                                             | 0.5d        | T27, T28                         |                                    |
+| T31       | Implement `reportPlaybackError` Server Action                                             | 0.5d        | —                                | Rate-limited, anonymous OK         |
+| T32       | Implement `playerService` (signed URL fetch wrapper)                                      | 0.5d        | T26                              |                                    |
+| T33       | Implement `progressService` (heartbeat + save wrappers)                                   | 0.5d        | T27, T28                         |                                    |
+| T34       | Implement page layout + responsive CSS (desktop/tablet/mobile)                            | 1.5d        | T6, T11, T18                     |                                    |
+| T35       | Implement SEO metadata + canonical                                                        | 0.5d        | —                                |                                    |
+| T36       | Accessibility audit + fixes (ARIA, focus trap, keyboard)                                  | 1.5d        | T11, T12                         |                                    |
+| T37       | Performance audit + fixes (SDK load, CLS, heartbeat)                                      | 1d          | T11                              |                                    |
+| T38       | Integration tests (signed URL flow, progress save, auto-next)                             | 2d          | T11, T26, T27                    |                                    |
+| T39       | E2E tests (full playback flow, keyboard shortcuts, error recovery)                        | 1.5d        | T11                              | Playwright                         |
+| **Total** |                                                                                           | **~30.25d** |                                  | ~5-6 weeks with 1 engineer         |
 
 ---
 

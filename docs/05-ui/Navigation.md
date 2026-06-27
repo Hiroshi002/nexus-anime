@@ -35,15 +35,15 @@ The platform has **four navigation contexts**:
 
 ### Desktop layout
 
-| Left | Center | Right (anon) | Right (auth) |
-|------|--------|--------------|--------------|
+| Left | Center                          | Right (anon)                   | Right (auth)                           |
+| ---- | ------------------------------- | ------------------------------ | -------------------------------------- |
 | Logo | Search field (expands on focus) | Theme toggle, Sign In, Sign Up | Theme toggle, Notifications, User menu |
 
 ### Mobile layout
 
-| Left | Center | Right |
-|------|--------|-------|
-| Logo (smaller) | — | Hamburger (opens mobile drawer) |
+| Left           | Center | Right                           |
+| -------------- | ------ | ------------------------------- |
+| Logo (smaller) | —      | Hamburger (opens mobile drawer) |
 
 On mobile, the search icon expands to a full-screen search overlay when tapped. There is no inline search field.
 
@@ -62,11 +62,11 @@ On mobile, the search icon expands to a full-screen search overlay when tapped. 
 
 ### Primary nav links (desktop only)
 
-| Label | Route | Active when |
-|-------|-------|-------------|
-| Home | `/` | Path is `/` or `/home` |
-| Browse | `/trending` | Path starts with `/trending`, `/popular`, `/latest`, `/genres`, `/schedule` |
-| Watchlist | `/watchlist` | Path is `/watchlist` |
+| Label     | Route        | Active when                                                                 |
+| --------- | ------------ | --------------------------------------------------------------------------- |
+| Home      | `/`          | Path is `/` or `/home`                                                      |
+| Browse    | `/trending`  | Path starts with `/trending`, `/popular`, `/latest`, `/genres`, `/schedule` |
+| Watchlist | `/watchlist` | Path is `/watchlist`                                                        |
 
 **Active state:** `text-primary` + 2px bottom border in `action-primary-bg`. Inactive: `text-secondary`. Hover: `text-primary`.
 
@@ -256,6 +256,7 @@ Home > Anime > [Romaji Title] > Season 1 > Episode 3
 ### Tab navigation
 
 Used on:
+
 - **Anime Detail:** Episodes / Related / Reviews tabs.
 - **Settings:** Account / Billing / Notifications / Accessibility tabs.
 - **Profile:** Overview / Watchlist / History tabs.
@@ -270,12 +271,12 @@ Tab bar: underline-style active indicator in `action-primary-bg`, 2px height, fu
 
 Four columns:
 
-| Column | Links |
-|--------|-------|
-| Platform | About, Pricing, Press, Careers |
-| Content | Trending, Popular, Latest, Genres, Schedule |
-| Support | Help Center, Contact, Status, Bug Reports |
-| Legal | Terms, Privacy, Cookies, Licenses |
+| Column   | Links                                       |
+| -------- | ------------------------------------------- |
+| Platform | About, Pricing, Press, Careers              |
+| Content  | Trending, Popular, Latest, Genres, Schedule |
+| Support  | Help Center, Contact, Status, Bug Reports   |
+| Legal    | Terms, Privacy, Cookies, Licenses           |
 
 Bottom row: copyright + social icons (Twitter, Discord, GitHub).
 
@@ -300,13 +301,13 @@ Two columns: Support + Legal. Platform and Content links collapse into the heade
 
 ## 11. Navigation State Summary
 
-| State | Header right | Sidebar | Drawer personal |
-|-------|--------------|---------|-----------------|
-| Anonymous, public page | Theme, Sign In, Sign Up | — | Hidden |
-| Anonymous, auth page | Theme, Sign In, Sign Up | — | Hidden |
-| Authenticated, public page | Theme, Notifications, User menu | — | Visible |
-| Authenticated, auth page | Theme, Notifications, User menu | — | Visible |
-| Authenticated, personal page | Theme, Notifications, User menu | Visible | Visible |
+| State                        | Header right                    | Sidebar | Drawer personal |
+| ---------------------------- | ------------------------------- | ------- | --------------- |
+| Anonymous, public page       | Theme, Sign In, Sign Up         | —       | Hidden          |
+| Anonymous, auth page         | Theme, Sign In, Sign Up         | —       | Hidden          |
+| Authenticated, public page   | Theme, Notifications, User menu | —       | Visible         |
+| Authenticated, auth page     | Theme, Notifications, User menu | —       | Visible         |
+| Authenticated, personal page | Theme, Notifications, User menu | Visible | Visible         |
 
 ---
 

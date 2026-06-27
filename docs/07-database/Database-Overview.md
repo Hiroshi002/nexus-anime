@@ -23,12 +23,12 @@ The database owns the **system of record** for:
 
 **Out of scope (separate stores):**
 
-| Concern | Store | Why |
-|---------|-------|-----|
-| Session cache, rate limits, feature flags | Upstash Redis (`@nexus/cache`) | Sub-millisecond access, TTL-native, fail-open semantics. |
-| Full-text / fuzzy search index | Meilisearch / Postgres `tsvector` (see §6) | Search is a derived view, not the system of record. |
-| Video blobs & manifests | Cloudflare Stream R2 | Object storage, not relational. |
-| Analytics events | ClickHouse / BigQuery (future) | Columnar workload; not yet in M3. |
+| Concern                                   | Store                                      | Why                                                      |
+| ----------------------------------------- | ------------------------------------------ | -------------------------------------------------------- |
+| Session cache, rate limits, feature flags | Upstash Redis (`@nexus/cache`)             | Sub-millisecond access, TTL-native, fail-open semantics. |
+| Full-text / fuzzy search index            | Meilisearch / Postgres `tsvector` (see §6) | Search is a derived view, not the system of record.      |
+| Video blobs & manifests                   | Cloudflare Stream R2                       | Object storage, not relational.                          |
+| Analytics events                          | ClickHouse / BigQuery (future)             | Columnar workload; not yet in M3.                        |
 
 ---
 
@@ -40,15 +40,15 @@ We standardize on **PostgreSQL** as the sole relational engine, provisioned thro
 
 ### 3.2 Why PostgreSQL
 
-| Requirement | How PostgreSQL satisfies it |
-|-------------|----------------------------|
-| **Relational integrity** | Foreign keys, check constraints, exclusion constraints, transactional DDL. |
-| **Rich types** | `uuid`, `timestamptz`, `text`, `int4`, `jsonb`, arrays, `tsvector`, `citext` (case-insensitive text). |
-| **Extensibility** | `pg_trgm` (trigram fuzzy search), `uuid-ossp`/`gen_random_uuid()`, `pgcrypto`, PostGIS (future localization). |
-| **Ecosystem** | First-class Drizzle ORM support, Neon serverless, Vercel Postgres connector, mature tooling (`pg_dump`, logical replication). |
-| **JSON where relational is overkill** | `jsonb` for semi-structured payloads (TMDB/AniList import metadata, notification payloads) with GIN indexing. |
-| **Concurrency** | MVCC, row-level locking, `SELECT … FOR UPDATE` for cursor-style continue-watching updates. |
-| **Operational maturity** | Point-in-time recovery, logical replication, `pg_stat_statements`, well-understood vacuuming. |
+| Requirement                           | How PostgreSQL satisfies it                                                                                                   |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Relational integrity**              | Foreign keys, check constraints, exclusion constraints, transactional DDL.                                                    |
+| **Rich types**                        | `uuid`, `timestamptz`, `text`, `int4`, `jsonb`, arrays, `tsvector`, `citext` (case-insensitive text).                         |
+| **Extensibility**                     | `pg_trgm` (trigram fuzzy search), `uuid-ossp`/`gen_random_uuid()`, `pgcrypto`, PostGIS (future localization).                 |
+| **Ecosystem**                         | First-class Drizzle ORM support, Neon serverless, Vercel Postgres connector, mature tooling (`pg_dump`, logical replication). |
+| **JSON where relational is overkill** | `jsonb` for semi-structured payloads (TMDB/AniList import metadata, notification payloads) with GIN indexing.                 |
+| **Concurrency**                       | MVCC, row-level locking, `SELECT … FOR UPDATE` for cursor-style continue-watching updates.                                    |
+| **Operational maturity**              | Point-in-time recovery, logical replication, `pg_stat_statements`, well-understood vacuuming.                                 |
 
 ### 3.3 Why Neon specifically
 
@@ -59,22 +59,22 @@ We standardize on **PostgreSQL** as the sole relational engine, provisioned thro
 
 ### 3.4 Alternatives Considered
 
-| Alternative | Trade-off | Verdict |
-|-------------|-----------|---------|
-| **MySQL 8 (PlanetScale)** | Weaker JSON querying, no true `uuid` native type, fewer advanced indexes; PlanetScale's branching is nice but Drizzle's Postgres dialect is more mature. | Rejected — Postgres' `jsonb` + GIN + `pg_trgm` better serve catalog metadata and search. |
-| **SQLite (Turso)** | Excellent for edge/local, but lacks concurrent-write scaling, row-level locking, and the operational tooling we need at millions-of-users scale. | Rejected for production; acceptable for local dev only. |
-| **MongoDB Atlas** | Document model fits catalog metadata, but sacrifices relational integrity for watch history ↔ user ↔ episode joins, and complicates transactions across engagement writes. | Rejected — our access patterns are strongly relational. |
-| **CockroachDB / YugabyteDB** | Distributed SQL, but operational complexity and cost are unjustified pre-product-market fit. | Deferred — revisit at M5+ if multi-region write latency becomes a bottleneck. |
-| **DynamoDB** | Serverless, but key-value model forces denormalization and GSIs for every access pattern; expensive at our query diversity. | Rejected. |
+| Alternative                  | Trade-off                                                                                                                                                                  | Verdict                                                                                  |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| **MySQL 8 (PlanetScale)**    | Weaker JSON querying, no true `uuid` native type, fewer advanced indexes; PlanetScale's branching is nice but Drizzle's Postgres dialect is more mature.                   | Rejected — Postgres' `jsonb` + GIN + `pg_trgm` better serve catalog metadata and search. |
+| **SQLite (Turso)**           | Excellent for edge/local, but lacks concurrent-write scaling, row-level locking, and the operational tooling we need at millions-of-users scale.                           | Rejected for production; acceptable for local dev only.                                  |
+| **MongoDB Atlas**            | Document model fits catalog metadata, but sacrifices relational integrity for watch history ↔ user ↔ episode joins, and complicates transactions across engagement writes. | Rejected — our access patterns are strongly relational.                                  |
+| **CockroachDB / YugabyteDB** | Distributed SQL, but operational complexity and cost are unjustified pre-product-market fit.                                                                               | Deferred — revisit at M5+ if multi-region write latency becomes a bottleneck.            |
+| **DynamoDB**                 | Serverless, but key-value model forces denormalization and GSIs for every access pattern; expensive at our query diversity.                                                | Rejected.                                                                                |
 
 ### 3.5 Trade-offs of the Postgres-on-Neon choice
 
-| Benefit | Cost |
-|---------|------|
-| Strong consistency & integrity | Not a global distributed DB — single primary region (read replicas via Neon for read scaling). |
-| Serverless scale-to-zero | Cold-start latency on idle compute mitigated by Neon's connection pooling + our app-level pool (`@nexus/db`). |
-| Rich types & extensions | Vendor-specific (Neon) — mitigated by sticking to standard Postgres features and Drizzle's dialect abstraction. |
-| Branching for previews | Branch schema drift must be managed via migration tooling (see `Migration-Strategy.md`). |
+| Benefit                        | Cost                                                                                                            |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| Strong consistency & integrity | Not a global distributed DB — single primary region (read replicas via Neon for read scaling).                  |
+| Serverless scale-to-zero       | Cold-start latency on idle compute mitigated by Neon's connection pooling + our app-level pool (`@nexus/db`).   |
+| Rich types & extensions        | Vendor-specific (Neon) — mitigated by sticking to standard Postgres features and Drizzle's dialect abstraction. |
+| Branching for previews         | Branch schema drift must be managed via migration tooling (see `Migration-Strategy.md`).                        |
 
 ---
 
@@ -96,10 +96,10 @@ These decisions apply to **every table** unless an entity document explicitly ov
 
 Every table carries:
 
-| Column | Type | Default | Purpose |
-|--------|------|---------|---------|
-| `created_at` | `timestamptz` | `now()` | Insertion time (immutable). |
-| `updated_at` | `timestamptz` | `now()` (via trigger) | Last mutation time. |
+| Column       | Type          | Default               | Purpose                     |
+| ------------ | ------------- | --------------------- | --------------------------- |
+| `created_at` | `timestamptz` | `now()`               | Insertion time (immutable). |
+| `updated_at` | `timestamptz` | `now()` (via trigger) | Last mutation time.         |
 
 - We use **`timestamptz`** (timestamp with time zone), never `timestamp`. Stored as UTC; the application layer renders in the user's locale.
 - `updated_at` is maintained by a **single shared trigger function** (`touch_updated_at()`) to avoid drift across tables.
@@ -119,10 +119,10 @@ Every table carries:
 
 Writeable tables that mutate business state include:
 
-| Column | Type | Purpose |
-|--------|------|---------|
+| Column       | Type                               | Purpose                                              |
+| ------------ | ---------------------------------- | ---------------------------------------------------- |
 | `created_by` | `uuid` (nullable, FK → `users.id`) | Who created it (nullable for system-generated rows). |
-| `updated_by` | `uuid` (nullable, FK → `users.id`) | Who last mutated it. |
+| `updated_by` | `uuid` (nullable, FK → `users.id`) | Who last mutated it.                                 |
 
 These are **application-populated** (from the Auth.js session), not trigger-maintained, because "who" is a domain concept. The `audit_log` table (see `Audit-Log.md`) captures the full before/after, timestamp, and actor for every sensitive mutation — `created_by`/`updated_by` are convenience pointers on the row itself.
 
@@ -135,34 +135,34 @@ These are **application-populated** (from the Auth.js session), not trigger-main
 
 ### 4.6 Naming Conventions
 
-| Element | Convention | Example |
-|---------|-----------|---------|
-| Tables | `snake_case`, plural | `anime`, `watch_history`, `anime_genres` |
-| Columns | `snake_case` | `created_at`, `poster_url` |
-| Primary key | always `id` | `id uuid PRIMARY KEY DEFAULT gen_random_uuid()` |
-| Foreign keys | `{entity}_id` | `user_id`, `anime_id`, `episode_id` |
-| Join tables | `{a}_{b}` alphabetical | `anime_genres`, `anime_studios` |
-| Indexes | `idx_{table}_{cols}` | `idx_watch_history_user_id_created_at` |
-| Unique constraints | `uq_{table}_{cols}` | `uq_bookmarks_user_id_anime_id` |
-| Check constraints | `chk_{table}_{rule}` | `chk_ratings_value_range` |
+| Element            | Convention             | Example                                         |
+| ------------------ | ---------------------- | ----------------------------------------------- |
+| Tables             | `snake_case`, plural   | `anime`, `watch_history`, `anime_genres`        |
+| Columns            | `snake_case`           | `created_at`, `poster_url`                      |
+| Primary key        | always `id`            | `id uuid PRIMARY KEY DEFAULT gen_random_uuid()` |
+| Foreign keys       | `{entity}_id`          | `user_id`, `anime_id`, `episode_id`             |
+| Join tables        | `{a}_{b}` alphabetical | `anime_genres`, `anime_studios`                 |
+| Indexes            | `idx_{table}_{cols}`   | `idx_watch_history_user_id_created_at`          |
+| Unique constraints | `uq_{table}_{cols}`    | `uq_bookmarks_user_id_anime_id`                 |
+| Check constraints  | `chk_{table}_{rule}`   | `chk_ratings_value_range`                       |
 
 ### 4.7 Data Type Defaults
 
-| Domain | Type | Notes |
-|--------|------|-------|
-| Primary/Foreign key | `uuid` | `gen_random_uuid()` (pg13+ built-in). |
-| Short text (titles, names) | `text` | Postgres `text` ≈ `varchar` with no length penalty; add a `CHECK(char_length <= N)` where business rules require it. |
-| Long text (descriptions, comments) | `text` | Validated by Zod at the API boundary. |
-| Slugs | `text` | Unique, URL-safe, indexed. |
-| URLs | `text` | Validated by Zod (`z.string().url()`); not `varchar(2048)` (URLs have no practical fixed max). |
-| Counts / small ints | `integer` | `int4` is sufficient; `bigint` only for counters that may exceed 2^31 (view counts). |
-| Large counters | `bigint` | View counts, watch minutes aggregates. |
-| Ratings / decimals | `numeric(3,2)` | Exact decimal, avoids float rounding. |
-| Booleans | `boolean` | With `NOT NULL DEFAULT false/true`; never nullable booleans. |
-| Timestamps | `timestamptz` | Always UTC. |
-| Semi-structured JSON | `jsonb` | Never `json` (no indexing); `jsonb` is indexable via GIN. |
-| Case-insensitive identifiers | `citext` (extension) | Emails, usernames — avoids `lower()` gymnastics and unique-index pitfalls. |
-| Arrays | `text[]` / `integer[]` | Only when a GIN index backs them; otherwise normalize to a join table. |
+| Domain                             | Type                   | Notes                                                                                                                |
+| ---------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Primary/Foreign key                | `uuid`                 | `gen_random_uuid()` (pg13+ built-in).                                                                                |
+| Short text (titles, names)         | `text`                 | Postgres `text` ≈ `varchar` with no length penalty; add a `CHECK(char_length <= N)` where business rules require it. |
+| Long text (descriptions, comments) | `text`                 | Validated by Zod at the API boundary.                                                                                |
+| Slugs                              | `text`                 | Unique, URL-safe, indexed.                                                                                           |
+| URLs                               | `text`                 | Validated by Zod (`z.string().url()`); not `varchar(2048)` (URLs have no practical fixed max).                       |
+| Counts / small ints                | `integer`              | `int4` is sufficient; `bigint` only for counters that may exceed 2^31 (view counts).                                 |
+| Large counters                     | `bigint`               | View counts, watch minutes aggregates.                                                                               |
+| Ratings / decimals                 | `numeric(3,2)`         | Exact decimal, avoids float rounding.                                                                                |
+| Booleans                           | `boolean`              | With `NOT NULL DEFAULT false/true`; never nullable booleans.                                                         |
+| Timestamps                         | `timestamptz`          | Always UTC.                                                                                                          |
+| Semi-structured JSON               | `jsonb`                | Never `json` (no indexing); `jsonb` is indexable via GIN.                                                            |
+| Case-insensitive identifiers       | `citext` (extension)   | Emails, usernames — avoids `lower()` gymnastics and unique-index pitfalls.                                           |
+| Arrays                             | `text[]` / `integer[]` | Only when a GIN index backs them; otherwise normalize to a join table.                                               |
 
 ### 4.8 Enum Handling
 
@@ -208,11 +208,11 @@ This document set owns the relational schema; search-index population is an appl
 
 ## 7. Scalability & Milestones
 
-| Phase | Scale | Strategy |
-|-------|-------|----------|
-| **M3 (current)** | < 100k users, single region | Single Neon primary, read replica optional, soft deletes + indexes. |
-| **M4–M5** | 100k–1M users | Read replicas for catalog, connection pooling tuned, materialized views for trending aggregates. |
-| **M6+** | 1M+ users | Evaluate sharding by `user_id` hash for engagement tables (watch history, bookmarks); multi-region read replicas; columnar offload for analytics. |
+| Phase            | Scale                       | Strategy                                                                                                                                          |
+| ---------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **M3 (current)** | < 100k users, single region | Single Neon primary, read replica optional, soft deletes + indexes.                                                                               |
+| **M4–M5**        | 100k–1M users               | Read replicas for catalog, connection pooling tuned, materialized views for trending aggregates.                                                  |
+| **M6+**          | 1M+ users                   | Evaluate sharding by `user_id` hash for engagement tables (watch history, bookmarks); multi-region read replicas; columnar offload for analytics. |
 
 The schema is designed so that **no column changes are required** to move from M3 to M6 — only physical partitioning and index additions.
 

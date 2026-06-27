@@ -6,12 +6,12 @@
 
 ## 1. Rendering Strategies Overview
 
-| Strategy | When data is rendered | Cache behavior | Latency | Use when |
-|----------|---------------------|----------------|---------|----------|
-| **SSG** (Static Site Generation) | Build time | Immutable until next build | Lowest | Content never changes (marketing pages) |
-| **ISR** (Incremental Static Regeneration) | Build time, then revalidates on schedule | Time-based (`revalidate`) | Low | Content changes on a known cadence (catalog) |
-| **SSR** (Server-Side Rendering) | Request time | No cache (or per-request) | Medium | Content is user-specific or real-time |
-| **CSR** (Client-Side Rendering) | In browser after hydration | Browser-side (React Query) | Highest | Interactive state, live data |
+| Strategy                                  | When data is rendered                    | Cache behavior             | Latency | Use when                                     |
+| ----------------------------------------- | ---------------------------------------- | -------------------------- | ------- | -------------------------------------------- |
+| **SSG** (Static Site Generation)          | Build time                               | Immutable until next build | Lowest  | Content never changes (marketing pages)      |
+| **ISR** (Incremental Static Regeneration) | Build time, then revalidates on schedule | Time-based (`revalidate`)  | Low     | Content changes on a known cadence (catalog) |
+| **SSR** (Server-Side Rendering)           | Request time                             | No cache (or per-request)  | Medium  | Content is user-specific or real-time        |
+| **CSR** (Client-Side Rendering)           | In browser after hydration               | Browser-side (React Query) | Highest | Interactive state, live data                 |
 
 ---
 
@@ -19,12 +19,12 @@
 
 ### Public catalog — ISR
 
-| Route | `revalidate` | Why ISR |
-|------- |-------------|---------|
-| `/` (home/browse) | 300 (5 min) | Trending changes daily; genres rarely change. 5 min balances freshness with cache hit rate. |
-| `/[id]` (anime detail) | 3600 (1 hr) | Anime metadata (synopsis, rating, episode count) changes infrequently. New episodes appear weekly. |
-| `/season/[seasonId]` | 86400 (24 hr) | Season rosters are stable once published. |
-| `/search` | N/A (SSR) | Search queries are unique per user; caching by query string has low hit rate. ISR is inappropriate. |
+| Route                  | `revalidate`  | Why ISR                                                                                             |
+| ---------------------- | ------------- | --------------------------------------------------------------------------------------------------- |
+| `/` (home/browse)      | 300 (5 min)   | Trending changes daily; genres rarely change. 5 min balances freshness with cache hit rate.         |
+| `/[id]` (anime detail) | 3600 (1 hr)   | Anime metadata (synopsis, rating, episode count) changes infrequently. New episodes appear weekly.  |
+| `/season/[seasonId]`   | 86400 (24 hr) | Season rosters are stable once published.                                                           |
+| `/search`              | N/A (SSR)     | Search queries are unique per user; caching by query string has low hit rate. ISR is inappropriate. |
 
 **Why ISR for catalog:** Catalog pages receive the highest traffic. ISR serves cached HTML instantly (sub-50ms TTFB on Vercel Edge) and regenerates in the background. Users never wait for a cold server render. The `revalidate` values are tuned to the data change cadence — anime metadata doesn't change every minute, so a 1-hour cache is safe.
 
@@ -34,12 +34,12 @@
 
 ### Authenticated pages — SSR
 
-| Route | Why SSR |
-|-------|---------|
-| `/watchlist` | User-specific data. Cannot share cache between users. |
-| `/profile` | User-specific data. |
-| `/settings` | User-specific data. |
-| `/continue-watching` | Real-time watch progress. |
+| Route                | Why SSR                                               |
+| -------------------- | ----------------------------------------------------- |
+| `/watchlist`         | User-specific data. Cannot share cache between users. |
+| `/profile`           | User-specific data.                                   |
+| `/settings`          | User-specific data.                                   |
+| `/continue-watching` | Real-time watch progress.                             |
 
 **Why SSR, not ISR:** Authenticated pages contain private data. ISR would serve one user's cached page to another. SSR renders per-request with the user's session, ensuring data isolation.
 
@@ -49,12 +49,12 @@
 
 ### Marketing pages — SSG (Static)
 
-| Route | Why SSG |
-|-------|---------|
-| `/pricing` | Plan names and prices change only when we deploy a new version. No dynamic data. |
-| `/about` | Static content. |
-| `/terms` | Legal text, updated only via deployment. |
-| `/login`, `/signup` | No data fetching — pure forms. |
+| Route               | Why SSG                                                                          |
+| ------------------- | -------------------------------------------------------------------------------- |
+| `/pricing`          | Plan names and prices change only when we deploy a new version. No dynamic data. |
+| `/about`            | Static content.                                                                  |
+| `/terms`            | Legal text, updated only via deployment.                                         |
+| `/login`, `/signup` | No data fetching — pure forms.                                                   |
 
 **Why SSG:** These pages have zero dynamic data. SSG renders them at build time, giving the fastest possible TTFB and zero server cost. They deploy to Vercel's Edge Network as static files.
 
@@ -113,13 +113,13 @@ Client Islands are Client Components loaded via `next/dynamic` with `ssr: false`
 
 **Use for:** Heavy components that would significantly increase the initial bundle.
 
-| Island | Bundle size | Why lazy |
-|--------|-------------|----------|
-| Video Player | ~200KB (HLS.js + controls) | Only needed on episode pages. Most users browse catalog without playing. |
-| Comment Editor | ~50KB (rich text) | Only on anime detail pages. |
-| Payment Form | ~80KB (Stripe.js) | Only on checkout. |
+| Island         | Bundle size                | Why lazy                                                                 |
+| -------------- | -------------------------- | ------------------------------------------------------------------------ |
+| Video Player   | ~200KB (HLS.js + controls) | Only needed on episode pages. Most users browse catalog without playing. |
+| Comment Editor | ~50KB (rich text)          | Only on anime detail pages.                                              |
+| Payment Form   | ~80KB (Stripe.js)          | Only on checkout.                                                        |
 
-**Why dynamic import, not code splitting via route:** Code splitting by route is automatic in Next.js App Router. However, the video player, comment editor, and payment form are components *within* a route, not separate routes. Dynamic import ensures they don't bloat the route's initial chunk.
+**Why dynamic import, not code splitting via route:** Code splitting by route is automatic in Next.js App Router. However, the video player, comment editor, and payment form are components _within_ a route, not separate routes. Dynamic import ensures they don't bloat the route's initial chunk.
 
 ---
 
@@ -158,22 +158,22 @@ const getAnime = React.cache(async (id: string) => {
 
 All images use `next/image` with the R2 loader for Cloudflare R2-hosted images.
 
-| Image source | Loader | Optimization |
-|-------------|--------|-------------|
-| Cloudflare R2 (covers, avatars) | Custom R2 loader | Next.js on-demand resize + WebP/AVIF |
-| TMDB image CDN | Custom TMDB loader | Next.js on-demand resize (TMDB already serves WebP) |
-| Static assets (`/public`) | Default Next.js loader | Build-time optimization via `next/image` |
+| Image source                    | Loader                 | Optimization                                        |
+| ------------------------------- | ---------------------- | --------------------------------------------------- |
+| Cloudflare R2 (covers, avatars) | Custom R2 loader       | Next.js on-demand resize + WebP/AVIF                |
+| TMDB image CDN                  | Custom TMDB loader     | Next.js on-demand resize (TMDB already serves WebP) |
+| Static assets (`/public`)       | Default Next.js loader | Build-time optimization via `next/image`            |
 
 ### Required props for every `<Image>`
 
 ```tsx
 <Image
   src={anime.coverUrl}
-  alt={anime.title}           // Always required — accessibility + SEO
-  width={300}                 // Explicit — prevents layout shift
-  height={450}                // Explicit — prevents layout shift
-  sizes="(max-width: 768px) 50vw, 300px"  // Responsive sizes hint
-  priority={isAboveTheFold}  // Preload LCP images
+  alt={anime.title} // Always required — accessibility + SEO
+  width={300} // Explicit — prevents layout shift
+  height={450} // Explicit — prevents layout shift
+  sizes="(max-width: 768px) 50vw, 300px" // Responsive sizes hint
+  priority={isAboveTheFold} // Preload LCP images
 />
 ```
 
@@ -213,12 +213,12 @@ export async function generateStaticParams() {
 
 ## 7. Not-found & Error Rendering
 
-| File | Rendering | Purpose |
-|------|-----------|---------|
-| `not-found.tsx` | Static (SSG) | Custom 404 page with navigation suggestions |
-| `error.tsx` | Client Component | Must be a Client Component (uses `reset()` for retry) |
-| `loading.tsx` | Static (SSG) | Skeleton — instant, no data fetch |
-| `global-error.tsx` | Client Component | Catches root layout errors (last resort) |
+| File               | Rendering        | Purpose                                               |
+| ------------------ | ---------------- | ----------------------------------------------------- |
+| `not-found.tsx`    | Static (SSG)     | Custom 404 page with navigation suggestions           |
+| `error.tsx`        | Client Component | Must be a Client Component (uses `reset()` for retry) |
+| `loading.tsx`      | Static (SSG)     | Skeleton — instant, no data fetch                     |
+| `global-error.tsx` | Client Component | Catches root layout errors (last resort)              |
 
 **Why error.tsx must be a Client Component:** Next.js requires error boundaries to be Client Components because they need the `reset()` function to retry rendering. This is a framework constraint, not an architectural choice.
 
@@ -235,11 +235,11 @@ The `/dev/components` route renders the design system showcase. It is:
 
 ## 9. Performance Budgets per Rendering Strategy
 
-| Strategy | Target TTFB | Target FCP | Target LCP |
-|----------|-------------|------------|------------|
-| SSG | <50ms | <200ms | <500ms |
-| ISR | <50ms (cached) | <200ms | <1s |
-| SSR | <200ms | <500ms | <1.5s |
-| CSR (island) | N/A | hydration | <2s (lazy loaded) |
+| Strategy     | Target TTFB    | Target FCP | Target LCP        |
+| ------------ | -------------- | ---------- | ----------------- |
+| SSG          | <50ms          | <200ms     | <500ms            |
+| ISR          | <50ms (cached) | <200ms     | <1s               |
+| SSR          | <200ms         | <500ms     | <1.5s             |
+| CSR (island) | N/A            | hydration  | <2s (lazy loaded) |
 
 **Why these targets:** Vercel Edge serves cached ISR/SSG pages in <50ms TTFB. SSR adds database latency (~50-100ms). CSR islands are lazy-loaded after hydration, so their LCP depends on bundle size and network conditions. These targets are achievable on Vercel Pro with the Neon/Upstash stack.

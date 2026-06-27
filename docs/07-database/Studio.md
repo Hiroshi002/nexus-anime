@@ -17,42 +17,42 @@
 
 ### 2.1 Fields
 
-| Column | Type | Constraint | Description |
-|--------|------|------------|-------------|
-| `id` | `uuid` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key. |
-| `slug` | `text` | `NOT NULL` | URL-safe key (e.g. `kyoto-animation`). Unique among active rows. |
-| `name` | `text` | `NOT NULL` | Display name (e.g. `Kyoto Animation`). |
-| `name_jp` | `text` | nullable | Original Japanese name (e.g. `京都アニメーション`). |
-| `description` | `text` | nullable | Short studio bio. Sanitized at render. |
-| `logo_url` | `text` | nullable | Logo image URL. |
-| `website_url` | `text` | nullable | Official website. |
-| `founded_year` | `integer` | nullable | Year the studio was established. |
-| `country` | `text` | nullable | ISO 3166-1 alpha-2 country code (e.g. `JP`). |
-| `sort_order` | `integer` | `NOT NULL DEFAULT 0` | Manual ordering for studio browse. |
-| `is_active` | `boolean` | `NOT NULL DEFAULT true` | Hide from browse without deleting. |
-| `deleted_at` | `timestamptz` | nullable | Soft-delete marker. |
-| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()` | — |
-| `updated_at` | `timestamptz` | `NOT NULL DEFAULT now()` | — |
+| Column         | Type          | Constraint                              | Description                                                      |
+| -------------- | ------------- | --------------------------------------- | ---------------------------------------------------------------- |
+| `id`           | `uuid`        | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key.                                                   |
+| `slug`         | `text`        | `NOT NULL`                              | URL-safe key (e.g. `kyoto-animation`). Unique among active rows. |
+| `name`         | `text`        | `NOT NULL`                              | Display name (e.g. `Kyoto Animation`).                           |
+| `name_jp`      | `text`        | nullable                                | Original Japanese name (e.g. `京都アニメーション`).              |
+| `description`  | `text`        | nullable                                | Short studio bio. Sanitized at render.                           |
+| `logo_url`     | `text`        | nullable                                | Logo image URL.                                                  |
+| `website_url`  | `text`        | nullable                                | Official website.                                                |
+| `founded_year` | `integer`     | nullable                                | Year the studio was established.                                 |
+| `country`      | `text`        | nullable                                | ISO 3166-1 alpha-2 country code (e.g. `JP`).                     |
+| `sort_order`   | `integer`     | `NOT NULL DEFAULT 0`                    | Manual ordering for studio browse.                               |
+| `is_active`    | `boolean`     | `NOT NULL DEFAULT true`                 | Hide from browse without deleting.                               |
+| `deleted_at`   | `timestamptz` | nullable                                | Soft-delete marker.                                              |
+| `created_at`   | `timestamptz` | `NOT NULL DEFAULT now()`                | —                                                                |
+| `updated_at`   | `timestamptz` | `NOT NULL DEFAULT now()`                | —                                                                |
 
 ### 2.2 Constraints
 
-| Name | Type | Definition |
-|------|------|------------|
-| `uq_studios_slug` | partial unique | `UNIQUE (slug) WHERE deleted_at IS NULL` |
-| `uq_studios_name` | partial unique | `UNIQUE (name) WHERE deleted_at IS NULL` |
-| `chk_studios_founded_year` | check | `founded_year IS NULL OR founded_year BETWEEN 1917 AND 2100` |
-| `chk_studios_country_format` | check | `country IS NULL OR country ~ '^[A-Z]{2}$'` |
+| Name                         | Type           | Definition                                                   |
+| ---------------------------- | -------------- | ------------------------------------------------------------ |
+| `uq_studios_slug`            | partial unique | `UNIQUE (slug) WHERE deleted_at IS NULL`                     |
+| `uq_studios_name`            | partial unique | `UNIQUE (name) WHERE deleted_at IS NULL`                     |
+| `chk_studios_founded_year`   | check          | `founded_year IS NULL OR founded_year BETWEEN 1917 AND 2100` |
+| `chk_studios_country_format` | check          | `country IS NULL OR country ~ '^[A-Z]{2}$'`                  |
 
 ### 2.3 Indexes
 
-| Index | Type | Columns | Purpose |
-|-------|------|---------|---------|
-| `pk_studios` | btree (unique) | `id` | PK. |
-| `idx_studios_slug` | btree (unique, partial) | `slug` `WHERE deleted_at IS NULL` | Route `/studios/:slug`. |
-| `idx_studios_name` | btree (unique, partial) | `name` `WHERE deleted_at IS NULL` | Name lookup / dedupe. |
-| `idx_studios_sort_order` | btree | `sort_order` | Ordered studio listing. |
-| `idx_studios_active` | btree | `is_active` `WHERE is_active = true` | Browse only active studios. |
-| `idx_studios_country` | btree | `country` `WHERE country IS NOT NULL` | Filter by country. |
+| Index                    | Type                    | Columns                               | Purpose                     |
+| ------------------------ | ----------------------- | ------------------------------------- | --------------------------- |
+| `pk_studios`             | btree (unique)          | `id`                                  | PK.                         |
+| `idx_studios_slug`       | btree (unique, partial) | `slug` `WHERE deleted_at IS NULL`     | Route `/studios/:slug`.     |
+| `idx_studios_name`       | btree (unique, partial) | `name` `WHERE deleted_at IS NULL`     | Name lookup / dedupe.       |
+| `idx_studios_sort_order` | btree                   | `sort_order`                          | Ordered studio listing.     |
+| `idx_studios_active`     | btree                   | `is_active` `WHERE is_active = true`  | Browse only active studios. |
+| `idx_studios_country`    | btree                   | `country` `WHERE country IS NOT NULL` | Filter by country.          |
 
 ### 2.4 Decisions & Rationale
 
@@ -65,20 +65,20 @@
 
 ### 2.5 Relationship Recap
 
-- `studios` 1 — * `anime_studios` * — 1 `anime` (many-to-many via join table; see `Anime.md` §4).
+- `studios` 1 — _ `anime_studios` _ — 1 `anime` (many-to-many via join table; see `Anime.md` §4).
 - A studio with existing `anime_studios` rows **must not** be hard-deleted — soft-delete or deactivate instead.
 
 ### 2.6 Seed Data (Illustrative)
 
 The initial seed is ~200–500 studios (the active anime industry). Example:
 
-| slug | name | name_jp | country | founded_year |
-|------|------|---------|---------|--------------|
-| `kyoto-animation` | Kyoto Animation | `京都アニメーション` | JP | 1981 |
-| `mappa` | MAPPA | `株式会社MAPPA` | JP | 2011 |
-| `ufotable` | ufotable | `ユーフォーテーブル` | JP | 2000 |
-| `toei-animation` | Toei Animation | `東映アニメーション` | JP | 1948 |
-| `wit-studio` | WIT STUDIO | `ウィットスタジオ` | JP | 2012 |
-| `bones` | Bones | `ボンズ` | JP | 1998 |
+| slug              | name            | name_jp              | country | founded_year |
+| ----------------- | --------------- | -------------------- | ------- | ------------ |
+| `kyoto-animation` | Kyoto Animation | `京都アニメーション` | JP      | 1981         |
+| `mappa`           | MAPPA           | `株式会社MAPPA`      | JP      | 2011         |
+| `ufotable`        | ufotable        | `ユーフォーテーブル` | JP      | 2000         |
+| `toei-animation`  | Toei Animation  | `東映アニメーション` | JP      | 1948         |
+| `wit-studio`      | WIT STUDIO      | `ウィットスタジオ`   | JP      | 2012         |
+| `bones`           | Bones           | `ボンズ`             | JP      | 1998         |
 
 > The full seed list lives in `tooling/scripts/seed-studios.ts` (future implementation).

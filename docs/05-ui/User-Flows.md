@@ -204,6 +204,7 @@ Click "Sign in" button → /login
 ```
 
 The login page shows a **value proposition** above the form:
+
 > "Sign in to save your watchlist, track progress, and get personalized recommendations."
 
 - OAuth buttons prominent (Google / GitHub).

@@ -75,9 +75,9 @@ List all **active** genres, ordered by `sort_order ASC`, then `name ASC`.
 
 **Query parameters:**
 
-| Param   | Type    | Required | Default | Notes                                        |
-| :------ | :------ | :------- | :------ | :------------------------------------------- |
-| `include_inactive` | boolean | no       | `false` | Admin only. When `true`, returns all rows.   |
+| Param              | Type    | Required | Default | Notes                                      |
+| :----------------- | :------ | :------- | :------ | :----------------------------------------- |
+| `include_inactive` | boolean | no       | `false` | Admin only. When `true`, returns all rows. |
 
 **Response `data`:**
 
@@ -90,11 +90,11 @@ List all **active** genres, ordered by `sort_order ASC`, then `name ASC`.
 
 **Status codes:**
 
-| Code | Condition                              |
-| :--- | :------------------------------------- |
-| 200  | Success                                |
-| 400  | Invalid query parameter                |
-| 401  | `include_inactive=true` without admin  |
+| Code | Condition                             |
+| :--- | :------------------------------------ |
+| 200  | Success                               |
+| 400  | Invalid query parameter               |
+| 401  | `include_inactive=true` without admin |
 
 ---
 
@@ -104,18 +104,18 @@ Fetch a single genre by slug.
 
 **Path parameters:**
 
-| Param | Type   | Required | Notes                         |
-| :---- | :----- | :------- | :---------------------------- |
-| `slug` | string | yes      | URL-safe genre identifier     |
+| Param  | Type   | Required | Notes                     |
+| :----- | :----- | :------- | :------------------------ |
+| `slug` | string | yes      | URL-safe genre identifier |
 
 **Response `data`:** `Genre`
 
 **Status codes:**
 
-| Code | Condition                          |
-| :--- | :--------------------------------- |
-| 200  | Success                            |
-| 404  | Genre not found or not active      |
+| Code | Condition                     |
+| :--- | :---------------------------- |
+| 200  | Success                       |
+| 404  | Genre not found or not active |
 
 > Inactive genres return 404 to public callers. Admin callers may pass `?include_inactive=true` to fetch any row.
 
@@ -146,7 +146,7 @@ Fetch a single genre by slug.
 | :--- | :------------------------------------------- |
 | 201  | Created                                      |
 | 400  | Validation error (Zod)                       |
-| 401  | Unauthenticated                             |
+| 401  | Unauthenticated                              |
 | 403  | Authenticated but not admin                  |
 | 409  | Duplicate `slug` or `name` among active rows |
 
@@ -160,8 +160,8 @@ Fetch a single genre by slug.
 
 **Path parameters:**
 
-| Param | Type   | Required | Notes                      |
-| :---- | :----- | :------- | :------------------------- |
+| Param  | Type   | Required | Notes                      |
+| :----- | :----- | :------- | :------------------------- |
 | `slug` | string | yes      | Slug of the genre to patch |
 
 **Request body (all fields optional):**
@@ -181,13 +181,13 @@ Fetch a single genre by slug.
 
 **Status codes:**
 
-| Code | Condition                          |
-| :--- | :--------------------------------- |
-| 200  | Updated                            |
-| 400  | Validation error (Zod)             |
-| 401  | Unauthenticated                   |
-| 403  | Not admin                          |
-| 404  | Genre not found                    |
+| Code | Condition                                   |
+| :--- | :------------------------------------------ |
+| 200  | Updated                                     |
+| 400  | Validation error (Zod)                      |
+| 401  | Unauthenticated                             |
+| 403  | Not admin                                   |
+| 404  | Genre not found                             |
 | 409  | New `name` collides with another active row |
 
 **Side effects:** Cache keys `nexus:genres:list` and `nexus:genres:{slug}` invalidated on success.
@@ -202,20 +202,20 @@ Fetch a single genre by slug.
 
 **Path parameters:**
 
-| Param | Type   | Required | Notes                           |
-| :---- | :----- | :------- | :------------------------------ |
+| Param  | Type   | Required | Notes                            |
+| :----- | :----- | :------- | :------------------------------- |
 | `slug` | string | yes      | Slug of the genre to soft-delete |
 
 **Response:** `204 No Content` on success (no body).
 
 **Status codes:**
 
-| Code | Condition                |
-| :--- | :----------------------- |
-| 204  | Soft-deleted             |
-| 401  | Unauthenticated         |
-| 403  | Not admin                |
-| 404  | Genre not found          |
+| Code | Condition       |
+| :--- | :-------------- |
+| 204  | Soft-deleted    |
+| 401  | Unauthenticated |
+| 403  | Not admin       |
+| 404  | Genre not found |
 
 **Side effects:** Cache keys `nexus:genres:list` and `nexus:genres:{slug}` invalidated on success.
 
@@ -382,23 +382,23 @@ HTTP/1.1 204 No Content
 
 All endpoints in this document use the standard error envelope defined in [Error-Codes.md](./Error-Codes.md). Common codes for this resource:
 
-| HTTP | `code`                   | Condition                                  |
-| :--- | :----------------------- | :----------------------------------------- |
-| 400  | `VALIDATION_ERROR`       | Zod rejected the request body              |
-| 401  | `UNAUTHENTICATED`        | Missing or expired session                 |
-| 403  | `FORBIDDEN`              | Non-admin attempted a mutation             |
-| 404  | `RESOURCE_NOT_FOUND`     | Slug does not match an active genre        |
-| 409  | `DUPLICATE_RESOURCE`     | Slug or name collides with an active row   |
+| HTTP | `code`               | Condition                                |
+| :--- | :------------------- | :--------------------------------------- |
+| 400  | `VALIDATION_ERROR`   | Zod rejected the request body            |
+| 401  | `UNAUTHENTICATED`    | Missing or expired session               |
+| 403  | `FORBIDDEN`          | Non-admin attempted a mutation           |
+| 404  | `RESOURCE_NOT_FOUND` | Slug does not match an active genre      |
+| 409  | `DUPLICATE_RESOURCE` | Slug or name collides with an active row |
 
 ---
 
 ## 7. Cross-references
 
-| Concern                   | Document                                             |
-| :------------------------ | :--------------------------------------------------- |
-| Cache key schema          | [API-Standards.md](./API-Standards.md)                |
-| Error code registry       | [Error-Codes.md](./Error-Codes.md)                    |
-| Pagination contract       | [Pagination.md](./Pagination.md) (not used here — list is small and unpaged) |
-| Rate-limit quotas         | [Rate-Limiting.md](./Rate-Limiting.md)              |
-| Database schema           | [Genres.md](../07-database/Genres.md)                 |
-| Anime ↔ Genre join table  | [Anime.md](./Anime.md) section on sub-resources       |
+| Concern                  | Document                                                                     |
+| :----------------------- | :--------------------------------------------------------------------------- |
+| Cache key schema         | [API-Standards.md](./API-Standards.md)                                       |
+| Error code registry      | [Error-Codes.md](./Error-Codes.md)                                           |
+| Pagination contract      | [Pagination.md](./Pagination.md) (not used here — list is small and unpaged) |
+| Rate-limit quotas        | [Rate-Limiting.md](./Rate-Limiting.md)                                       |
+| Database schema          | [Genres.md](../07-database/Genres.md)                                        |
+| Anime ↔ Genre join table | [Anime.md](./Anime.md) section on sub-resources                              |

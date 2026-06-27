@@ -8,18 +8,18 @@ Premium anime streaming platform with console-grade UI polish — a dark, cinema
 
 ## Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | Next.js 16 (App Router) · React 19 |
-| Language | TypeScript (strict) |
-| Monorepo | pnpm workspaces · Turborepo |
-| UI | Tailwind CSS 4 · `@nexus/ui` design system |
+| Layer          | Technology                                    |
+| -------------- | --------------------------------------------- |
+| Framework      | Next.js 16 (App Router) · React 19            |
+| Language       | TypeScript (strict)                           |
+| Monorepo       | pnpm workspaces · Turborepo                   |
+| UI             | Tailwind CSS 4 · `@nexus/ui` design system    |
 | Database (S2+) | PostgreSQL · Drizzle ORM · Neon (`@nexus/db`) |
-| Cache (S2+) | Upstash Redis (`@nexus/cache`) |
-| Auth (S4+) | Auth.js v5 |
-| Payments (S5+) | Stripe |
-| Video (S6+) | Cloudflare Stream |
-| Hosting | Vercel Pro |
+| Cache (S2+)    | Upstash Redis (`@nexus/cache`)                |
+| Auth (S4+)     | Auth.js v5                                    |
+| Payments (S5+) | Stripe                                        |
+| Video (S6+)    | Cloudflare Stream                             |
+| Hosting        | Vercel Pro                                    |
 
 ## Repository structure
 
@@ -60,20 +60,20 @@ Open [http://localhost:3000](http://localhost:3000). Design system showcase: [ht
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start dev server (Turborepo) |
-| `pnpm build` | Production build (all packages) |
-| `pnpm lint` | ESLint across workspace |
-| `pnpm typecheck` | TypeScript check |
-| `pnpm test` | Vitest unit tests |
-| `pnpm format` | Prettier format |
-| `pnpm format:check` | Prettier check |
-| `pnpm clean` | Clean build artifacts |
-| `pnpm docker:up` | Start Docker services |
-| `pnpm docker:down` | Stop Docker services |
+| Command             | Description                          |
+| ------------------- | ------------------------------------ |
+| `pnpm dev`          | Start dev server (Turborepo)         |
+| `pnpm build`        | Production build (all packages)      |
+| `pnpm lint`         | ESLint across workspace              |
+| `pnpm typecheck`    | TypeScript check                     |
+| `pnpm test`         | Vitest unit tests                    |
+| `pnpm format`       | Prettier format                      |
+| `pnpm format:check` | Prettier check                       |
+| `pnpm clean`        | Clean build artifacts                |
+| `pnpm docker:up`    | Start Docker services                |
+| `pnpm docker:down`  | Stop Docker services                 |
 | `pnpm docker:reset` | Reset Docker services (wipe volumes) |
-| `pnpm docker:logs` | Tail Docker service logs |
+| `pnpm docker:logs`  | Tail Docker service logs             |
 
 ## Architecture
 
@@ -91,13 +91,13 @@ API responses use a standard envelope: `{ data }` / `{ error: { message, code, d
 
 ## Milestone progress
 
-| ID | Milestone | Status |
-|----|-----------|--------|
-| M0 | Repository scaffold | ✅ |
-| M1 | Design system in code | ✅ |
-| M2 | Catalog foundation (DB, cache, API envelope, error boundaries) | ✅ |
-| M3 | Auth complete | In progress |
-| M4 | User profiles, watchlist, continue-watching | Planned |
+| ID  | Milestone                                                      | Status      |
+| --- | -------------------------------------------------------------- | ----------- |
+| M0  | Repository scaffold                                            | ✅          |
+| M1  | Design system in code                                          | ✅          |
+| M2  | Catalog foundation (DB, cache, API envelope, error boundaries) | ✅          |
+| M3  | Auth complete                                                  | In progress |
+| M4  | User profiles, watchlist, continue-watching                    | Planned     |
 
 ## Repository conventions
 

@@ -185,18 +185,18 @@ Out of scope: new features beyond M8, design changes, mobile apps, content licen
 
 ## Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| **Neon cold start adds latency on first request** | High | Medium | Warm production instance with a cron job (e.g., Vercel Cron hitting `/api/health` every 5 min); use Neon's "always on" tier if available. |
-| **DNS propagation delay causes downtime** | Low | High | Set low TTL (60s) pre-launch; switch DNS during low-traffic window; verify with `dig new-domain` before and after. |
-| **Stripe webhook signature failure after URL change** | Medium | High | Update Stripe webhook endpoint URL before launch; test with `stripe listen` locally; verify first live webhook succeeds. |
-| **Secrets leak via `NEXT_PUBLIC_*` misconfiguration** | Low | Critical | Audit all env vars before launch; grep for `NEXT_PUBLIC_` and verify no secrets; use Vercel env var scanning. |
-| **Load test reveals connection pool exhaustion** | Medium | High | Set connection pool limits conservatively; monitor during load test; scale Neon pool size if needed; implement connection retry with backoff. |
-| **Sentry source maps fail to upload** | Medium | Low | Test Sentry integration in staging; verify source map upload in CI; check Sentry dashboard shows readable stack traces. |
-| **Cookie consent banner blocks critical functionality** | Low | Medium | Implement consent banner as non-blocking; only gate non-essential analytics behind consent; test with consent denied. |
-| **Legal review delays launch** | Medium | Medium | Draft privacy policy and terms early in milestone; use templates (e.g., Termly, Iubenda) as starting point; legal review in parallel with technical work. |
-| **Production traffic exceeds provisioned limits** | Low | High | Set up auto-scaling alerts; have scale-up runbook ready; Vercel and Neon both scale horizontally — verify limits in advance. |
-| **Third-party API (TMDB) rate limit hit on launch day** | Medium | Medium | Cache aggressively (Redis); implement circuit breaker; show stale data rather than error; monitor TMDB rate limit headers. |
+| Risk                                                    | Likelihood | Impact   | Mitigation                                                                                                                                                |
+| ------------------------------------------------------- | ---------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Neon cold start adds latency on first request**       | High       | Medium   | Warm production instance with a cron job (e.g., Vercel Cron hitting `/api/health` every 5 min); use Neon's "always on" tier if available.                 |
+| **DNS propagation delay causes downtime**               | Low        | High     | Set low TTL (60s) pre-launch; switch DNS during low-traffic window; verify with `dig new-domain` before and after.                                        |
+| **Stripe webhook signature failure after URL change**   | Medium     | High     | Update Stripe webhook endpoint URL before launch; test with `stripe listen` locally; verify first live webhook succeeds.                                  |
+| **Secrets leak via `NEXT_PUBLIC_*` misconfiguration**   | Low        | Critical | Audit all env vars before launch; grep for `NEXT_PUBLIC_` and verify no secrets; use Vercel env var scanning.                                             |
+| **Load test reveals connection pool exhaustion**        | Medium     | High     | Set connection pool limits conservatively; monitor during load test; scale Neon pool size if needed; implement connection retry with backoff.             |
+| **Sentry source maps fail to upload**                   | Medium     | Low      | Test Sentry integration in staging; verify source map upload in CI; check Sentry dashboard shows readable stack traces.                                   |
+| **Cookie consent banner blocks critical functionality** | Low        | Medium   | Implement consent banner as non-blocking; only gate non-essential analytics behind consent; test with consent denied.                                     |
+| **Legal review delays launch**                          | Medium     | Medium   | Draft privacy policy and terms early in milestone; use templates (e.g., Termly, Iubenda) as starting point; legal review in parallel with technical work. |
+| **Production traffic exceeds provisioned limits**       | Low        | High     | Set up auto-scaling alerts; have scale-up runbook ready; Vercel and Neon both scale horizontally — verify limits in advance.                              |
+| **Third-party API (TMDB) rate limit hit on launch day** | Medium     | Medium   | Cache aggressively (Redis); implement circuit breaker; show stale data rather than error; monitor TMDB rate limit headers.                                |
 
 ## Acceptance Criteria
 
@@ -256,46 +256,46 @@ Out of scope: new features beyond M8, design changes, mobile apps, content licen
 
 ## Estimated Tasks
 
-| # | Task | Estimate | Owner | Dependencies |
-|---|------|----------|-------|--------------|
-| T1 | Provision Neon production database; configure connection pooling | 2h | DevOps | None |
-| T2 | Provision Upstash production Redis; enable persistence | 1h | DevOps | None |
-| T3 | Configure Vercel Pro project with production environment variables | 2h | DevOps | T1, T2 |
-| T4 | Audit all environment variables; verify no secrets in `NEXT_PUBLIC_*` | 1h | DevOps | T3 |
-| T5 | Rotate all production secrets; invalidate old values | 2h | DevOps | T3 |
-| T6 | Register domain; configure DNS records | 1h | DevOps | None |
-| T7 | Verify SSL certificate provisioning via Vercel | 0.5h | DevOps | T6 |
-| T8 | Configure Stripe live-mode webhooks for production URL | 1h | Backend | T3 |
-| T9 | Write load test script (k6/Artillery) for all critical flows | 4h | QA / Backend | None |
-| T10 | Execute load test against staging; document results | 2h | QA | T9 |
-| T11 | Resolve load test bottlenecks; re-test | 4h | Backend | T10 |
-| T12 | Perform OWASP Top 10 security review | 6h | Security / Backend | None |
-| T13 | Remediate critical/high security findings | 4h | Backend | T12 |
-| T14 | Write backup script (`tooling/scripts/backup-db.ts`) | 2h | DevOps | T1 |
-| T15 | Test restore procedure end-to-end | 2h | DevOps | T14 |
-| T16 | Enable Upstash Redis persistence; verify snapshot | 1h | DevOps | T2 |
-| T17 | Write incident response runbook | 3h | DevOps | None |
-| T18 | Write rollback runbook | 2h | DevOps | None |
-| T19 | Write scale-up runbook | 2h | DevOps | None |
-| T20 | Write third-party outage runbook | 2h | DevOps | None |
-| T21 | Configure rate limits per endpoint based on load test | 3h | Backend | T10 |
-| T22 | Verify rate limit headers and 429 responses | 1h | QA | T21 |
-| T23 | Integrate Sentry (`@sentry/nextjs`); configure source map upload | 3h | Frontend | None |
-| T24 | Set up Sentry alert rules | 1h | DevOps | T23 |
-| T25 | Configure Vercel Log Drains (or equivalent log shipping) | 2h | DevOps | T3 |
-| T26 | Enable Vercel Analytics on production | 1h | Frontend | T3 |
-| T27 | Implement cookie consent banner (if required) | 3h | Frontend | None |
-| T28 | Write privacy policy; publish at `/privacy` | 4h | Legal / Frontend | None |
-| T29 | Write terms of service; publish at `/terms` | 4h | Legal / Frontend | None |
-| T30 | Add DMCA contact to footer | 0.5h | Frontend | T28 |
-| T31 | Execute UAT checklist against production deployment | 6h | QA | T3-T30 |
-| T32 | Remediate UAT findings | 4h | Full-stack | T31 |
-| T33 | Create `v1.0.0` tag on `main` | 0.5h | Lead | All above |
-| T34 | Create GitHub Release with changelog | 1h | Lead | T33 |
-| T35 | Trigger production deployment from tag | 0.5h | DevOps | T33 |
-| T36 | Execute smoke test on production | 1h | QA | T35 |
-| T37 | Test rollback procedure on production | 1h | DevOps | T35 |
-| T38 | Monitor production for 24 hours post-launch | 4h | DevOps | T35 |
+| #   | Task                                                                  | Estimate | Owner              | Dependencies |
+| --- | --------------------------------------------------------------------- | -------- | ------------------ | ------------ |
+| T1  | Provision Neon production database; configure connection pooling      | 2h       | DevOps             | None         |
+| T2  | Provision Upstash production Redis; enable persistence                | 1h       | DevOps             | None         |
+| T3  | Configure Vercel Pro project with production environment variables    | 2h       | DevOps             | T1, T2       |
+| T4  | Audit all environment variables; verify no secrets in `NEXT_PUBLIC_*` | 1h       | DevOps             | T3           |
+| T5  | Rotate all production secrets; invalidate old values                  | 2h       | DevOps             | T3           |
+| T6  | Register domain; configure DNS records                                | 1h       | DevOps             | None         |
+| T7  | Verify SSL certificate provisioning via Vercel                        | 0.5h     | DevOps             | T6           |
+| T8  | Configure Stripe live-mode webhooks for production URL                | 1h       | Backend            | T3           |
+| T9  | Write load test script (k6/Artillery) for all critical flows          | 4h       | QA / Backend       | None         |
+| T10 | Execute load test against staging; document results                   | 2h       | QA                 | T9           |
+| T11 | Resolve load test bottlenecks; re-test                                | 4h       | Backend            | T10          |
+| T12 | Perform OWASP Top 10 security review                                  | 6h       | Security / Backend | None         |
+| T13 | Remediate critical/high security findings                             | 4h       | Backend            | T12          |
+| T14 | Write backup script (`tooling/scripts/backup-db.ts`)                  | 2h       | DevOps             | T1           |
+| T15 | Test restore procedure end-to-end                                     | 2h       | DevOps             | T14          |
+| T16 | Enable Upstash Redis persistence; verify snapshot                     | 1h       | DevOps             | T2           |
+| T17 | Write incident response runbook                                       | 3h       | DevOps             | None         |
+| T18 | Write rollback runbook                                                | 2h       | DevOps             | None         |
+| T19 | Write scale-up runbook                                                | 2h       | DevOps             | None         |
+| T20 | Write third-party outage runbook                                      | 2h       | DevOps             | None         |
+| T21 | Configure rate limits per endpoint based on load test                 | 3h       | Backend            | T10          |
+| T22 | Verify rate limit headers and 429 responses                           | 1h       | QA                 | T21          |
+| T23 | Integrate Sentry (`@sentry/nextjs`); configure source map upload      | 3h       | Frontend           | None         |
+| T24 | Set up Sentry alert rules                                             | 1h       | DevOps             | T23          |
+| T25 | Configure Vercel Log Drains (or equivalent log shipping)              | 2h       | DevOps             | T3           |
+| T26 | Enable Vercel Analytics on production                                 | 1h       | Frontend           | T3           |
+| T27 | Implement cookie consent banner (if required)                         | 3h       | Frontend           | None         |
+| T28 | Write privacy policy; publish at `/privacy`                           | 4h       | Legal / Frontend   | None         |
+| T29 | Write terms of service; publish at `/terms`                           | 4h       | Legal / Frontend   | None         |
+| T30 | Add DMCA contact to footer                                            | 0.5h     | Frontend           | T28          |
+| T31 | Execute UAT checklist against production deployment                   | 6h       | QA                 | T3-T30       |
+| T32 | Remediate UAT findings                                                | 4h       | Full-stack         | T31          |
+| T33 | Create `v1.0.0` tag on `main`                                         | 0.5h     | Lead               | All above    |
+| T34 | Create GitHub Release with changelog                                  | 1h       | Lead               | T33          |
+| T35 | Trigger production deployment from tag                                | 0.5h     | DevOps             | T33          |
+| T36 | Execute smoke test on production                                      | 1h       | QA                 | T35          |
+| T37 | Test rollback procedure on production                                 | 1h       | DevOps             | T35          |
+| T38 | Monitor production for 24 hours post-launch                           | 4h       | DevOps             | T35          |
 
 **Total estimate: ~84 engineer-hours** (approximately 2 weeks for a single engineer, or 1 week for a team of 2–3 engineers working in parallel).
 

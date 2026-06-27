@@ -62,11 +62,11 @@ Returns the authenticated user's continue-watching entries, ordered by `updated_
 
 **Query parameters:**
 
-| Parameter       | Type    | Default    | Description                                              |
-| --------------- | ------- | ---------- | -------------------------------------------------------- |
-| `cursor`        | string  | —          | Cursor for pagination (see `Pagination.md`)              |
-| `limit`         | integer | 20         | Items per page (1–100)                                   |
-| `is_completed`  | boolean | `false`    | Filter: `false` = in-progress only, `true` = completed   |
+| Parameter      | Type    | Default | Description                                            |
+| -------------- | ------- | ------- | ------------------------------------------------------ |
+| `cursor`       | string  | —       | Cursor for pagination (see `Pagination.md`)            |
+| `limit`        | integer | 20      | Items per page (1–100)                                 |
+| `is_completed` | boolean | `false` | Filter: `false` = in-progress only, `true` = completed |
 
 **Response `200`:**
 
@@ -160,13 +160,13 @@ Idempotent per `(user_id, anime_id)` — posting the same anime replaces the row
 }
 ```
 
-| Field              | Type   | Required | Validation                                  |
-| ------------------ | ------ | -------- | ------------------------------------------- |
-| `anime_id`         | string | yes      | Valid uuid, must exist in `anime` table     |
-| `episode_id`       | string | yes      | Valid uuid, must belong to `anime_id`       |
-| `position_seconds` | number | yes      | ≥ 0, ≤ `duration_seconds`                   |
-| `duration_seconds` | number | yes      | > 0                                         |
-| `device`           | string | yes      | One of `"web"`, `"ios"`, `"android"`, `"tv"`|
+| Field              | Type   | Required | Validation                                   |
+| ------------------ | ------ | -------- | -------------------------------------------- |
+| `anime_id`         | string | yes      | Valid uuid, must exist in `anime` table      |
+| `episode_id`       | string | yes      | Valid uuid, must belong to `anime_id`        |
+| `position_seconds` | number | yes      | ≥ 0, ≤ `duration_seconds`                    |
+| `duration_seconds` | number | yes      | > 0                                          |
+| `device`           | string | yes      | One of `"web"`, `"ios"`, `"android"`, `"tv"` |
 
 `progress_pct` is computed server-side. `is_completed` is set to `true` if the episode is the final episode and `progress_pct` ≥ 95. `version` starts at 1 on insert, or increments on replace.
 
@@ -222,13 +222,13 @@ Optimistic concurrency: must include `version`. If the server's `version` does n
 }
 ```
 
-| Field              | Type   | Required | Validation                                  |
-| ------------------ | ------ | -------- | ------------------------------------------- |
-| `episode_id`       | string | no       | If provided, must belong to `animeId`       |
-| `position_seconds` | number | yes      | ≥ 0, ≤ `duration_seconds`                   |
-| `duration_seconds` | number | yes      | > 0                                         |
-| `device`           | string | no       | One of `"web"`, `"ios"`, `"android"`, `"tv"`|
-| `version`          | number | yes      | Must match current row `version`            |
+| Field              | Type   | Required | Validation                                   |
+| ------------------ | ------ | -------- | -------------------------------------------- |
+| `episode_id`       | string | no       | If provided, must belong to `animeId`        |
+| `position_seconds` | number | yes      | ≥ 0, ≤ `duration_seconds`                    |
+| `duration_seconds` | number | yes      | > 0                                          |
+| `device`           | string | no       | One of `"web"`, `"ios"`, `"android"`, `"tv"` |
+| `version`          | number | yes      | Must match current row `version`             |
 
 If `episode_id` is omitted, only `position_seconds` is updated on the existing episode.
 
@@ -272,10 +272,10 @@ DELETE /api/v1/users/me/continue-watching/{animeId}
 
 Two modes, controlled by the `mode` query parameter:
 
-| Mode       | Query          | Behavior                                                    |
-| ---------- | -------------- | ----------------------------------------------------------- |
-| Complete   | `mode=complete`| Sets `is_completed = true`, `progress_pct = 100`, increments `version` |
-| Remove     | `mode=remove`  | Hard-deletes the row                                        |
+| Mode     | Query           | Behavior                                                               |
+| -------- | --------------- | ---------------------------------------------------------------------- |
+| Complete | `mode=complete` | Sets `is_completed = true`, `progress_pct = 100`, increments `version` |
+| Remove   | `mode=remove`   | Hard-deletes the row                                                   |
 
 Default: `mode=complete`.
 
@@ -307,16 +307,16 @@ Default: `mode=complete`.
 
 The video player emits a heartbeat (PATCH) every **30 seconds** while actively playing.
 
-| Property         | Value                                                            |
-| ---------------- | ---------------------------------------------------------------- |
-| Interval         | 30 s while playing                                               |
-| Endpoint         | `PATCH /api/v1/users/me/continue-watching/{animeId}`             |
-| Idempotency      | Overwrites the same `(user_id, anime_id)` row — no duplicates   |
-| Resume behavior  | On player mount, GET the cursor to seek to `position_seconds`    |
-| Pause            | Send one final heartbeat on pause, then stop                     |
-| Seek             | Send a heartbeat immediately after a seek event                  |
-| Episode switch   | POST to upsert with the new `episode_id` and `position_seconds = 0` |
-| Completion       | When `progress_pct` ≥ 95 on the final episode, server sets `is_completed = true` automatically |
+| Property        | Value                                                                                          |
+| --------------- | ---------------------------------------------------------------------------------------------- |
+| Interval        | 30 s while playing                                                                             |
+| Endpoint        | `PATCH /api/v1/users/me/continue-watching/{animeId}`                                           |
+| Idempotency     | Overwrites the same `(user_id, anime_id)` row — no duplicates                                  |
+| Resume behavior | On player mount, GET the cursor to seek to `position_seconds`                                  |
+| Pause           | Send one final heartbeat on pause, then stop                                                   |
+| Seek            | Send a heartbeat immediately after a seek event                                                |
+| Episode switch  | POST to upsert with the new `episode_id` and `position_seconds = 0`                            |
+| Completion      | When `progress_pct` ≥ 95 on the final episode, server sets `is_completed = true` automatically |
 
 The heartbeat does **not** create a row if one does not exist. The player must POST once when playback begins to create the cursor, then PATCH on each subsequent heartbeat.
 
@@ -326,10 +326,10 @@ The heartbeat does **not** create a row if one does not exist. The player must P
 
 **No cache.** Continue-watching data is real-time and user-specific.
 
-| Header            | Value     |
-| ----------------- | --------- |
-| `Cache-Control`   | `no-store`|
-| `Pragma`          | `no-cache`|
+| Header          | Value      |
+| --------------- | ---------- |
+| `Cache-Control` | `no-store` |
+| `Pragma`        | `no-cache` |
 
 CDN edge nodes must not cache or serve stale continue-watching data. Every request hits the database.
 
@@ -337,9 +337,9 @@ CDN edge nodes must not cache or serve stale continue-watching data. Every reque
 
 ## 6. Rate limit
 
-| Scope          | Limit   | Window | Key                    |
-| -------------- | ------- | ------ | ---------------------- |
-| Per user       | 30      | 60 s   | `user_id`              |
+| Scope    | Limit | Window | Key       |
+| -------- | ----- | ------ | --------- |
+| Per user | 30    | 60 s   | `user_id` |
 
 Exceeding the limit returns `429 Too Many Requests` with standard rate-limit headers (see `Rate-Limiting.md`).
 

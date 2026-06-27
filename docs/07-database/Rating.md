@@ -17,42 +17,42 @@ A `rating` is a user's **numeric score** (0–10) for an anime, optionally accom
 
 ### 2.1 Fields
 
-| Column | Type | Constraint | Description |
-|--------|------|------------|-------------|
-| `id` | `uuid` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key. |
-| `user_id` | `uuid` | `NOT NULL` FK → `users.id` | Rater. |
-| `anime_id` | `uuid` | `NOT NULL` FK → `anime.id` | Show being rated. |
-| `value` | `numeric(3,2)` | `NOT NULL` | Score, 0.00–10.00. |
-| `review_title` | `text` | nullable | Optional review headline. |
-| `review_body` | `text` | nullable | Optional review text. Sanitized at render. |
-| `is_spoiler` | `boolean` | `NOT NULL DEFAULT false` | Spoiler flag on the review. |
-| `helpful_count` | `integer` | `NOT NULL DEFAULT 0` | Denormalized "helpful" votes (future). |
-| `deleted_at` | `timestamptz` | nullable | Soft-delete marker (rating removed). |
-| `created_at` | `timestamptz` | `NOT NULL DEFAULT now()` | When first rated. |
-| `updated_at` | `timestamptz` | `NOT NULL DEFAULT now()` | Last value/review change. |
-| `version` | `integer` | `NOT NULL DEFAULT 1` | Optimistic concurrency for edits. |
-| `created_by` | `uuid` nullable | FK → `users.id` | = `user_id`. |
-| `updated_by` | `uuid` nullable | FK → `users.id` | Last editor. |
+| Column          | Type            | Constraint                              | Description                                |
+| --------------- | --------------- | --------------------------------------- | ------------------------------------------ |
+| `id`            | `uuid`          | `PRIMARY KEY DEFAULT gen_random_uuid()` | Surrogate key.                             |
+| `user_id`       | `uuid`          | `NOT NULL` FK → `users.id`              | Rater.                                     |
+| `anime_id`      | `uuid`          | `NOT NULL` FK → `anime.id`              | Show being rated.                          |
+| `value`         | `numeric(3,2)`  | `NOT NULL`                              | Score, 0.00–10.00.                         |
+| `review_title`  | `text`          | nullable                                | Optional review headline.                  |
+| `review_body`   | `text`          | nullable                                | Optional review text. Sanitized at render. |
+| `is_spoiler`    | `boolean`       | `NOT NULL DEFAULT false`                | Spoiler flag on the review.                |
+| `helpful_count` | `integer`       | `NOT NULL DEFAULT 0`                    | Denormalized "helpful" votes (future).     |
+| `deleted_at`    | `timestamptz`   | nullable                                | Soft-delete marker (rating removed).       |
+| `created_at`    | `timestamptz`   | `NOT NULL DEFAULT now()`                | When first rated.                          |
+| `updated_at`    | `timestamptz`   | `NOT NULL DEFAULT now()`                | Last value/review change.                  |
+| `version`       | `integer`       | `NOT NULL DEFAULT 1`                    | Optimistic concurrency for edits.          |
+| `created_by`    | `uuid` nullable | FK → `users.id`                         | = `user_id`.                               |
+| `updated_by`    | `uuid` nullable | FK → `users.id`                         | Last editor.                               |
 
 ### 2.2 Constraints
 
-| Name | Type | Definition |
-|------|------|------------|
-| `uq_ratings_user_anime` | partial unique | `UNIQUE (user_id, anime_id) WHERE deleted_at IS NULL` |
-| `chk_ratings_value_range` | check | `value BETWEEN 0 AND 10` |
-| `chk_ratings_review_title_length` | check | `review_title IS NULL OR char_length(review_title) <= 200` |
-| `chk_ratings_review_body_length` | check | `review_body IS NULL OR char_length(review_body) <= 10000` |
-| `chk_ratings_review_requires_value` | check | `review_body IS NULL OR value IS NOT NULL` |
+| Name                                | Type           | Definition                                                 |
+| ----------------------------------- | -------------- | ---------------------------------------------------------- |
+| `uq_ratings_user_anime`             | partial unique | `UNIQUE (user_id, anime_id) WHERE deleted_at IS NULL`      |
+| `chk_ratings_value_range`           | check          | `value BETWEEN 0 AND 10`                                   |
+| `chk_ratings_review_title_length`   | check          | `review_title IS NULL OR char_length(review_title) <= 200` |
+| `chk_ratings_review_body_length`    | check          | `review_body IS NULL OR char_length(review_body) <= 10000` |
+| `chk_ratings_review_requires_value` | check          | `review_body IS NULL OR value IS NOT NULL`                 |
 
 ### 2.3 Indexes
 
-| Index | Type | Columns | Purpose |
-|-------|------|---------|---------|
-| `pk_ratings` | btree (unique) | `id` | PK. |
-| `idx_ratings_user_id` | btree | `(user_id, updated_at DESC)` `WHERE deleted_at IS NULL` | User's ratings/reviews. |
-| `idx_ratings_user_anime` | btree (unique, partial) | `(user_id, anime_id)` `WHERE deleted_at IS NULL` | "What did I rate this show?" |
-| `idx_ratings_anime_id` | btree | `(anime_id, value DESC)` `WHERE deleted_at IS NULL` | Reviews for a show (sorted by score). |
-| `idx_ratings_anime_created` | btree | `(anime_id, created_at DESC)` `WHERE deleted_at IS NULL` | Recent ratings for a show. |
+| Index                       | Type                    | Columns                                                  | Purpose                               |
+| --------------------------- | ----------------------- | -------------------------------------------------------- | ------------------------------------- |
+| `pk_ratings`                | btree (unique)          | `id`                                                     | PK.                                   |
+| `idx_ratings_user_id`       | btree                   | `(user_id, updated_at DESC)` `WHERE deleted_at IS NULL`  | User's ratings/reviews.               |
+| `idx_ratings_user_anime`    | btree (unique, partial) | `(user_id, anime_id)` `WHERE deleted_at IS NULL`         | "What did I rate this show?"          |
+| `idx_ratings_anime_id`      | btree                   | `(anime_id, value DESC)` `WHERE deleted_at IS NULL`      | Reviews for a show (sorted by score). |
+| `idx_ratings_anime_created` | btree                   | `(anime_id, created_at DESC)` `WHERE deleted_at IS NULL` | Recent ratings for a show.            |
 
 ### 2.4 Decisions & Rationale
 
@@ -69,17 +69,17 @@ A `rating` is a user's **numeric score** (0–10) for an anime, optionally accom
 
 `anime.average_rating` and `anime.rating_count` are **denormalized aggregates**. They are maintained by the application on every rating insert/update/delete:
 
-| Event | Effect on `anime` |
-|-------|-------------------|
-| New rating inserted | `rating_count += 1`, `average_rating = (old_avg * old_count + value) / new_count` |
-| Rating value updated | `average_rating = (old_avg * count - old_value + new_value) / count` |
-| Rating soft-deleted | `rating_count -= 1`, `average_rating = (old_avg * old_count - value) / new_count` (or 0 if count = 0) |
+| Event                | Effect on `anime`                                                                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------------- |
+| New rating inserted  | `rating_count += 1`, `average_rating = (old_avg * old_count + value) / new_count`                     |
+| Rating value updated | `average_rating = (old_avg * count - old_value + new_value) / count`                                  |
+| Rating soft-deleted  | `rating_count -= 1`, `average_rating = (old_avg * old_count - value) / new_count` (or 0 if count = 0) |
 
 A **background reconciliation job** recomputes these from the source of truth (`ratings` table) nightly to correct any drift. This is the standard "denormalize + reconcile" pattern.
 
 ### 2.6 Relationship Recap
 
-- `users` 1 — * `ratings` (one-to-many).
-- `anime` 1 — * `ratings` (one-to-many).
+- `users` 1 — \* `ratings` (one-to-many).
+- `anime` 1 — \* `ratings` (one-to-many).
 - `anime.average_rating` and `anime.rating_count` are derived from this table.
 - On user erasure: ratings are **hard-deleted** (they're anonymous-ish scores; keeping them would skew averages). The `anime` aggregates are recomputed.

@@ -29,13 +29,13 @@
 
 ### Dependency rules (enforced by package boundaries)
 
-| Package | May depend on | May NOT depend on |
-|---------|---------------|-------------------|
-| `apps/web` | All `@nexus/*` packages | Nothing below this level can import from `apps/web` |
-| `@nexus/ui` | External UI deps (Radix, CVA, tailwind-merge, lucide-react) | `@nexus/db`, `@nexus/cache` — UI must be data-agnostic |
-| `@nexus/db` | Drizzle, Neon, Zod | `@nexus/ui`, `@nexus/cache` — DB must not know about UI or cache |
-| `@nexus/cache` | Upstash Redis | `@nexus/ui`, `@nexus/db` — Cache must not know about UI or DB schema |
-| `@nexus/eslint-config` | ESLint, typescript-eslint | All `@nexus/*` — lint config must not import application code |
+| Package                | May depend on                                               | May NOT depend on                                                    |
+| ---------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| `apps/web`             | All `@nexus/*` packages                                     | Nothing below this level can import from `apps/web`                  |
+| `@nexus/ui`            | External UI deps (Radix, CVA, tailwind-merge, lucide-react) | `@nexus/db`, `@nexus/cache` — UI must be data-agnostic               |
+| `@nexus/db`            | Drizzle, Neon, Zod                                          | `@nexus/ui`, `@nexus/cache` — DB must not know about UI or cache     |
+| `@nexus/cache`         | Upstash Redis                                               | `@nexus/ui`, `@nexus/db` — Cache must not know about UI or DB schema |
+| `@nexus/eslint-config` | ESLint, typescript-eslint                                   | All `@nexus/*` — lint config must not import application code        |
 
 ### Why these rules
 
@@ -80,13 +80,13 @@ Within `apps/web/src/`, dependencies flow downward through the layers:
 
 ### Enforced import rules
 
-| From | Can import | Cannot import | Why |
-|------|-----------|---------------|-----|
-| `app/` | `features/`, `shared/`, `services/`, `lib/` | — | Routes compose features and shared layout |
-| `features/<a>/` | `shared/`, `services/` (via actions), `lib/validations/` | `features/<b>/` (other features) | Prevents feature coupling |
-| `services/` | `@nexus/db`, `@nexus/cache`, `lib/clients/` | `features/`, `app/`, `shared/` | Services are infrastructure-adjacent, not UI-adjacent |
-| `shared/` | `@nexus/ui` | `features/`, `services/` | Shared code is lowest-common-denominator |
-| `lib/` | `@nexus/db`, `@nexus/cache`, external deps | `features/`, `services/`, `shared/` | Utilities are leaf nodes |
+| From            | Can import                                               | Cannot import                       | Why                                                   |
+| --------------- | -------------------------------------------------------- | ----------------------------------- | ----------------------------------------------------- |
+| `app/`          | `features/`, `shared/`, `services/`, `lib/`              | —                                   | Routes compose features and shared layout             |
+| `features/<a>/` | `shared/`, `services/` (via actions), `lib/validations/` | `features/<b>/` (other features)    | Prevents feature coupling                             |
+| `services/`     | `@nexus/db`, `@nexus/cache`, `lib/clients/`              | `features/`, `app/`, `shared/`      | Services are infrastructure-adjacent, not UI-adjacent |
+| `shared/`       | `@nexus/ui`                                              | `features/`, `services/`            | Shared code is lowest-common-denominator              |
+| `lib/`          | `@nexus/db`, `@nexus/cache`, external deps               | `features/`, `services/`, `shared/` | Utilities are leaf nodes                              |
 
 ---
 
@@ -94,43 +94,44 @@ Within `apps/web/src/`, dependencies flow downward through the layers:
 
 ### Production dependencies
 
-| Package | Version | Purpose | License |
-|---------|---------|---------|---------|
-| `next` | 15.x | Framework (App Router, SSR, ISR) | MIT |
-| `react` | 19.x | UI library | MIT |
-| `drizzle-orm` | latest | Type-safe SQL query builder | Apache-2.0 |
-| `@neondatabase/serverless` | latest | Neon Postgres driver | MIT |
-| `@upstash/redis` | latest | Upstash Redis client | MIT |
-| `next-auth` | v5 beta | Authentication | ISC |
-| `zod` | latest | Schema validation | MIT |
-| `stripe` | latest | Payment processing | MIT |
-| `@radix-ui/*` | latest | Accessible primitives (via shadcn/ui) | MIT |
-| `class-variance-authority` | latest | Component variant styling | MIT |
-| `tailwind-merge` | latest | Tailwind class dedup | MIT |
-| `lucide-react` | latest | Icon library | ISC |
-| `framer-motion` | latest | Animation (complex orchestration only) | MIT |
-| `@tanstack/react-query` | latest | Client-side data cache | MIT |
-| `zustand` | latest | Minimal global state | MIT |
-| `dompurify` | latest | HTML sanitization | Apache-2.0/MPL-2.0 |
-| `pino` | latest | Structured logging | MIT |
+| Package                    | Version | Purpose                                | License            |
+| -------------------------- | ------- | -------------------------------------- | ------------------ |
+| `next`                     | 15.x    | Framework (App Router, SSR, ISR)       | MIT                |
+| `react`                    | 19.x    | UI library                             | MIT                |
+| `drizzle-orm`              | latest  | Type-safe SQL query builder            | Apache-2.0         |
+| `@neondatabase/serverless` | latest  | Neon Postgres driver                   | MIT                |
+| `@upstash/redis`           | latest  | Upstash Redis client                   | MIT                |
+| `next-auth`                | v5 beta | Authentication                         | ISC                |
+| `zod`                      | latest  | Schema validation                      | MIT                |
+| `stripe`                   | latest  | Payment processing                     | MIT                |
+| `@radix-ui/*`              | latest  | Accessible primitives (via shadcn/ui)  | MIT                |
+| `class-variance-authority` | latest  | Component variant styling              | MIT                |
+| `tailwind-merge`           | latest  | Tailwind class dedup                   | MIT                |
+| `lucide-react`             | latest  | Icon library                           | ISC                |
+| `framer-motion`            | latest  | Animation (complex orchestration only) | MIT                |
+| `@tanstack/react-query`    | latest  | Client-side data cache                 | MIT                |
+| `zustand`                  | latest  | Minimal global state                   | MIT                |
+| `dompurify`                | latest  | HTML sanitization                      | Apache-2.0/MPL-2.0 |
+| `pino`                     | latest  | Structured logging                     | MIT                |
 
 ### Why these dependencies, specifically
 
 Every production dependency was evaluated against three criteria:
+
 1. **Is it actively maintained?** (commits in the last 6 months, responsive maintainer)
 2. **Is it the standard choice in the ecosystem?** (reduces onboarding time, more Stack Overflow answers)
 3. **Is the bundle size proportional to its value?** (Framer Motion is 30KB but we reserve it for complex orchestration — not every animation)
 
 ### Dependencies we explicitly avoid
 
-| Package | Why avoided |
-|---------|------------|
-| `moment` | 70KB; dead; use `Intl` or `date-fns` |
-| `lodash` | 70KB full; individual imports are tree-shakeable but `lodash-es` still pulls more than needed; use native Array/Object methods |
-| `axios` | Adds interceptors and transforms we don't need; `fetch` is native in Next.js |
-| `redux` | Overkill for our state surface; Zustand is 1KB vs 7KB+ |
-| `styled-components` |-runtime CSS-in-JS adds ~15KB; Tailwind 4 is our styling system |
-| `react-helmet` | Deprecated in App Router; use Metadata API |
+| Package             | Why avoided                                                                                                                    |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `moment`            | 70KB; dead; use `Intl` or `date-fns`                                                                                           |
+| `lodash`            | 70KB full; individual imports are tree-shakeable but `lodash-es` still pulls more than needed; use native Array/Object methods |
+| `axios`             | Adds interceptors and transforms we don't need; `fetch` is native in Next.js                                                   |
+| `redux`             | Overkill for our state surface; Zustand is 1KB vs 7KB+                                                                         |
+| `styled-components` | -runtime CSS-in-JS adds ~15KB; Tailwind 4 is our styling system                                                                |
+| `react-helmet`      | Deprecated in App Router; use Metadata API                                                                                     |
 
 ---
 
@@ -138,14 +139,14 @@ Every production dependency was evaluated against three criteria:
 
 Which features depend on which services, repositories, and external APIs:
 
-| Feature | Services | Repositories | External APIs | Cache |
-|---------|----------|-------------|---------------|-------|
-| auth | `auth.service` | `user.repository`, `session.repository` | Google OAuth, GitHub OAuth | — |
-| catalog | `catalog.service` | `anime.repository`, `episode.repository`, `genre.repository` | TMDB, AniList | Redis (anime, trending, genre) |
-| watchlist | `watchlist.service` | `watchlist.repository` | — | Redis (watchlist) |
-| player | `streaming.service` | `watch-progress.repository` | Cloudflare Stream | — |
-| payments | `payments.service` | `subscription.repository` | Stripe | — |
-| profile | `auth.service` | `user.repository`, `watch-progress.repository` | — | — |
+| Feature   | Services            | Repositories                                                 | External APIs              | Cache                          |
+| --------- | ------------------- | ------------------------------------------------------------ | -------------------------- | ------------------------------ |
+| auth      | `auth.service`      | `user.repository`, `session.repository`                      | Google OAuth, GitHub OAuth | —                              |
+| catalog   | `catalog.service`   | `anime.repository`, `episode.repository`, `genre.repository` | TMDB, AniList              | Redis (anime, trending, genre) |
+| watchlist | `watchlist.service` | `watchlist.repository`                                       | —                          | Redis (watchlist)              |
+| player    | `streaming.service` | `watch-progress.repository`                                  | Cloudflare Stream          | —                              |
+| payments  | `payments.service`  | `subscription.repository`                                    | Stripe                     | —                              |
+| profile   | `auth.service`      | `user.repository`, `watch-progress.repository`               | —                          | —                              |
 
 ### Why this table matters
 
@@ -183,12 +184,12 @@ Convention ("don't import from other features") works until someone is in a hurr
 
 ## 6. Dependency Update Strategy
 
-| Strategy | Tool | Frequency | Risk |
-|----------|------|-----------|------|
-| Security patches | Dependabot | Immediate (auto-merge for patch-level) | Low — patch-level only |
-| Minor updates | Dependabot | Weekly PRs | Medium — reviewed before merge |
-| Major updates | Manual | Quarterly or when needed | High — requires migration, testing |
-| Lockfile refresh | `pnpm update` | Monthly | Low — catches transitive updates |
+| Strategy         | Tool          | Frequency                              | Risk                               |
+| ---------------- | ------------- | -------------------------------------- | ---------------------------------- |
+| Security patches | Dependabot    | Immediate (auto-merge for patch-level) | Low — patch-level only             |
+| Minor updates    | Dependabot    | Weekly PRs                             | Medium — reviewed before merge     |
+| Major updates    | Manual        | Quarterly or when needed               | High — requires migration, testing |
+| Lockfile refresh | `pnpm update` | Monthly                                | Low — catches transitive updates   |
 
 ### Why auto-merge for security patches
 
