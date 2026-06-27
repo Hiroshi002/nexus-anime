@@ -1,0 +1,23 @@
+{
+  "name": "@nexus/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cross-feature shared API-contract types for the Nexus Anime monorepo.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"no tests\" && exit 0",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@nexus/eslint-config": "workspace:*",
+    "eslint": "^9.0.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}
