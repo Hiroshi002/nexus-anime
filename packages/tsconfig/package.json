@@ -1,0 +1,21 @@
+{
+  "name": "@nexus/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shareable strict TypeScript base configs for the Nexus Anime monorepo.",
+  "license": "MIT",
+  "exports": {
+    ".": "./tsconfig.base.json",
+    "./base": "./tsconfig.base.json"
+  },
+  "files": [
+    "tsconfig.base.json",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "echo \"no lint\" && exit 0",
+    "typecheck": "echo \"no typecheck\" && exit 0",
+    "test": "echo \"no tests\" && exit 0",
+    "clean": "rm -rf dist"
+  }
+}
