@@ -1,4 +1,8 @@
+/* eslint-disable import/no-unresolved -- workspace link @nexus/ui resolves at build time */
+import { ThemeProvider } from "@nexus/ui";
+
 import type { Metadata, Viewport } from "next";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,8 +22,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="midnight">
-      <body>{children}</body>
+    <html lang="en" data-theme="midnight" suppressHydrationWarning>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

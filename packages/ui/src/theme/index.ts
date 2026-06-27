@@ -1,12 +1,10 @@
-// @nexus/ui — design system primitives (Tailwind 4 + React 19)
+// @nexus/ui — Theme barrel
 /* eslint-disable import/no-unresolved -- relative TS imports resolved by tsconfig project */
-export { cn } from "./lib/cn";
+export { ThemeProvider, useTheme } from "./ThemeProvider";
 export {
-  ThemeProvider,
-  useTheme,
   THEME_COOKIE_NAME,
   THEME_STORAGE_KEY,
-  type Theme,
   type ResolvedTheme,
+  type Theme,
   type ThemeState,
-} from "./theme";
+} from "./types";

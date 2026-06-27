@@ -1,0 +1,11 @@
+/* @nexus/ui — Z-index scale */
+/* Component-specific values from docs (nav header 100, sticky 20, offline banner 50) */
+/* map onto this 5-step scale. No dedicated z-index doc existed; this is an additive gap-fill. */
+
+:root {
+  --nexus-z-base: 0;
+  --nexus-z-dropdown: 100;
+  --nexus-z-sticky: 200;
+  --nexus-z-overlay: 300;
+  --nexus-z-modal: 400;
+}

@@ -5,7 +5,11 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./tailwind": "./src/tailwind.css"
+    "./tailwind": "./src/tailwind.css",
+    "./theme": "./src/theme/index.ts",
+    "./theme/ThemeProvider": "./src/theme/ThemeProvider.tsx",
+    "./theme/types": "./src/theme/types.ts",
+    "./lib/cn": "./src/lib/cn.ts"
   },
   "scripts": {
     "lint": "eslint .",

@@ -178,6 +178,13 @@
   --ease-spring: var(--nexus-ease-spring);
   --ease-bounce: var(--nexus-ease-bounce);
   --ease-sluggish: var(--nexus-ease-sluggish);
+
+  /* Z-index */
+  --z-base: var(--nexus-z-base);
+  --z-dropdown: var(--nexus-z-dropdown);
+  --z-sticky: var(--nexus-z-sticky);
+  --z-overlay: var(--nexus-z-overlay);
+  --z-modal: var(--nexus-z-modal);
 }
 
 /* Custom dark variant — uses data-theme attribute instead of prefers-color-scheme */
