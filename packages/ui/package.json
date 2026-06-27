@@ -15,12 +15,17 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "react": "^19.0.0"
+    "clsx": "^2.1.1",
+    "react": "^19.0.0",
+    "tailwind-merge": "^3.0.0"
   },
   "devDependencies": {
     "@nexus/eslint-config": "workspace:*",
+    "@radix-ui/react-slot": "^1.1.1",
     "@types/react": "^19.0.0",
     "eslint": "^9.0.0",
+    "lucide-react": "^0.468.0",
+    "tw-animate-css": "^1.0.0",
     "typescript": "^5.7.0",
     "typescript-eslint": "^8.0.0"
   }

@@ -2,6 +2,7 @@
 /* Design tokens from @nexus/ui are pulled in via @import below. */
 
 @import "tailwindcss";
+@import "tw-animate-css";
 @import "@nexus/ui/tailwind";
 
 /* Tailwind v4 @theme block — registers our design tokens as Tailwind utilities. */
