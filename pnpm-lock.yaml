@@ -89,10 +89,6 @@ importers:
         version: 8.62.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
 
   packages/cache:
-    dependencies:
-      '@nexus/ui':
-        specifier: workspace:*
-        version: link:../ui
     devDependencies:
       '@nexus/eslint-config':
         specifier: workspace:*

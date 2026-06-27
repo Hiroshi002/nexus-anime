@@ -13,9 +13,6 @@
     "test": "echo \"no tests\" && exit 0",
     "clean": "rm -rf dist"
   },
-  "dependencies": {
-    "@nexus/ui": "workspace:*"
-  },
   "devDependencies": {
     "@nexus/eslint-config": "workspace:*",
     "eslint": "^9.0.0",
