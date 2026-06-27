@@ -5,7 +5,7 @@ export default tseslint.config(...nexusConfig, {
   files: ["**/*.{ts,tsx}"],
   languageOptions: {
     parserOptions: {
-      project: ["./tsconfig.json"],
+      project: true,
     },
   },
 });

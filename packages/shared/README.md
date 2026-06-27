@@ -12,5 +12,6 @@ It is infrastructure only. Domain types live in `apps/web/src/types/` until a
 
 - `ok`, `fail`, `isOk`, `isError` — envelope helpers
 - `ApiResult<T>` — `{ data } | { error }` discriminated union
-- `ApiError` (class) + `ERROR_CODES` — stable error code constants
+- `ApiErrorClass` (class; exported as `ApiError` in `errors.ts`) + `ERROR_CODES` — stable error code constants
+- `ApiError` (type) — error payload shape (`{ message, code, details? }`)
 - `PaginationParams`, `Paginated<T>` — pagination primitives
