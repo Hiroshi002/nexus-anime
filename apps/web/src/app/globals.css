@@ -1,10 +1,188 @@
-:root {
-  /* Pure placeholder tokens. The Wuthering Waves design system (Tailwind 4 +
-     @nexus/ui) replaces these in M2 — see docs/03-architecture/Styling.md. */
-  --bg: #0a0a0f;
-  --fg: #e8e8f0;
+/* Tailwind CSS v4 — entry point */
+/* Design tokens from @nexus/ui are pulled in via @import below. */
+
+@import "tailwindcss";
+@import "@nexus/ui/tailwind";
+
+/* Tailwind v4 @theme block — registers our design tokens as Tailwind utilities. */
+/* Each --nexus-* custom property becomes a utility class (e.g. bg-surface-base). */
+
+@theme {
+  /* Colors — Void */
+  --color-void-0: var(--nexus-void-0);
+  --color-void-1: var(--nexus-void-1);
+  --color-void-2: var(--nexus-void-2);
+  --color-void-3: var(--nexus-void-3);
+  --color-void-4: var(--nexus-void-4);
+  --color-void-5: var(--nexus-void-5);
+  --color-void-6: var(--nexus-void-6);
+  --color-void-7: var(--nexus-void-7);
+  --color-void-8: var(--nexus-void-8);
+  --color-void-9: var(--nexus-void-9);
+  --color-void-10: var(--nexus-void-10);
+  --color-void-11: var(--nexus-void-11);
+  --color-void-12: var(--nexus-void-12);
+
+  /* Colors — Aether */
+  --color-aether-1: var(--nexus-aether-1);
+  --color-aether-2: var(--nexus-aether-2);
+  --color-aether-3: var(--nexus-aether-3);
+  --color-aether-4: var(--nexus-aether-4);
+  --color-aether-5: var(--nexus-aether-5);
+  --color-aether-6: var(--nexus-aether-6);
+  --color-aether-7: var(--nexus-aether-7);
+  --color-aether-8: var(--nexus-aether-8);
+
+  /* Colors — Nova */
+  --color-nova-1: var(--nexus-nova-1);
+  --color-nova-2: var(--nexus-nova-2);
+  --color-nova-3: var(--nexus-nova-3);
+  --color-nova-4: var(--nexus-nova-4);
+  --color-nova-5: var(--nexus-nova-5);
+  --color-nova-6: var(--nexus-nova-6);
+
+  /* Semantic colors */
+  --color-success: var(--nexus-success);
+  --color-success-muted: var(--nexus-success-muted);
+  --color-warning: var(--nexus-warning);
+  --color-warning-muted: var(--nexus-warning-muted);
+  --color-error: var(--nexus-error);
+  --color-error-muted: var(--nexus-error-muted);
+  --color-info: var(--nexus-info);
+
+  /* Specialty */
+  --color-platinum: var(--nexus-platinum);
+  --color-gold: var(--nexus-gold);
+  --color-streaming-live: var(--nexus-streaming-live);
+
+  /* Semantic surface colors */
+  --color-surface-base: var(--nexus-surface-base);
+  --color-surface-raised: var(--nexus-surface-raised);
+  --color-surface-overlay: var(--nexus-surface-overlay);
+  --color-surface-elevated: var(--nexus-surface-elevated);
+  --color-surface-floating: var(--nexus-surface-floating);
+  --color-surface-sunken: var(--nexus-surface-sunken);
+
+  /* Semantic text colors */
+  --color-text-primary: var(--nexus-text-primary);
+  --color-text-secondary: var(--nexus-text-secondary);
+  --color-text-tertiary: var(--nexus-text-tertiary);
+  --color-text-placeholder: var(--nexus-text-placeholder);
+  --color-text-disabled: var(--nexus-text-disabled);
+  --color-text-on-accent: var(--nexus-text-on-accent);
+  --color-text-inverse: var(--nexus-text-inverse);
+
+  /* Border colors */
+  --color-border-subtle: var(--nexus-border-subtle);
+  --color-border-default: var(--nexus-border-default);
+  --color-border-strong: var(--nexus-border-strong);
+  --color-border-accent: var(--nexus-border-accent);
+
+  /* Action colors */
+  --color-action-primary-bg: var(--nexus-action-primary-bg);
+  --color-action-primary-hover: var(--nexus-action-primary-hover);
+  --color-action-primary-pressed: var(--nexus-action-primary-pressed);
+  --color-action-primary-text: var(--nexus-action-primary-text);
+  --color-action-secondary-bg: var(--nexus-action-secondary-bg);
+  --color-action-secondary-hover: var(--nexus-action-secondary-hover);
+  --color-action-secondary-text: var(--nexus-action-secondary-text);
+  --color-action-ghost-hover: var(--nexus-action-ghost-hover);
+  --color-action-accent-bg: var(--nexus-action-accent-bg);
+  --color-action-accent-text: var(--nexus-action-accent-text);
+
+  /* Shadows */
+  --shadow-0: var(--nexus-shadow-0);
+  --shadow-1: var(--nexus-shadow-1);
+  --shadow-2: var(--nexus-shadow-2);
+  --shadow-3: var(--nexus-shadow-3);
+  --shadow-4: var(--nexus-shadow-4);
+
+  /* Blur */
+  --blur-xs: var(--nexus-blur-xs);
+  --blur-sm: var(--nexus-blur-sm);
+  --blur-md: var(--nexus-blur-md);
+  --blur-lg: var(--nexus-blur-lg);
+  --blur-xl: var(--nexus-blur-xl);
+
+  /* Spacing */
+  --spacing-0: var(--nexus-space-0);
+  --spacing-0_5: var(--nexus-space-0_5);
+  --spacing-1: var(--nexus-space-1);
+  --spacing-1_5: var(--nexus-space-1_5);
+  --spacing-2: var(--nexus-space-2);
+  --spacing-2_5: var(--nexus-space-2_5);
+  --spacing-3: var(--nexus-space-3);
+  --spacing-3_5: var(--nexus-space-3_5);
+  --spacing-4: var(--nexus-space-4);
+  --spacing-5: var(--nexus-space-5);
+  --spacing-6: var(--nexus-space-6);
+  --spacing-7: var(--nexus-space-7);
+  --spacing-8: var(--nexus-space-8);
+  --spacing-9: var(--nexus-space-9);
+  --spacing-10: var(--nexus-space-10);
+  --spacing-12: var(--nexus-space-12);
+  --spacing-16: var(--nexus-space-16);
+  --spacing-20: var(--nexus-space-20);
+  --spacing-24: var(--nexus-space-24);
+
+  /* Border radius */
+  --radius-0: var(--nexus-radius-0);
+  --radius-1: var(--nexus-radius-1);
+  --radius-2: var(--nexus-radius-2);
+  --radius-3: var(--nexus-radius-3);
+  --radius-4: var(--nexus-radius-4);
+  --radius-5: var(--nexus-radius-5);
+  --radius-6: var(--nexus-radius-6);
+  --radius-full: var(--nexus-radius-full);
+
+  /* Typography */
+  --font-display: var(--nexus-font-display);
+  --font-body: var(--nexus-font-body);
+
+  --text-xs: var(--nexus-text-xs);
+  --text-sm: var(--nexus-text-sm);
+  --text-base: var(--nexus-text-base);
+  --text-md: var(--nexus-text-md);
+  --text-lg: var(--nexus-text-lg);
+  --text-xl: var(--nexus-text-xl);
+  --text-2xl: var(--nexus-text-2xl);
+  --text-3xl: var(--nexus-text-3xl);
+  --text-4xl: var(--nexus-text-4xl);
+  --text-5xl: var(--nexus-text-5xl);
+  --text-6xl: var(--nexus-text-6xl);
+
+  --tracking-tight: var(--nexus-tracking-tight);
+  --tracking-normal: var(--nexus-tracking-normal);
+  --tracking-wide: var(--nexus-tracking-wide);
+  --tracking-wider: var(--nexus-tracking-wider);
+  --tracking-widest: var(--nexus-tracking-widest);
+
+  /* Duration */
+  --duration-0: var(--nexus-duration-0);
+  --duration-50: var(--nexus-duration-50);
+  --duration-100: var(--nexus-duration-100);
+  --duration-150: var(--nexus-duration-150);
+  --duration-200: var(--nexus-duration-200);
+  --duration-250: var(--nexus-duration-250);
+  --duration-350: var(--nexus-duration-350);
+  --duration-500: var(--nexus-duration-500);
+  --duration-700: var(--nexus-duration-700);
+  --duration-1000: var(--nexus-duration-1000);
+
+  /* Easing */
+  --ease-linear: var(--nexus-ease-linear);
+  --ease-in: var(--nexus-ease-in);
+  --ease-out: var(--nexus-ease-out);
+  --ease-in-out: var(--nexus-ease-in-out);
+  --ease-spring: var(--nexus-ease-spring);
+  --ease-bounce: var(--nexus-ease-bounce);
+  --ease-sluggish: var(--nexus-ease-sluggish);
 }
 
+/* Custom dark variant — uses data-theme attribute instead of prefers-color-scheme */
+@custom-variant dark (&:where([data-theme="midnight"], [data-theme="midnight"] *));
+
+/* Base styles — minimal reset, no color values (all in tokens) */
 *,
 *::before,
 *::after {
@@ -15,13 +193,5 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
   min-height: 100vh;
 }
